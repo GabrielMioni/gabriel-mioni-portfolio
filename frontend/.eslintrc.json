@@ -25,6 +25,13 @@
       "singleline": "never",
       "multiline": "never"
     }],
-    "eol-last": ["error", "always"]
+    "eol-last": ["error", "always"],
+    "arrow-spacing": ["error", { "before": true, "after": true }],
+    "space-before-function-paren": ["error", {
+      "anonymous": "always",
+      "named": "always",
+      "asyncArrow": "always"
+    }],
+    "space-infix-ops": ["error", {"int32Hint": false}]
   }
 }

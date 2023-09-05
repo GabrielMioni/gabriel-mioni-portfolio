@@ -1,11 +1,13 @@
 <script setup>
 import HelloWorld from '@/components/HelloWorld.vue'
 import Baba from '@/components/Baba.vue'
+import ProjectsList from '@/components/ProjectsList.vue'
 </script>
 
 <template>
   <div>
     <Baba />
+    <projects-list />
     <a
       href="https://vitejs.dev"
       target="_blank">

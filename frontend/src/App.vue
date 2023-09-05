@@ -11,7 +11,7 @@ import Baba from '@/components/Baba.vue'
       target="_blank">
       <img
         src="/vite.svg"
-        class="logo"
+        class="logo extra"
         alt="Vite logo">
     </a>
     <a
@@ -26,12 +26,15 @@ import Baba from '@/components/Baba.vue'
   <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
+  &.extra {
+    border: 1px solid blue;
+  }
 }
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);

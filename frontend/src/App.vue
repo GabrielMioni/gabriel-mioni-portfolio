@@ -1,10 +1,11 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import HelloWold from '@/src/components/HelloWorld.vue'
+import HelloWorld from '@/components/HelloWorld.vue'
+import Baba from '@/components/Baba.vue'
 </script>
 
 <template>
   <div>
+    <Baba />
     <a href="https://vitejs.dev" target="_blank">
       <img src="/vite.svg" class="logo" alt="Vite logo" />
     </a>

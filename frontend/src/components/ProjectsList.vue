@@ -2,19 +2,16 @@
 import { useProjectsStore } from '@/store/projects/index.js'
 
 const projectStore = useProjectsStore()
+const projects = projectStore.projects || []
 
-console.log(projectStore.projects) // Accessing the 'projects' getter directly
 </script>
 
 <template>
-  <div class="projects-list">
-    Hello.
-    <ul>
-      <li
-        v-for="project in projectStore.projects"
-        :key="project.id">
-        {{ project.name }}
-      </li>
-    </ul>
-  </div>
+  <v-card
+    v-for="project in projects"
+    :key="project.id">
+    <v-card-text>
+      {{ project.name }}
+    </v-card-text>
+  </v-card>
 </template>

@@ -5,6 +5,21 @@ import HeroImage from '@/components/HeroImage.vue'
 
 <template>
   <v-app>
+    <v-toolbar
+      app
+      color="#47c6c2"
+      class="text-white">
+      <v-toolbar-title>
+        Gabriel Mioni
+      </v-toolbar-title>
+      <v-spacer />
+      <v-btn text>
+        Projects
+      </v-btn>
+      <v-btn text>
+        Contact
+      </v-btn>
+    </v-toolbar>
     <v-main>
       <hero-image />
       <v-container>

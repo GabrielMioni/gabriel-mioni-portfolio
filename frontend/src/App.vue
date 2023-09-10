@@ -1,6 +1,15 @@
 <script setup>
+import { onMounted } from 'vue'
+import { fetchWeatherForecast } from '@/api/index.js'
 import ProjectsList from '@/components/ProjectsList.vue'
 import HeroImage from '@/components/HeroImage.vue'
+
+onMounted(async () => {
+  const result = await fetchWeatherForecast()
+    .catch(error => console.error(error))
+  console.log(result)
+})
+
 </script>
 
 <template>

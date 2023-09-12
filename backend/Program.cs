@@ -5,6 +5,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
+// Configure Kestrel to listen on a specific port
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5000);
+});
+
 // Add CORS services
 string corsPolicy = "VueCorsPolicy";
 
@@ -36,4 +42,4 @@ app.UseAuthorization();
 app.UseCors(corsPolicy);
 app.MapControllers();
 
-app.Run("http://localhost:5000");
+app.Run();

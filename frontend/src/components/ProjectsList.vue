@@ -14,7 +14,8 @@ projects.forEach(project => {
   <v-card
     v-for="project in projects"
     :key="project.id"
-    flat>
+    class="mb-4"
+    elevation="1">
     <v-card-title>
       {{ project.name }}
     </v-card-title>
@@ -28,12 +29,14 @@ projects.forEach(project => {
               :src="project.image"
               max-width="100%" />
           </v-col>
-          <v-col>
-            <div
-              v-for="(paragraph, i) in project.formattedDescription"
-              :key="i"
-              class="mb-3">
-              {{ paragraph }}
+          <v-col class="d-flex align-center">
+            <div>
+              <div
+                v-for="(paragraph, i) in project.formattedDescription"
+                :key="i"
+                class="mb-3">
+                {{ paragraph }}
+              </div>
             </div>
           </v-col>
         </v-row>

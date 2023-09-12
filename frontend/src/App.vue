@@ -32,8 +32,8 @@ onMounted(async () => {
     <v-main>
       <hero-image />
       <v-container>
-        <v-row>
-          <v-col>
+        <v-row style="justify-content: center">
+          <v-col :cols="8">
             <projects-list />
           </v-col>
         </v-row>

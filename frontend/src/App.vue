@@ -34,11 +34,21 @@ onMounted(async () => {
     </v-toolbar>
     <v-main>
       <hero-image />
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="fade">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </v-main>
   </v-app>
 </template>
 
 <style lang="scss" scoped>
-
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
 </style>

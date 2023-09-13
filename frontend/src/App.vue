@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { fetchWeatherForecast } from '@/api/index.js'
 import HeroImage from '@/components/HeroImage/HeroImage.vue'
+import ToolBar from '@/components/ToolBar.vue'
 
 onMounted(async () => {
   const result = await fetchWeatherForecast()
@@ -13,26 +14,8 @@ onMounted(async () => {
 
 <template>
   <v-app>
-    <v-toolbar
-      app
-      color="#47c6c2"
-      class="text-white">
-      <v-toolbar-title>
-        Gabriel Mioni
-      </v-toolbar-title>
-      <v-spacer />
-      <v-btn
-        text
-        to="/">
-        Projects
-      </v-btn>
-      <v-btn
-        text
-        to="/about">
-        Contact
-      </v-btn>
-    </v-toolbar>
     <v-main>
+      <tool-bar />
       <hero-image />
       <router-view v-slot="{ Component }">
         <transition name="fade">

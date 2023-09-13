@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
 import { fetchWeatherForecast } from '@/api/index.js'
-import ProjectsList from '@/components/ProjectsList.vue'
 import HeroImage from '@/components/HeroImage.vue'
 
 onMounted(async () => {
@@ -22,22 +21,20 @@ onMounted(async () => {
         Gabriel Mioni
       </v-toolbar-title>
       <v-spacer />
-      <v-btn text>
+      <v-btn
+        text
+        to="/">
         Projects
       </v-btn>
-      <v-btn text>
+      <v-btn
+        text
+        to="/about">
         Contact
       </v-btn>
     </v-toolbar>
     <v-main>
       <hero-image />
-      <v-container>
-        <v-row style="justify-content: center">
-          <v-col :cols="8">
-            <projects-list />
-          </v-col>
-        </v-row>
-      </v-container>
+      <router-view />
     </v-main>
   </v-app>
 </template>

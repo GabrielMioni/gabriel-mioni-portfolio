@@ -1,5 +1,6 @@
 <script setup>
 import { useProjectsStore } from '@/store/projects/index.js'
+import { mdiCheck } from '@mdi/js'
 
 const projectStore = useProjectsStore()
 const projects = projectStore.projects || []
@@ -37,6 +38,16 @@ projects.forEach(project => {
                 class="mb-3">
                 {{ paragraph }}
               </div>
+              <a
+                v-if="project.git"
+                :href="project.git"
+                class="github-link text-decoration-none"
+                target="_blank">
+                <v-icon icon="mdi-github" />
+                <span class="font-italic font-weight-bold">
+                  See it on Github
+                </span>
+              </a>
             </div>
           </v-col>
         </v-row>
@@ -44,3 +55,9 @@ projects.forEach(project => {
     </v-card-text>
   </v-card>
 </template>
+
+<style lang="scss" scoped>
+.github-link {
+  color: #007bff;
+}
+</style>

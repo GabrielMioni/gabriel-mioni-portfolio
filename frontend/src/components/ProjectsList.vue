@@ -1,6 +1,5 @@
 <script setup>
 import { useProjectsStore } from '@/store/projects/index.js'
-import { mdiCheck } from '@mdi/js'
 
 const projectStore = useProjectsStore()
 const projects = projectStore.projects || []

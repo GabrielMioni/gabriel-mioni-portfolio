@@ -1,6 +1,6 @@
 <script setup>
 import image from '@/assets/nature-forest-trees-fog.jpeg'
-import HeroButton from '@/components/HeroButton.vue'
+import HeroButton from '@/components/HeroImage/HeroButton.vue'
 </script>
 
 <template>

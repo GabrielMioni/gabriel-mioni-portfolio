@@ -10,12 +10,6 @@
   </v-btn>
 </template>
 
-<script>
-export default {
-  name: 'HeroButton'
-}
-</script>
-
 <style lang="scss" scoped>
 .hero-button {
   border: 2px solid #fff;

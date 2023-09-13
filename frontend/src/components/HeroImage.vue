@@ -39,12 +39,6 @@ import HeroButton from '@/components/HeroButton.vue'
   </v-parallax>
 </template>
 
-<script>
-export default {
-  name: 'HeroImage'
-}
-</script>
-
 <style lang="scss" scoped>
 .hero-image {
   .hero-text {

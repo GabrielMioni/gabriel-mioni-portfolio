@@ -1,5 +1,5 @@
 <script setup>
-import ProjectsList from '@/components/ProjectsList.vue'
+import ProjectsList from '@/components/ProjectList/ProjectsList.vue'
 </script>
 
 <template>

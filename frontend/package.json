@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@mdi/font": "^7.2.96",
+    "@rollup/plugin-graphql": "^2.0.3",
     "@vitejs/plugin-vue": "^4.2.3",
     "eslint": "^8.48.0",
     "eslint-plugin-vue": "^9.17.0",

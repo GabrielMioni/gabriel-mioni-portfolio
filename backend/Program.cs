@@ -1,7 +1,9 @@
+using backend.GraphQL;
+using backend.GraphQL.Resolvers;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
@@ -29,6 +31,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<ProjectResolver>();
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<RootQuery>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,5 +48,6 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 app.UseCors(corsPolicy);
 app.MapControllers();
+app.MapGraphQL();
 
 app.Run();

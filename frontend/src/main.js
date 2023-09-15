@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from '@/router/index.js'
 import App from './App.vue'
+import { DefaultApolloClient } from '@vue/apollo-composable'
+import apolloClient from '@/apollo/apolloClient.js'
 
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
@@ -25,6 +27,8 @@ const vuetify = createVuetify({
 const app = createApp(App)
 
 const pinia = createPinia()
+
+app.provide(DefaultApolloClient, apolloClient)
 
 app.use(pinia)
 app.use(vuetify)

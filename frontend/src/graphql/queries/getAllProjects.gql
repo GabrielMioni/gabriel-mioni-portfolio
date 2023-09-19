@@ -1,0 +1,8 @@
+query GetAllProjects {
+    projects {
+        description
+        git
+        image
+        name
+    }
+}

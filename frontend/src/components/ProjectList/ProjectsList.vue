@@ -1,11 +1,12 @@
 <script setup>
+import { computed, onMounted } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
 
 const projectStore = useProjectsStore()
-const projects = projectStore.projects || []
+const projects = computed(() => projectStore.projectsFormatted)
 
-projects.forEach(project => {
-  project.formattedDescription = project.description ? project.description.split('\n\n') : []
+onMounted(() => {
+  projectStore.loadProjects()
 })
 
 </script>

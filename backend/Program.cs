@@ -1,7 +1,15 @@
+using Microsoft.EntityFrameworkCore;
 using backend.GraphQL;
 using backend.GraphQL.Resolvers;
+using backend.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var environment = builder.Environment;
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -24,9 +32,11 @@ builder.Services.AddCors(options =>
             .WithOrigins("http://localhost:8080")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();
+        .AllowCredentials();
     });
 });
+
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

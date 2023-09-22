@@ -1,4 +1,4 @@
-﻿namespace backend.Models
+﻿namespace backend.Features.Projects.Models
 {
     public class Image
     {

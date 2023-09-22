@@ -1,6 +1,6 @@
 ﻿using backend.Models;
 
-namespace backend.GraphQL.Types
+namespace backend.Features.Projects.GraphQL
 {
     public class ProjectType : ObjectType<Project>
     {

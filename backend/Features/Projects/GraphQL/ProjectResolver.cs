@@ -3,7 +3,7 @@ using HotChocolate;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace backend.GraphQL.Resolvers
+namespace backend.Features.Projects.GraphQL
 {
     public class ProjectResolver
     {

@@ -2,7 +2,9 @@ query GetAllProjects {
     projects {
         description
         git
-        image
+        image {
+            altText
+        }
         name
     }
 }

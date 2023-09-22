@@ -16,4 +16,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="GraphQL\Resolvers\" />
+    <Folder Include="GraphQL\Types\" />
+  </ItemGroup>
+
 </Project>

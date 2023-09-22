@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using backend.GraphQL;
-using backend.GraphQL.Resolvers;
 using backend.Data;
+using backend.Features.Projects.GraphQL;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,32 +1,20 @@
-﻿using backend.Models;
-using HotChocolate;
-using System.Collections.Generic;
-using System.Linq;
+﻿using backend.Features.Projects.Models;
+using backend.Features.Projects.Repositories;
 
 namespace backend.Features.Projects.GraphQL
 {
-    public class ProjectResolver
+    public class ProjectResolver : IProjectResolver
     {
-        private readonly List<Project> _projects;
+        private readonly IProjectsRepository _projectsRepository;
 
-        public ProjectResolver()
+        public ProjectResolver(IProjectsRepository projectsRepository)
         {
-            _projects = new List<Project>
-            {
-                new Project { Id = 1, Name = "React Checkers", Description = "This 2-player checkers game...", Image = null, Git = "https://github.com/GabrielMioni/react-checkers" },
-                new Project { Id = 2, Name = "Project B", Description = "This is a description for Project B.", Image = null, Git = null },
-                new Project { Id = 3, Name = "Project C", Description = "This is a description for Project C.", Image = null, Git = null }
-            };
+            _projectsRepository = projectsRepository;
         }
 
-        public Project GetProjectById(int id)
+        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
         {
-            return _projects.FirstOrDefault(project => project.Id == id);
-        }
-
-        public IEnumerable<Project> GetAllProjects()
-        {
-            return _projects;
+            return await _projectsRepository.GetAllProjects();
         }
     }
 }

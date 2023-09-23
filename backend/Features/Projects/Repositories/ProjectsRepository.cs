@@ -15,5 +15,12 @@ namespace backend.Features.Projects.Repositories
         {
             return await _context.Projects.ToListAsync();
         }
+
+        public async Task<Project> AddProject(Project newProject)
+        {
+            _context.Projects.Add(newProject);
+            await _context.SaveChangesAsync();
+            return newProject;
+        }
     }
 }

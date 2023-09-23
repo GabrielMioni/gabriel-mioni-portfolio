@@ -23,10 +23,6 @@ namespace backend.Features.Projects.GraphQL
             descriptor
                 .Field(p => p.Image)
                 .Description("Image for the project");
-
-            descriptor
-                .Field(p => p.Image)
-                .Description("Image for the project");
         }
     }
 }

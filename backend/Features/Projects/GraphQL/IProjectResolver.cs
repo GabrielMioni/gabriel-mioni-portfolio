@@ -4,6 +4,7 @@ namespace backend.Features.Projects.GraphQL
 {
     public interface IProjectResolver
     {
-        public Task<IEnumerable<Project>> GetAllProjectsAsync();
+        Task<IEnumerable<Project>> GetAllProjectsAsync();
+        Task<Project> AddProjectAsync(Project newProject);
     }
 }

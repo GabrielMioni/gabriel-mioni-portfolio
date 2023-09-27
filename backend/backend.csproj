@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="HotChocolate.AspNetCore" Version="13.5.1" />
+    <PackageReference Include="HotChocolate.Types.Selections" Version="10.5.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.22">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -47,7 +47,8 @@ builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
 builder.Services.AddScoped<IProjectResolver, ProjectResolver>();
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType<RootQuery>();
+    .AddQueryType<RootQuery>()
+    .AddMutationType<RootMutation>();
 
 var app = builder.Build();
 

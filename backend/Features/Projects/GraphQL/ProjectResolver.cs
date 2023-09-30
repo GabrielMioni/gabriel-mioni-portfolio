@@ -19,7 +19,7 @@ namespace backend.Features.Projects.GraphQL
 
         public async Task<Project> AddProjectAsync(Project newProject)
         {
-            return await _projectsRepository.AddProject(newProject);
+            return await _projectsRepository.AddProjectAsync(newProject);
         }
     }
 }

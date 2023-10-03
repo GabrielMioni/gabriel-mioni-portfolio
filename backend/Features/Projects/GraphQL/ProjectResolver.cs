@@ -12,14 +12,24 @@ namespace backend.Features.Projects.GraphQL
             _projectsRepository = projectsRepository;
         }
 
-        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+        public async Task<IEnumerable<Models.Project>> GetAllProjectsAsync()
         {
-            return await _projectsRepository.GetAllProjects();
+            return await _projectsRepository.GetAllProjectsAsync();
         }
 
-        public async Task<Project> AddProjectAsync(Project newProject)
+        public async Task<Models.Project> AddProjectAsync(Models.Project newProject)
         {
             return await _projectsRepository.AddProjectAsync(newProject);
+        }
+
+        Task<IEnumerable<Project>> IProjectResolver.GetAllProjectsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Project> AddProjectAsync(Project newProject)
+        {
+            throw new NotImplementedException();
         }
     }
 }

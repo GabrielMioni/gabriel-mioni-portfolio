@@ -1,10 +1,13 @@
 query GetAllProjects {
     projects {
-        description
-        git
-        image {
-            altText
+        nodes {
+            description
+            git
+            image {
+                altText
+            }
+            name
         }
-        name
+        errors
     }
 }

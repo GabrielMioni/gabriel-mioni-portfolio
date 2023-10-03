@@ -2,13 +2,14 @@ import apolloClient from '@/apollo/apolloClient.js'
 import GetAllProjects from '@/graphql/queries/getAllProjects.gql'
 
 export const fetchAllProjects = async () => {
-  const { data, errors } = await apolloClient.query({
+  const { data: { projects } } = await apolloClient.query({
     query: GetAllProjects
   })
+  const { errors, nodes } = projects
 
-  if (errors) {
+  if (errors && errors.length) {
     throw new Error('Error fetching projects')
   }
 
-  return data.projects
+  return nodes
 }

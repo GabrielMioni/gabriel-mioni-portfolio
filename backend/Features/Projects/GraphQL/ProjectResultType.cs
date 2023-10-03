@@ -1,6 +1,4 @@
-﻿using backend.Features.Projects.Models;
-
-namespace backend.Features.Projects.GraphQL
+﻿namespace backend.Features.Projects.GraphQL
 {
     public class ProjectResultType : ObjectType<ProjectResult>
     {
@@ -11,7 +9,7 @@ namespace backend.Features.Projects.GraphQL
             descriptor
                 .Field(p => p.Projects)
                 .Description("Projects")
-                .Type<Project>();
+                .Type<ProjectType>();
 
             descriptor
                 .Field(p => p.Errors)

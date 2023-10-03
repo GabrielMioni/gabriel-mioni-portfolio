@@ -7,7 +7,7 @@
             descriptor.Description("Represents the result of a project query");
 
             descriptor
-                .Field(p => p.Projects)
+                .Field(p => p.Nodes)
                 .Description("Projects")
                 .Type<ProjectType>();
 

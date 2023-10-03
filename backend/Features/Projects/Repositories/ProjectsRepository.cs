@@ -11,7 +11,7 @@ namespace backend.Features.Projects.Repositories
             _context = context;
         }
 
-        public async Task<List<Project>> GetAllProjects()
+        public async Task<List<Project>> GetAllProjectsAsync()
         {
             return await _context.Projects.ToListAsync();
         }

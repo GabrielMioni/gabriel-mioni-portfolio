@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using backend.GraphQL;
 using backend.Data;
-using backend.Features.Projects.GraphQL;
 using backend.Features.Projects.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,7 +43,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
 
-builder.Services.AddScoped<IProjectResolver, ProjectResolver>();
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<RootQuery>()

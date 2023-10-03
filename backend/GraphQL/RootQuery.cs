@@ -1,5 +1,4 @@
 ﻿using backend.Features.Projects.GraphQL;
-// using backend.Features.Projects.Models;
 using backend.Features.Projects.Repositories;
 
 namespace backend.GraphQL
@@ -10,14 +9,14 @@ namespace backend.GraphQL
         public string HelloWorld() => "Hello, world!";
 
         [GraphQLDescription("Retrieve the list of projects")]
-        public async Task<ProjectResult> GetProjectListAsync([Service]IProjectsRepository repository)
+        public async Task<ProjectResult> GetProjectsAsync([Service]IProjectsRepository repository)
         {
             var result = new ProjectResult();
             result.Errors = new List<string>();
             try
             {
                 var projects = await repository.GetAllProjectsAsync();
-                result.Projects = projects;
+                result.Nodes = projects;
             }
             catch (Exception ex)
             {

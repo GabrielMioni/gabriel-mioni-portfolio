@@ -9,13 +9,17 @@ namespace backend.GraphQL
         public string HelloWorld() => "Hello, world!";
 
         [GraphQLDescription("Retrieve the list of projects")]
-        public async Task<ProjectResult> GetProjectsAsync([Service]IProjectsRepository repository)
+        public async Task<ProjectResult> GetProjectsAsync(
+            [Service] IProjectsRepository repository,
+            int skip = 0,
+            int take = 10
+        )
         {
             var result = new ProjectResult();
             result.Errors = new List<string>();
             try
             {
-                var projects = await repository.GetAllProjectsAsync();
+                var projects = await repository.GetProjectsAsync(skip, take);
                 result.Nodes = projects;
             }
             catch (Exception ex)

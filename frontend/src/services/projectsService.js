@@ -9,11 +9,11 @@ export const fetchProjects = async ({ skip, take }) => {
       take
     }
   })
-  const { errors, nodes } = projects
+  const { errors, nodes, count } = projects
 
   if (errors && errors.length) {
     throw new Error('Error fetching projects')
   }
 
-  return nodes
+  return { projects: nodes, count }
 }

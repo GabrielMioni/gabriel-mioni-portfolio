@@ -1,5 +1,5 @@
-query GetAllProjects {
-    projects {
+query GetProjects($skip: Int, $take: Int) {
+    projects(skip: $skip, take: $take) {
         nodes {
             description
             git

@@ -6,5 +6,6 @@ namespace backend.Features.Projects.Repositories
     {
         Task<Project> AddProjectAsync(Project newProject);
         Task<List<Project>> GetAllProjectsAsync();
+        Task<List<Project>> GetProjectsAsync(int skip, int take);
     }
 }

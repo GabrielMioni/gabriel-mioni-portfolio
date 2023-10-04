@@ -11,9 +11,9 @@ namespace backend.Features.Projects.Repositories
             _context = context;
         }
 
-        public async Task<List<Project>> GetAllProjectsAsync()
+        public async Task<List<Project>> GetProjectsAsync(int skip = 0, int take = 10)
         {
-            return await _context.Projects.ToListAsync();
+            return await _context.Projects.Skip(skip).Take(take).ToListAsync();
         }
 
         public async Task<Project> AddProjectAsync(Project newProject)

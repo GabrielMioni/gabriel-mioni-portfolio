@@ -6,5 +6,6 @@ namespace backend.Features.Projects.GraphQL
     {
         public List<Project> Nodes { get; set; }
         public List<string> Errors { get; set; }
+        public int Count { get; set; }
     }
 }

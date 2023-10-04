@@ -22,5 +22,10 @@ namespace backend.Features.Projects.Repositories
             await _context.SaveChangesAsync();
             return newProject;
         }
+
+        public async Task<int> GetProjectCountAsync()
+        {
+            return await _context.Projects.CountAsync();
+        }
     }
 }

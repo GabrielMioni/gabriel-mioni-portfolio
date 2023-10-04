@@ -21,6 +21,7 @@ namespace backend.GraphQL
             {
                 var projects = await repository.GetProjectsAsync(skip, take);
                 result.Nodes = projects;
+                result.Count = await repository.GetProjectCountAsync();
             }
             catch (Exception ex)
             {

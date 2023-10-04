@@ -6,7 +6,7 @@ const projectStore = useProjectsStore()
 const projects = computed(() => projectStore.projectsFormatted)
 
 onMounted(() => {
-  projectStore.loadProjects()
+  projectStore.loadProjects({ skip: 0, take: 10 })
 })
 
 </script>

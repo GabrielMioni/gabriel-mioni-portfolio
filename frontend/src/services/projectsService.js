@@ -1,9 +1,13 @@
 import apolloClient from '@/apollo/apolloClient.js'
-import GetAllProjects from '@/graphql/queries/getAllProjects.gql'
+import GetProjects from '@/graphql/queries/getProjects.gql'
 
-export const fetchAllProjects = async () => {
+export const fetchProjects = async ({ skip, take }) => {
   const { data: { projects } } = await apolloClient.query({
-    query: GetAllProjects
+    query: GetProjects,
+    variables: {
+      skip,
+      take
+    }
   })
   const { errors, nodes } = projects
 

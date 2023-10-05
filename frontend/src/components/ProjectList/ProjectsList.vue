@@ -3,23 +3,30 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
 
 const projectStore = useProjectsStore()
-const projects = computed(() => projectStore.projectsFormatted)
-const totalProjects = computed(() => projectStore.projectCount)
+
+// Data
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
-const totalPages = computed(() => Math.ceil(totalProjects.value / itemsPerPage.value))
 
+// Computed
+const projects = computed(() => projectStore.projectsFormatted)
+const projectCount = computed(() => projectStore.projectCount)
+const totalPages = computed(() => Math.ceil(projectCount.value / itemsPerPage.value))
+
+// Methods
 const loadProjectsForCurrentPage = () => {
   const skip = (currentPage.value - 1) * itemsPerPage.value
   projectStore.loadProjects({ skip, take: itemsPerPage.value })
 }
 
+// Watchers
 watch(currentPage, () => {
   loadProjectsForCurrentPage()
 })
 
+// Lifecycle Hooks
 onMounted(() => {
-  projectStore.loadProjects({ skip: 0, take: 10 })
+  loadProjectsForCurrentPage()
 })
 
 </script>

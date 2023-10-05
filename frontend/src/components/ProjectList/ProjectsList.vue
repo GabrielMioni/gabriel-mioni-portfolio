@@ -1,9 +1,22 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
 
 const projectStore = useProjectsStore()
 const projects = computed(() => projectStore.projectsFormatted)
+const totalProjects = computed(() => projectStore.projectCount)
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
+const totalPages = computed(() => Math.ceil(totalProjects.value / itemsPerPage.value))
+
+const loadProjectsForCurrentPage = () => {
+  const skip = (currentPage.value - 1) * itemsPerPage.value
+  projectStore.loadProjects({ skip, take: itemsPerPage.value })
+}
+
+watch(currentPage, () => {
+  loadProjectsForCurrentPage()
+})
 
 onMounted(() => {
   projectStore.loadProjects({ skip: 0, take: 10 })
@@ -54,6 +67,10 @@ onMounted(() => {
       </v-container>
     </v-card-text>
   </v-card>
+  <v-pagination
+    v-model="currentPage"
+    :length="totalPages"
+    :total-visible="5" />
 </template>
 
 <style lang="scss" scoped>

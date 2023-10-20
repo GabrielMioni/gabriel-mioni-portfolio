@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using backend.GraphQL;
 using backend.Data;
 using backend.Features.Projects.Repositories;
+using Amazon.S3;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,9 @@ builder.Services
     .AddGraphQLServer()
     .AddQueryType<RootQuery>()
     .AddMutationType<RootMutation>();
+
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
 
 var app = builder.Build();
 

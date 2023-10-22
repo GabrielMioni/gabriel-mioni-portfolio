@@ -3,6 +3,8 @@ using backend.GraphQL;
 using backend.Data;
 using backend.Features.Projects.Repositories;
 using Amazon.S3;
+using Amazon;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,8 +51,17 @@ builder.Services
     .AddQueryType<RootQuery>()
     .AddMutationType<RootMutation>();
 
-builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
-builder.Services.AddAWSService<IAmazonS3>();
+var accessKey = builder.Configuration.GetValue<string>("AWS:AccessKey");
+var secretKey = builder.Configuration.GetValue<string>("AWS:SecretKey");
+var regionString = builder.Configuration.GetValue<string>("AWS:Region");
+
+var region = RegionEndpoint.GetBySystemName(regionString);
+
+builder.Services.AddScoped<IAmazonS3>(serviceProvider =>
+{
+    return new AmazonS3Client(accessKey, secretKey, region);
+});
+
 
 var app = builder.Build();
 

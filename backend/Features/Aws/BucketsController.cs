@@ -23,7 +23,6 @@ namespace backend.Features.Aws
 
             var region = RegionEndpoint.GetBySystemName(regionString);
 
-            // var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.USWest2);
             var s3Client = new AmazonS3Client(accessKey, secretKey, region);
             var data = await s3Client.ListBucketsAsync();
             var buckets = data.Buckets.Select(b => { return b.BucketName; });

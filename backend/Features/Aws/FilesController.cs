@@ -12,10 +12,12 @@ namespace backend.Features.Aws
     public class FilesController : ControllerBase
     {
         private readonly IAmazonS3 _amazonS3;
+        private string _bucketName;
 
-        public FilesController(IAmazonS3 amazonS3)
+        public FilesController(IConfiguration configuration, IAmazonS3 amazonS3)
         {
-            _amazonS3 = amazonS3;            
+            _amazonS3 = amazonS3;
+            _bucketName = configuration.GetValue<string>("AWS:BucketName");
         }
 
         [HttpPost]
@@ -23,7 +25,7 @@ namespace backend.Features.Aws
         {
             var request = new PutObjectRequest()
             {
-                BucketName = "portfolio-gjam-dev",
+                BucketName = _bucketName,
                 Key = string.IsNullOrEmpty(prefix) ? file.FileName : $"{prefix?.TrimEnd('/')}/{file.FileName}",
                 InputStream = file.OpenReadStream()
             };
@@ -37,7 +39,7 @@ namespace backend.Features.Aws
         {
             var request = new ListObjectsV2Request()
             {
-                BucketName = "portfolio-gjam-dev",
+                BucketName = _bucketName,
                 Prefix = null
             };
 
@@ -46,7 +48,7 @@ namespace backend.Features.Aws
             {
                 var urlRequest = new GetPreSignedUrlRequest()
                 {
-                    BucketName = "portfolio-gjam-dev",
+                    BucketName = _bucketName,
                     Key = s.Key,
                     Expires = DateTime.UtcNow.AddMinutes(10)
                 };
@@ -57,6 +59,20 @@ namespace backend.Features.Aws
                 };
             });
             return Ok(s3Objects);
+        }
+
+        [HttpGet("preview")]
+        public async Task<IActionResult> GetFileByKeyAsync(string key)
+        {
+            var s3Object = await _amazonS3.GetObjectAsync(_bucketName, key);
+            return File(s3Object.ResponseStream, s3Object.Headers.ContentType);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteFileAsync(string key)
+        {
+            await _amazonS3.DeleteObjectAsync(_bucketName, key);
+            return Ok($"{key} deleted");
         }
     }
 }

@@ -5,6 +5,7 @@ using backend.Features.Projects.Repositories;
 using Amazon.S3;
 using Amazon;
 using Microsoft.Extensions.DependencyInjection;
+using backend.Features.Aws.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +46,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
+builder.Services.AddScoped<IAwsService, AwsService>();
 
 builder.Services
     .AddGraphQLServer()

@@ -1,6 +1,6 @@
 <script setup>
 import profilePic from '@/assets/saturn-eating-his-son.png'
-import ContactForm from '@/components/ContactForm.vue'
+import ContactForm from '@/views/Public/components/ContactForm.vue'
 
 </script>
 

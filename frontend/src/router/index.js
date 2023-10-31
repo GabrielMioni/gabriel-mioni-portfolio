@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AboutView from '@/views/Public/AboutView.vue'
-import PublicLayout from '@/views/Public/PublicLayout.vue'
-import ProjectsList from '@/views/Public/components/ProjectList/ProjectsList.vue'
 import AdminLayout from '@/views/Admin/AdminLayout.vue'
+import ProjectsList from '@/views/Public/ProjectsList.vue'
+import PublicLayout from '@/views/Public/PublicLayout.vue'
 
 const routes = [
   {

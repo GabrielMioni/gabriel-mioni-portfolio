@@ -2,11 +2,17 @@
   <div>
     <tool-bar />
     <hero-image />
-    <router-view v-slot="{ Component }">
-      <transition name="fade">
-        <component :is="Component" />
-      </transition>
-    </router-view>
+    <v-container>
+      <v-row style="justify-content: center">
+        <v-col :cols="8">
+          <router-view v-slot="{ Component }">
+            <transition name="fade">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </v-col>
+      </v-row>
+    </v-container>
     <footer-section />
   </div>
 </template>

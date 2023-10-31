@@ -1,11 +1,7 @@
 <template>
-  <v-container>
-    <v-row style="justify-content: center">
-      <v-col :cols="8">
-        This is the about page.
-      </v-col>
-    </v-row>
-  </v-container>
+  <div>
+    This is the about page.
+  </div>
 </template>
 
 <script>

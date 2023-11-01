@@ -1,13 +1,17 @@
 <template>
-  <div>This is the admin layout</div>
+  <div>
+    <main>
+      <router-view v-slot="{ Component }">
+        <v-container fluid>
+          <v-row>
+            <v-col :cols="12">
+              <transition name="fade">
+                <component :is="Component" />
+              </transition>
+            </v-col>
+          </v-row>
+        </v-container>
+      </router-view>
+    </main>
+  </div>
 </template>
-
-<script>
-export default {
-  name: 'AdminLayout'
-}
-</script>
-
-<style scoped>
-
-</style>

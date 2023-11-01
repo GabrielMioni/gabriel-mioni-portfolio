@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AboutView from '@/views/Public/AboutView.vue'
+import AddProject from '@/views/Admin/AddProject.vue'
 import AdminLayout from '@/views/Admin/AdminLayout.vue'
 import ProjectsView from '@/views/Public/ProjectsView.vue'
 import PublicLayout from '@/views/Public/PublicLayout.vue'
@@ -21,7 +22,13 @@ const routes = [
   },
   {
     path: '/admin',
-    component: AdminLayout
+    component: AdminLayout,
+    children: [
+      {
+        path: '',
+        component: AddProject
+      }
+    ]
   }
 ]
 

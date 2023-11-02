@@ -6,13 +6,15 @@ namespace backend.GraphQL
     public class RootMutation
     {
         public async Task<Project> AddProjectAsync(
-            ProjectInput input,
+            string name,
+            string description,
+            string? git,
             [Service] IProjectsRepository repository)
         {
             Project newProject = new Project {
-                Name = input.Name,
-                Description = input.Description,
-                Git = input.Git,
+                Name = name,
+                Description = description,
+                Git = git,
             };
 
             return await repository.AddProjectAsync(newProject);

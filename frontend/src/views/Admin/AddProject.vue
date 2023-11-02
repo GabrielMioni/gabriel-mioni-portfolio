@@ -1,14 +1,14 @@
 <script setup>
 import { ref } from 'vue'
-import { makeRequiredRules, urlRule } from '@/rules/index.js'
+import { makeRequiredRule, urlRule } from '@/rules/index.js'
 
 const name = ref('')
 const description = ref('')
 const isValid = ref(false)
 const repositoryUrl = ref('')
 
-const nameRule = makeRequiredRules('Name')
-const descriptionRule = makeRequiredRules('Description')
+const nameRule = makeRequiredRule('Name')
+const descriptionRule = makeRequiredRule('Description')
 
 </script>
 

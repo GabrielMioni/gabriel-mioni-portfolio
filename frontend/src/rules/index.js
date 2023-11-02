@@ -1,4 +1,4 @@
-export const makeRequiredRules = (ruleType) => {
+export const makeRequiredRule = (ruleType) => {
   return v => !!v || `${ruleType} is required`
 }
 

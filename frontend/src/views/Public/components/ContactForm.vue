@@ -1,20 +1,15 @@
 <script setup>
 import { ref } from 'vue'
+import { makeRequiredRule } from '@/rules/index.js'
 
 const name = ref('')
 const email = ref('')
 const message = ref('')
 const formIsValid = ref(false)
 
-const makeRequiredRules = (ruleType) => {
-  return [
-    v => !!v || `${ruleType} is required`
-  ]
-}
-
-const nameRules = makeRequiredRules('Name')
-const emailRules = makeRequiredRules('Email')
-const messageRules = makeRequiredRules('Message')
+const nameRules = makeRequiredRule('Name')
+const emailRules = makeRequiredRule('Email')
+const messageRules = makeRequiredRule('Message')
 </script>
 
 <template>

@@ -1,14 +1,19 @@
 <script setup>
 import { ref } from 'vue'
 import { makeRequiredRule, urlRule } from '@/rules/index.js'
+import { addNewProject } from '@/services/projectsService.js'
 
+const isValid = ref(false)
 const name = ref('')
 const description = ref('')
-const isValid = ref(false)
-const repositoryUrl = ref('')
+const git = ref('')
 
 const nameRule = makeRequiredRule('Name')
 const descriptionRule = makeRequiredRule('Description')
+
+const handleSubmit = async () => {
+  await addNewProject({ name: name.value, description: description.value, git: git.value })
+}
 
 </script>
 
@@ -34,7 +39,7 @@ const descriptionRule = makeRequiredRule('Description')
               cols="12"
               class="pb-1">
               <v-text-field
-                v-model="repositoryUrl"
+                v-model="git"
                 class="pb-1"
                 label="Repo URL"
                 variant="solo-filled"
@@ -63,7 +68,8 @@ const descriptionRule = makeRequiredRule('Description')
         <v-btn
           color="primary"
           variant="flat"
-          :disabled="!isValid">
+          :disabled="!isValid"
+          @click="handleSubmit">
           Submit
         </v-btn>
       </v-card-actions>

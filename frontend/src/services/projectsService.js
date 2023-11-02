@@ -1,5 +1,6 @@
 import apolloClient from '@/apollo/apolloClient.js'
 import GetProjects from '@/graphql/queries/getProjects.gql'
+import AddNewProject from '@/graphql/mutations/addNewProject.gql'
 
 export const fetchProjects = async ({ skip, take }) => {
   const { data: { projects } } = await apolloClient.query({
@@ -16,4 +17,16 @@ export const fetchProjects = async ({ skip, take }) => {
   }
 
   return { projects: nodes, count }
+}
+
+export const addNewProject = async ({ name, description, git }) => {
+  const data = await apolloClient.mutate({
+    mutation: AddNewProject,
+    variables: {
+      name,
+      description,
+      git
+    }
+  }).catch(error => console.log(error))
+  console.log(data)
 }

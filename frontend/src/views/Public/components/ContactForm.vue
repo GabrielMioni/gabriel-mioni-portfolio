@@ -26,7 +26,7 @@ const messageRules = makeRequiredRule('Message')
           hide-details
           label="Name"
           required
-          :rules="nameRules"
+          :rules="[nameRules]"
           variant="solo-filled" />
         <v-text-field
           v-model="email"
@@ -34,14 +34,14 @@ const messageRules = makeRequiredRule('Message')
           hide-details
           label="Email"
           required
-          :rules="emailRules"
+          :rules="[emailRules]"
           variant="solo-filled"
           type="email" />
         <v-textarea
           v-model="message"
           label="Message"
           variant="solo-filled"
-          :rules="messageRules"
+          :rules="[messageRules]"
           hide-details />
       </v-card-text>
       <v-card-actions>

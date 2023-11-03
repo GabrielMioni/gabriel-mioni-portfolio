@@ -1,7 +1,8 @@
-query GetProjects($skip: Int, $take: Int) {
+query GetProjects($skip: Int!, $take: Int!) {
     projects(skip: $skip, take: $take) {
         nodes {
             description
+            id
             git
             image {
                 altText

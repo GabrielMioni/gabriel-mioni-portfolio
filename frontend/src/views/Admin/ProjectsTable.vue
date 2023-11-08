@@ -83,12 +83,12 @@ onMounted(() => {
             <v-list>
               <v-list-item @click="editProject(project.id)">
                 <v-list-item-title>
-                  Edit Project
+                  Edit
                 </v-list-item-title>
               </v-list-item>
               <v-list-item @click="removeProject(project.id)">
                 <v-list-item-title>
-                  Remove Project
+                  Remove
                 </v-list-item-title>
               </v-list-item>
             </v-list>

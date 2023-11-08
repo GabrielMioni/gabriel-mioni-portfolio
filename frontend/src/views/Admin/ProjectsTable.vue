@@ -23,6 +23,14 @@ const loadProjectsForCurrentPage = () => {
   projectStore.loadProjects({ skip, take: itemsPerPage.value })
 }
 
+const editProject = (id) => {
+  console.log(`edit project - ID: ${id}`)
+}
+
+const removeProject = (id) => {
+  console.log(`remove project - ID: ${id}`)
+}
+
 // Watchers
 watch(currentPage, () => {
   loadProjectsForCurrentPage()
@@ -47,6 +55,7 @@ onMounted(() => {
           :key="header">
           {{ header.text }}
         </th>
+        <th />
       </tr>
     </thead>
     <tbody />
@@ -58,6 +67,32 @@ onMounted(() => {
           v-for="(header, index) in headers"
           :key="index">
           {{ project[header.value] ? project[header.value] : '' }}
+        </td>
+        <td class="d-flex justify-end">
+          <v-menu>
+            <template #activator="{ props }">
+              <v-btn
+                icon
+                flat
+                v-bind="props">
+                <v-icon>
+                  mdi-dots-vertical
+                </v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item @click="editProject(project.id)">
+                <v-list-item-title>
+                  Edit Project
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="removeProject(project.id)">
+                <v-list-item-title>
+                  Remove Project
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </td>
       </tr>
     </tbody>

@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AboutView from '@/views/Public/AboutView.vue'
-import AddProject from '@/views/Admin/AddProject.vue'
+// import AddProject from '@/views/Admin/AddProject.vue'
 import AdminLayout from '@/views/Admin/AdminLayout.vue'
 import ProjectsView from '@/views/Public/ProjectsView.vue'
 import PublicLayout from '@/views/Public/PublicLayout.vue'
+import ProjectsTable from '@/views/Admin/ProjectsTable.vue'
 
 const routes = [
   {
@@ -26,7 +27,7 @@ const routes = [
     children: [
       {
         path: '',
-        component: AddProject
+        component: ProjectsTable
       }
     ]
   }

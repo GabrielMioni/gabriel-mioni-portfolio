@@ -5,6 +5,7 @@ import AdminLayout from '@/views/Admin/AdminLayout.vue'
 import ProjectsView from '@/views/Public/ProjectsView.vue'
 import PublicLayout from '@/views/Public/PublicLayout.vue'
 import ProjectsTable from '@/views/Admin/ProjectsTable.vue'
+import PrimeVue from '@/views/Public/PrimeVue.vue'
 
 const routes = [
   {
@@ -18,6 +19,10 @@ const routes = [
       {
         path: '/about',
         component: AboutView
+      },
+      {
+        path: '/prime-vue',
+        component: PrimeVue
       }
     ]
   },

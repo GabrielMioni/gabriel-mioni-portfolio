@@ -14,12 +14,15 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
-import 'primevue/resources/themes/lara-light-indigo/theme.css'
+import '@/assets/theme.css'
 import 'primevue/resources/primevue.min.css'
+import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
 
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import Card from 'primevue/card'
+import Image from 'primevue/image'
 
 const vuetify = createVuetify({
   components: {
@@ -50,5 +53,9 @@ app.use(router)
 app.component('DataTable', DataTable)
 // eslint-disable-next-line vue/multi-word-component-names
 app.component('Column', Column)
+// eslint-disable-next-line vue/multi-word-component-names
+app.component('Card', Card)
+// eslint-disable-next-line vue/multi-word-component-names,vue/no-reserved-component-names
+app.component('Image', Image)
 
 app.mount('#app')

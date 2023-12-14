@@ -12,6 +12,7 @@ const props = defineProps({
 })
 
 const gridClasses = computed(() => ({
+  'flex-row': true,
   grid: true,
   'grid-nogutter': props.noGutters
 }))

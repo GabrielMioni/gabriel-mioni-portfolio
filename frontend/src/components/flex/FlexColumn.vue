@@ -8,7 +8,13 @@
 
 <script>
 
-const colPropValidator = (val) => parseInt(val) > 0 && val <= 12
+const propValidator = (propName) => (val) => {
+  const isValid = parseInt(val) > 0 && val <= 12
+  if (!isValid) {
+    console.warn(`Invalid prop value for '${propName}' in FlexColumn. Values must be between 1-12.`)
+  }
+  return isValid
+}
 
 export default {
   name: 'FlexColumn',
@@ -17,31 +23,31 @@ export default {
       type: [String, Number],
       required: false,
       default: null,
-      validator: colPropValidator
+      validator: propValidator('col')
     },
     sm: {
       type: [String, Number],
       required: false,
       default: null,
-      validator: colPropValidator
+      validator: propValidator('sm')
     },
     md: {
       type: [String, Number],
       required: false,
       default: null,
-      validator: colPropValidator
+      validator: propValidator('md')
     },
     lg: {
       type: [String, Number],
       required: false,
       default: null,
-      validator: colPropValidator
+      validator: propValidator('lg')
     },
     xl: {
       type: [String, Number],
       required: false,
       default: null,
-      validator: colPropValidator
+      validator: propValidator('xl')
     }
   },
   computed: {

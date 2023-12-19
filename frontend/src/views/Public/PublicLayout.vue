@@ -2,17 +2,17 @@
   <div>
     <tool-bar />
     <hero-image />
-    <v-container>
-      <v-row style="justify-content: center">
-        <v-col :cols="8">
+    <flex-container>
+      <flex-row justify-center>
+        <flex-column cols="8">
           <router-view v-slot="{ Component }">
             <transition name="fade">
               <component :is="Component" />
             </transition>
           </router-view>
-        </v-col>
-      </v-row>
-    </v-container>
+        </flex-column>
+      </flex-row>
+    </flex-container>
     <footer-section />
   </div>
 </template>
@@ -21,12 +21,18 @@
 import ToolBar from '@/views/Public/components/ToolBar.vue'
 import HeroImage from '@/views/Public/components/HeroImage/HeroImage.vue'
 import FooterSection from '@/views/Public/components/FooterSection.vue'
+import FlexContainer from '@/components/flex/FlexContainer.vue'
+import FlexColumn from '@/components/flex/FlexColumn.vue'
+import FlexRow from '@/components/flex/FlexRow.vue'
 
 export default {
   components: {
     ToolBar,
     HeroImage,
     FooterSection,
+    FlexContainer,
+    FlexRow,
+    FlexColumn
   },
 }
 </script>

@@ -52,7 +52,7 @@ export default {
   },
   computed: {
     colsVal () {
-      return this.setColumnValue(this.col)
+      return this.setColumnValue(this.cols)
     },
     smVal () {
       return this.setColumnValue(this.sm)

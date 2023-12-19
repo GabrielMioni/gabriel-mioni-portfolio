@@ -1,5 +1,7 @@
 <template>
-  <div :class="gridClasses">
+  <div
+    class="flex-row grid"
+    :class="gridClasses">
     <slot />
   </div>
 </template>
@@ -8,12 +10,26 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  noGutters: Boolean
+  noGutters: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  justifyCenter: {
+    type: Boolean,
+    required: false,
+    default: false
+  }
 })
 
 const gridClasses = computed(() => ({
-  'flex-row': true,
-  grid: true,
-  'grid-nogutter': props.noGutters
+  'grid-nogutter': props.noGutters,
+  'justify-center': props.justifyCenter
 }))
+</script>
+
+<script>
+export default {
+  name: 'FlexRow'
+}
 </script>

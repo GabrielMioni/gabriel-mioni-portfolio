@@ -1,6 +1,24 @@
 <template>
   <div>
-    <tool-bar />
+    <tool-bar>
+      <template #start>
+        Gabriel Mioni
+      </template>
+      <template #end>
+        <div class="flex">
+          <flex-column>
+            <base-button>
+              PROJECTS
+            </base-button>
+          </flex-column>
+          <flex-column>
+            <base-button>
+              Contact
+            </base-button>
+          </flex-column>
+        </div>
+      </template>
+    </tool-bar>
     <hero-image />
     <flex-container>
       <flex-row justify-center>
@@ -18,22 +36,24 @@
 </template>
 
 <script>
-import ToolBar from '@/views/Public/components/ToolBar.vue'
-import HeroImage from '@/views/Public/components/HeroImage/HeroImage.vue'
-import FooterSection from '@/views/Public/components/FooterSection.vue'
-import FlexContainer from '@/components/flex/FlexContainer.vue'
+import BaseButton from '@/components/BaseButton.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
+import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
+import FooterSection from '@/views/Public/components/FooterSection.vue'
+import HeroImage from '@/views/Public/components/HeroImage/HeroImage.vue'
+import ToolBar from '@/views/Public/components/ToolBar.vue'
 
 export default {
   components: {
-    ToolBar,
-    HeroImage,
-    FooterSection,
+    BaseButton,
+    FlexColumn,
     FlexContainer,
     FlexRow,
-    FlexColumn
-  },
+    FooterSection,
+    HeroImage,
+    ToolBar
+  }
 }
 </script>
 

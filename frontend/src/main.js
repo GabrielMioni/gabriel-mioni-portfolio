@@ -23,6 +23,10 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Card from 'primevue/card'
 import Image from 'primevue/image'
+// import Toolbar from 'primevue/toolbar'
+import Toolbar from 'primevue/toolbar'
+import Button from 'primevue/button'
+console.log(Toolbar)
 
 const vuetify = createVuetify({
   components: {
@@ -57,5 +61,9 @@ app.component('Column', Column)
 app.component('Card', Card)
 // eslint-disable-next-line vue/multi-word-component-names,vue/no-reserved-component-names
 app.component('Image', Image)
+// eslint-disable-next-line vue/multi-word-component-names,vue/no-reserved-component-names
+app.component('Toolbar', Toolbar)
+// eslint-disable-next-line vue/multi-word-component-names,vue/no-reserved-component-names
+app.component('Button', Button)
 
 app.mount('#app')

@@ -7,12 +7,12 @@
       <template #end>
         <div class="flex">
           <flex-column>
-            <base-button>
+            <base-button to="/">
               PROJECTS
             </base-button>
           </flex-column>
           <flex-column>
-            <base-button>
+            <base-button to="about">
               Contact
             </base-button>
           </flex-column>

@@ -1,12 +1,33 @@
 <template>
-  <button class="p-button base-button">
+  <router-link
+    v-if="renderAsLink"
+    :to="to">
+    <button class="p-button base-button">
+      <slot />
+    </button>
+  </router-link>
+  <button
+    v-else
+    class="p-button base-button">
     <slot />
   </button>
 </template>
 
 <script>
 export default {
-  name: 'BaseButton'
+  name: 'BaseButton',
+  props: {
+    to: {
+      type: String,
+      required: false,
+      default: null
+    }
+  },
+  computed: {
+    renderAsLink () {
+      return this.to && this.to.length > 0
+    }
+  }
 }
 </script>
 

@@ -19,7 +19,10 @@
         </div>
       </template>
     </tool-bar>
-    <hero-image />
+    <hero-image>
+      Web developer.<br>
+      Available for hire.
+    </hero-image>
     <flex-container>
       <flex-row justify-center>
         <flex-column cols="8">

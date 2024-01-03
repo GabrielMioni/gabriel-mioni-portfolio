@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex-column"
+    class="flex-column col"
     :class="classes">
     <slot />
   </div>
@@ -68,7 +68,6 @@ export default {
     },
     classes () {
       return {
-        'col': !this.cols,
         [`col-${this.colsVal}`]: this.colsVal,
         [`sm:col-${this.smVal}`]: this.smVal,
         [`md:col-${this.mdVal}`]: this.mdVal,

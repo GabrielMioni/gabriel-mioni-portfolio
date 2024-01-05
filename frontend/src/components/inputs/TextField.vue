@@ -40,6 +40,12 @@ const textValue = computed({
   set: (val) => emit('update:modelValue', val)
 })
 
+const classes = computed(() => {
+  return {
+    'gap-2': props.helpText
+  }
+})
+
 const size = computed(() => {
   if (props.small) {
     return sizeTypes.small
@@ -52,7 +58,9 @@ const size = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-column gap-2">
+  <div
+    class="flex flex-column"
+    :class="classes">
     <input-text
       v-model="textValue"
       :size="size" />

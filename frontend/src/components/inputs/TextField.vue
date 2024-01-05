@@ -14,6 +14,11 @@ const props = defineProps({
     type: String,
     required: true
   },
+  helpText: {
+    type: String,
+    required: false,
+    default: null
+  },
   small: {
     type: Boolean,
     required: false
@@ -47,7 +52,14 @@ const size = computed(() => {
 </script>
 
 <template>
-  <input-text
-    v-model="textValue"
-    :size="size" />
+  <div class="flex flex-column gap-2">
+    <input-text
+      v-model="textValue"
+      :size="size" />
+    <small
+      v-if="helpText"
+      id="user=help">
+      {{ helpText }}
+    </small>
+  </div>
 </template>

@@ -1,3 +1,11 @@
+<script>
+const sizeTypes = {
+  small: 'small',
+  normal: 'normal',
+  large: 'large'
+}
+</script>
+
 <script setup>
 import { computed } from 'vue'
 
@@ -5,6 +13,18 @@ const props = defineProps({
   modelValue: {
     type: String,
     required: true
+  },
+  small: {
+    type: Boolean,
+    required: false
+  },
+  medium: {
+    type: Boolean,
+    required: false
+  },
+  large: {
+    type: Boolean,
+    required: false
   }
 })
 
@@ -15,10 +35,19 @@ const textValue = computed({
   set: (val) => emit('update:modelValue', val)
 })
 
+const size = computed(() => {
+  if (props.small) {
+    return sizeTypes.small
+  }
+  if (props.large) {
+    return sizeTypes.large
+  }
+  return sizeTypes.medium
+})
 </script>
 
 <template>
   <input-text
     v-model="textValue"
-    size="normal" />
+    :size="size" />
 </template>

@@ -24,6 +24,7 @@ import Card from 'primevue/card'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Image from 'primevue/image'
+import InputText from 'primevue/inputtext'
 import Paginator from 'primevue/paginator'
 import Toolbar from 'primevue/toolbar'
 
@@ -59,6 +60,7 @@ const primeComponents = [
   Column,
   DataTable,
   Image,
+  InputText,
   Paginator,
   Toolbar,
 ]

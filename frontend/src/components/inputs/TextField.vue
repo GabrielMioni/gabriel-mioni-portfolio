@@ -19,6 +19,16 @@ const props = defineProps({
     required: false,
     default: null
   },
+  label: {
+    type: String,
+    required: false,
+    default: null
+  },
+  floatLabel: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   small: {
     type: Boolean,
     required: false,
@@ -60,14 +70,16 @@ const classes = computed(() => {
   }
 })
 
+const shouldShowIcon = computed(() => {
+  return props.appendIcon || props.prependIcon
+})
+
 const iconClass = computed( () => {
-  if (props.prependIcon) {
-    return 'p-input-icon-left'
+  return {
+    'p-input-icon-left': props.prependIcon,
+    'p-input-icon-right': props.appendIcon,
+    'p-float-label': props.floatLabel
   }
-  if (props.appendIcon) {
-    return 'p-input-icon-right'
-  }
-  return null
 })
 
 const size = computed(() => {
@@ -86,18 +98,41 @@ const size = computed(() => {
     class="flex flex-column text-field"
     :class="classes">
     <span
-      v-if="iconClass"
+      v-if="shouldShowIcon"
       :class="iconClass"
       class="text-field__icon-parent">
       <i :class="`pi ${ prependIcon || appendIcon }`" />
       <input-text
+        :id="label"
         v-model="textValue"
         :size="size" />
+      <label
+        v-if="label"
+        :for="label"
+        style="border-radius: 5px">
+        {{ label }}
+      </label>
     </span>
-    <input-text
+    <span
       v-else
-      v-model="textValue"
-      :size="size" />
+      class="text-field__icon-parent"
+      :class="{ 'p-float-label': floatLabel }">
+      <label
+        v-if="label && !floatLabel"
+        :for="label"
+        style="border-radius: 5px">
+        {{ label }}
+      </label>
+      <input-text
+        v-model="textValue"
+        :size="size" />
+      <label
+        v-if="label && floatLabel"
+        :for="label"
+        style="border-radius: 5px">
+        {{ label }}
+      </label>
+    </span>
     <small
       v-if="helpText"
       id="user=help">

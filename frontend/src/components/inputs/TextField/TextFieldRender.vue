@@ -61,10 +61,3 @@ export default {
   name: 'TextFieldRender'
 }
 </script>
-
-<style scoped>
-span {
-  display: inherit;
-  flex-direction: inherit;
-}
-</style>

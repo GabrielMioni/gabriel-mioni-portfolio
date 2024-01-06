@@ -1,12 +1,5 @@
-<script>
-const sizeTypes = {
-  small: 'small',
-  normal: 'normal',
-  large: 'large'
-}
-</script>
-
 <script setup>
+import TextFieldRender from '@/components/inputs/TextField/TextFieldRender.vue'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -58,28 +51,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-// Computed
 const textValue = computed({
   get: () => props.modelValue,
   set: (val) => emit('update:modelValue', val)
-})
-
-const classes = computed(() => {
-  return {
-    'gap-2': props.helpText
-  }
-})
-
-const shouldShowIcon = computed(() => {
-  return props.appendIcon || props.prependIcon
-})
-
-const iconClass = computed( () => {
-  return {
-    'p-input-icon-left': props.prependIcon,
-    'p-input-icon-right': props.appendIcon,
-    'p-float-label': props.floatLabel
-  }
 })
 
 const size = computed(() => {
@@ -94,58 +68,35 @@ const size = computed(() => {
 </script>
 
 <template>
-  <div
-    class="flex flex-column text-field"
-    :class="classes">
-    <span
-      v-if="shouldShowIcon"
-      :class="iconClass"
-      class="text-field__icon-parent">
-      <i :class="`pi ${ prependIcon || appendIcon }`" />
-      <input-text
-        :id="label"
-        v-model="textValue"
-        :size="size" />
+  <text-field-render
+    :append-icon="appendIcon"
+    :prepend-icon="prependIcon"
+    :float-label="floatLabel"
+    :help-text="helpText"
+    class="text-field">
+    <template #label>
       <label
         v-if="label"
-        :for="label"
         style="border-radius: 5px">
         {{ label }}
       </label>
-    </span>
-    <span
-      v-else
-      class="text-field__icon-parent"
-      :class="{ 'p-float-label': floatLabel }">
-      <label
-        v-if="label && !floatLabel"
-        :for="label"
-        style="border-radius: 5px">
-        {{ label }}
-      </label>
+    </template>
+    <template #default>
       <input-text
         v-model="textValue"
         :size="size" />
-      <label
-        v-if="label && floatLabel"
-        :for="label"
-        style="border-radius: 5px">
-        {{ label }}
-      </label>
-    </span>
-    <small
-      v-if="helpText"
-      id="user=help">
-      {{ helpText }}
-    </small>
-  </div>
+    </template>
+  </text-field-render>
 </template>
 
-<style lang="scss" scoped>
-.text-field {
-  &__icon-parent {
-    display: inherit;
-    flex-direction: inherit;
-  }
+<script>
+const sizeTypes = {
+  small: 'small',
+  normal: 'normal',
+  large: 'large'
 }
-</style>
+
+export default {
+  name: 'TextField'
+}
+</script>

@@ -1,6 +1,7 @@
 <script setup>
 import TextFieldRender from '@/components/inputs/TextField/TextFieldRender.vue'
 import { computed } from 'vue'
+import { useField } from 'vee-validate'
 
 const props = defineProps({
   modelValue: {
@@ -12,10 +13,19 @@ const props = defineProps({
     required: false,
     default: null
   },
+  hideDetails: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   label: {
     type: String,
     required: false,
     default: null
+  },
+  fieldName: {
+    type: String,
+    required: true
   },
   floatLabel: {
     type: Boolean,
@@ -46,14 +56,24 @@ const props = defineProps({
     type: String,
     required: false,
     default: null
+  },
+  rule: {
+    type: Function,
+    required: false,
+    default: () => true
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
 
+const { value: fieldValue, errorMessage } = useField(props.fieldName, props.rule)
+
 const textValue = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
+  get: () => fieldValue.value,
+  set: (val) => {
+    fieldValue.value = val
+    emit('update:modelValue', val)
+  }
 })
 
 const size = computed(() => {
@@ -65,11 +85,16 @@ const size = computed(() => {
   }
   return sizeTypes.medium
 })
+
+const fieldNameDisplay = props.fieldName.toString().toLowerCase()
+
 </script>
 
 <template>
   <text-field-render
     :append-icon="appendIcon"
+    :error-message="errorMessage"
+    :hide-details="hideDetails"
     :prepend-icon="prependIcon"
     :float-label="floatLabel"
     :help-text="helpText"
@@ -77,13 +102,16 @@ const size = computed(() => {
     <template #label>
       <label
         v-if="label"
+        :for="fieldNameDisplay"
         style="border-radius: 5px">
         {{ label }}
       </label>
     </template>
     <template #default>
       <input-text
+        :id="fieldNameDisplay"
         v-model="textValue"
+        :class="{ 'p-invalid': errorMessage }"
         :size="size" />
     </template>
   </text-field-render>

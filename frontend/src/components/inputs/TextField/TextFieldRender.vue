@@ -22,6 +22,16 @@ const props = defineProps({
     required: false,
     default: null
   },
+  hideDetails: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  errorMessage: {
+    type: String,
+    required: false,
+    default: null
+  }
 })
 
 const iconClasses = computed( () => {
@@ -36,7 +46,7 @@ const iconClasses = computed( () => {
 
 <template>
   <div class="text-field-render">
-    <span
+    <div
       class="flex flex-column"
       :class="iconClasses">
       <i
@@ -49,10 +59,17 @@ const iconClasses = computed( () => {
       <slot
         v-if="floatLabel"
         name="label" />
-    </span>
-    <small v-if="helpText">
-      {{ helpText }}
-    </small>
+    </div>
+    <div class="flex flex-column">
+      <small
+        v-if="errorMessage && !hideDetails"
+        class="p-error">
+        {{ errorMessage }}
+      </small>
+      <small v-if="helpText">
+        {{ helpText }}
+      </small>
+    </div>
   </div>
 </template>
 

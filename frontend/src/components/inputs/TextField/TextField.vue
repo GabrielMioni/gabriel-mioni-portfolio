@@ -57,16 +57,16 @@ const props = defineProps({
     required: false,
     default: null
   },
-  rule: {
-    type: Function,
+  rules: {
+    type: Array,
     required: false,
-    default: () => true
+    default: () => [ () => true ]
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
 
-const { value: fieldValue, errorMessage } = useField(props.fieldName, props.rule)
+const { value: fieldValue, errorMessage } = useField(props.fieldName, props.rules)
 
 const textValue = computed({
   get: () => fieldValue.value,

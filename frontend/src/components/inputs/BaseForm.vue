@@ -12,11 +12,14 @@ defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const { errors } = useForm()
+const { values, isFieldValid } = useForm()
 
-watch(errors, (val) => {
-  const isValid = Object.keys(val).length <= 0
-  updateValue(isValid)
+watch(values, (formValues) => {
+  const fieldNames = Object.keys(formValues)
+  setTimeout(() => {
+    const allFieldsValid = fieldNames.every(field => isFieldValid(field))
+    updateValue(allFieldsValid)
+  })
 })
 
 const updateValue = (val) => emit('update:modelValue', val)

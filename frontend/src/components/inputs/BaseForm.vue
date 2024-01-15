@@ -16,17 +16,18 @@ const { values, isFieldValid } = useForm()
 
 watch(values, (formValues) => {
   const fieldNames = Object.keys(formValues)
+  // nextTick doesn't work here
   setTimeout(() => {
     const allFieldsValid = fieldNames.every(field => isFieldValid(field))
-    updateValue(allFieldsValid)
+    updateFormErrorState(allFieldsValid)
   })
 })
 
-const updateValue = (val) => emit('update:modelValue', val)
+const updateFormErrorState = (val) => emit('update:modelValue', val)
 
 onMounted(() => {
   // normalize form valid state
-  updateValue(false)
+  updateFormErrorState(false)
 })
 
 </script>

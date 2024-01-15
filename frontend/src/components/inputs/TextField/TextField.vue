@@ -1,37 +1,11 @@
 <script setup>
-import TextFieldRender from '@/components/inputs/TextField/TextFieldRender.vue'
 import { computed } from 'vue'
 import { useField } from 'vee-validate'
+import TextFieldRender from '@/components/inputs/TextField/TextFieldRender.vue'
+import { fieldProps } from '@/components/inputs/field-props.js'
 
 const props = defineProps({
-  modelValue: {
-    type: String,
-    required: true
-  },
-  helpText: {
-    type: String,
-    required: false,
-    default: null
-  },
-  hideDetails: {
-    type: Boolean,
-    required: false,
-    default: false
-  },
-  label: {
-    type: String,
-    required: false,
-    default: null
-  },
-  fieldName: {
-    type: String,
-    required: true
-  },
-  floatLabel: {
-    type: Boolean,
-    required: false,
-    default: false
-  },
+  ...fieldProps,
   small: {
     type: Boolean,
     required: false,
@@ -56,11 +30,6 @@ const props = defineProps({
     type: String,
     required: false,
     default: null
-  },
-  rules: {
-    type: Array,
-    required: false,
-    default: () => [ () => true ]
   }
 })
 

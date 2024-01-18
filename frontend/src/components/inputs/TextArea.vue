@@ -50,15 +50,24 @@ const hasContent = computed(() => {
       Username
     </label>
   </span>
-  <div class="flex flex-column">
-    <small
-      v-if="errorMessage && !hideDetails"
-      class="p-error">
-      {{ errorMessage }}
-    </small>
-    <small v-if="helpText">
-      {{ helpText }}
-    </small>
+  <div
+    v-if="!hideDetails"
+    class="flex flex-column">
+    <div
+      v-if="errorMessage"
+      class="details">
+      <small
+        class="p-error">
+        {{ errorMessage }}
+      </small>
+    </div>
+    <div
+      v-if="helpText"
+      class="details">
+      <small>
+        {{ helpText }}
+      </small>
+    </div>
   </div>
 </template>
 

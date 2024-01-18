@@ -61,14 +61,22 @@ const iconClasses = computed( () => {
         name="label" />
     </div>
     <div class="flex flex-column">
-      <small
-        v-if="errorMessage && !hideDetails"
-        class="p-error">
-        {{ errorMessage }}
-      </small>
-      <small v-if="helpText">
-        {{ helpText }}
-      </small>
+      <div
+        v-if="!hideDetails"
+        class="details">
+        <small
+          v-if="errorMessage"
+          class="p-error">
+          {{ errorMessage }}
+        </small>
+      </div>
+      <div
+        v-if="helpText"
+        class="details">
+        <small>
+          {{ helpText }}
+        </small>
+      </div>
     </div>
   </div>
 </template>

@@ -19,6 +19,8 @@ import 'primevue/resources/primevue.min.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
 
+import '@/assets/global.scss'
+
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 import Column from 'primevue/column'

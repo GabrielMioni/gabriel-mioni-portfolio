@@ -60,10 +60,6 @@ const messageRule = makeRequiredRule('Message')
                 :rules="[messageRule]" />
             </flex-column>
           </flex-row>
-        </flex-container>
-      </template>
-      <template #footer>
-        <flex-container fluid>
           <flex-row>
             <flex-column />
             <flex-column :cols="1">

@@ -2,13 +2,18 @@
   <router-link
     v-if="renderAsLink"
     :to="to">
-    <button class="p-button base-button">
+    <button
+      class="p-button base-button"
+      :class="{ disabled }"
+      :disabled="disabled">
       <slot />
     </button>
   </router-link>
   <button
     v-else
-    class="p-button base-button">
+    class="p-button base-button"
+    :class="{ disabled }"
+    :disabled="disabled">
     <slot />
   </button>
 </template>
@@ -17,6 +22,11 @@
 export default {
   name: 'BaseButton',
   props: {
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     to: {
       type: String,
       required: false,
@@ -34,13 +44,23 @@ export default {
 <style lang="scss" scoped>
 $white: #ffffff;
 .base-button {
-  background-color: rgba($white, 0.1);
   padding: .5rem 1rem;
   font-size: 14px;
   letter-spacing: 1.25px;
   &.p-button {
-    &:hover {
-      background-color: rgba($white, 0.2);
+    &:not(.disabled) {
+      &:after {
+        content: '';
+        top: 0;
+        left: 0;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        transition: background-color 1s;
+      }
+      &:hover:after {
+        background-color: rgba($white, 0.25);
+      }
     }
   }
 }

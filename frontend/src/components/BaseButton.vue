@@ -1,3 +1,25 @@
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  disabled: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  to: {
+    type: String,
+    required: false,
+    default: null
+  }
+})
+
+const renderAsLink = computed(() => {
+  return props.to && props.to.length > 0
+})
+
+</script>
+
 <template>
   <router-link
     v-if="renderAsLink"
@@ -20,24 +42,7 @@
 
 <script>
 export default {
-  name: 'BaseButton',
-  props: {
-    disabled: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    to: {
-      type: String,
-      required: false,
-      default: null
-    }
-  },
-  computed: {
-    renderAsLink () {
-      return this.to && this.to.length > 0
-    }
-  }
+  name: 'BaseButton'
 }
 </script>
 

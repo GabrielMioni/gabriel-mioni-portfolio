@@ -56,7 +56,13 @@ const handleSubmit = ($event) => {
             <text-area
               v-model="nameTwo"
               label="Haha"
-              field-name="second" />
+              field-name="second"
+              float-label
+              help-text="yo"
+              :rules="[
+                validationRule,
+                minimumChars
+              ]" />
           </flex-column>
         </flex-row>
         <flex-row>

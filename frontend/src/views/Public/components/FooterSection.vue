@@ -1,26 +1,45 @@
 <script setup>
 import profilePic from '@/assets/saturn-eating-his-son.png'
 import ContactForm from '@/views/Public/components/ContactForm.vue'
+import FlexContainer from '@/components/flex/FlexContainer.vue'
+import FlexRow from '@/components/flex/FlexRow.vue'
+import FlexColumn from '@/components/flex/FlexColumn.vue'
 
 </script>
 
 <template>
-  <v-footer color="#036870">
-    <v-container>
-      <v-row align="center">
-        <v-col
-          :cols="3"
-          class="d-flex justify-center align-center">
-          <v-avatar size="200px">
-            <v-img
-              :src="profilePic"
-              cover />
-          </v-avatar>
-        </v-col>
-        <v-col>
-          <contact-form />
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-footer>
+  <div class="footer">
+    <flex-container
+      fluid
+      class="pa-0 container-wrapper">
+      <flex-row class="flex justify-center">
+        <flex-column
+          cols="8"
+          class="justify-center">
+          <flex-row>
+            <flex-column
+              cols="3"
+              class="flex align-center justify-content-center">
+              <img
+                class="image"
+                :src="profilePic">
+            </flex-column>
+            <flex-column>
+              <contact-form />
+            </flex-column>
+          </flex-row>
+        </flex-column>
+      </flex-row>
+    </flex-container>
+  </div>
 </template>
+
+<style lang="scss" scoped>
+.footer {
+  background-color: #036870;
+  .image {
+    max-width: 200px;
+    border-radius: 50%;
+  }
+}
+</style>

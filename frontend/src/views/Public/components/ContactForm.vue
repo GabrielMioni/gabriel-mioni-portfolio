@@ -61,11 +61,12 @@ const messageRule = makeRequiredRule('Message')
             </flex-column>
           </flex-row>
           <flex-row>
-            <flex-column />
-            <flex-column :cols="1">
-              <base-button :disabled="!formIsValid">
-                Submit
-              </base-button>
+            <flex-column>
+              <span class="flex justify-content-end">
+                <base-button :disabled="!formIsValid">
+                  Submit
+                </base-button>
+              </span>
             </flex-column>
           </flex-row>
         </flex-container>

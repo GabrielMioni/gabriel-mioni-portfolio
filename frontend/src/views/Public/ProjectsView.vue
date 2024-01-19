@@ -21,9 +21,6 @@ const loadProjectsForCurrentPage = () => {
   projectStore.loadProjects({ skip, take: itemsPerPage.value })
 }
 
-const template = {
-  CurrentPageReport: true
-}
 
 // Watchers
 watch(currentPage, () => {
@@ -92,7 +89,6 @@ onMounted(() => {
             class="project-view__pagination"
             :rows="itemsPerPage"
             :rows-per-page-options="[10, 20, 30]"
-            :template="template"
             :total-records="projectCount" />
         </div>
       </flex-column>

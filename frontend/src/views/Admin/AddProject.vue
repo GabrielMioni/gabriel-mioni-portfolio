@@ -2,6 +2,13 @@
 import { ref } from 'vue'
 import { makeRequiredRule, urlRule } from '@/rules/index.js'
 import { addNewProject } from '@/services/projectsService.js'
+import BaseForm from '@/components/inputs/BaseForm.vue'
+import FlexContainer from '@/components/flex/FlexContainer.vue'
+import FlexColumn from '@/components/flex/FlexColumn.vue'
+import TextField from '@/components/inputs/TextField/TextField.vue'
+import TextArea from '@/components/inputs/TextArea.vue'
+import FlexRow from '@/components/flex/FlexRow.vue'
+import BaseButton from '@/components/BaseButton.vue'
 
 const isValid = ref(false)
 const name = ref('')
@@ -18,63 +25,59 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <v-card>
-    <v-card-text>
-      <v-form v-model="isValid">
-        <v-container fluid>
-          <v-row>
-            <v-col
-              cols="12"
-              class="pb-1">
+  <card>
+    <template #content>
+      <base-form v-model="isValid">
+        <flex-container fluid>
+          <flex-row>
+            <flex-column>
               <v-text-field
                 v-model="name"
                 class="pb-1"
                 label="Name"
                 variant="solo-filled"
                 :rules="[nameRule]" />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
+            </flex-column>
+          </flex-row>
+          <flex-row>
+            <flex-column
               cols="12"
               class="pb-1">
-              <v-text-field
+              <text-field
                 v-model="git"
-                class="pb-1"
                 label="Repo URL"
-                variant="solo-filled"
+                field-name="email"
+                float-label
+                small
                 :rules="[urlRule]" />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
+            </flex-column>
+          </flex-row>
+          <flex-row>
+            <flex-column
               cols="12"
               class="pb-1">
-              <v-textarea
+              <text-area
                 v-model="description"
                 label="Description"
-                variant="solo-filled"
                 :rules="[descriptionRule]" />
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-form>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn
-          variant="flat">
-          Cancel
-        </v-btn>
-        <v-btn
-          color="primary"
-          variant="flat"
-          :disabled="!isValid"
-          @click="handleSubmit">
-          Submit
-        </v-btn>
-      </v-card-actions>
-    </v-card-text>
-  </v-card>
+            </flex-column>
+          </flex-row>
+          <flex-row>
+            <flex-column>
+              <base-button>
+                Cancel
+              </base-button>
+              <base-button
+                :disabled="!isValid"
+                @click="handleSubmit">
+                Submit
+              </base-button>
+            </flex-column>
+          </flex-row>
+        </flex-container>
+      </base-form>
+    </template>
+  </card>
 </template>
 
 <script>

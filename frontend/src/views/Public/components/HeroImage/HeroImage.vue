@@ -8,7 +8,7 @@ import headerImage from '@/assets/nature-forest-trees-fog.jpeg'
       :src="headerImage"
       class="hero-image absolute top-0 left-0 h-full w-full"
       alt="hero-image">
-    <div class="absolute top-0 left-0 h-full w-full flex align-center justify-center hero-text text-white text-center">
+    <div class="absolute top-0 left-0 h-full w-full flex hero-text text-white text-center align-items-center justify-content-center">
       <slot />
     </div>
   </div>

@@ -12,7 +12,7 @@ import FlexColumn from '@/components/flex/FlexColumn.vue'
     <flex-container
       fluid
       class="pa-0 container-wrapper">
-      <flex-row class="flex justify-center">
+      <flex-row justify-center>
         <flex-column
           cols="8"
           class="justify-center">

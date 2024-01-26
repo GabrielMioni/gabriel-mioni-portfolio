@@ -31,11 +31,12 @@ const handleSubmit = async () => {
         <flex-container fluid>
           <flex-row>
             <flex-column>
-              <v-text-field
+              <text-field
                 v-model="name"
-                class="pb-1"
                 label="Name"
-                variant="solo-filled"
+                field-name="name"
+                float-label
+                small
                 :rules="[nameRule]" />
             </flex-column>
           </flex-row>

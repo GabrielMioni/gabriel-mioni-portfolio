@@ -1,11 +1,3 @@
-<template>
-  <div
-    class="flex-row grid"
-    :class="gridClasses">
-    <slot />
-  </div>
-</template>
-
 <script setup>
 import { computed } from 'vue'
 
@@ -27,6 +19,14 @@ const gridClasses = computed(() => ({
   'justify-content-center': props.justifyCenter
 }))
 </script>
+
+<template>
+  <div
+    class="flex-row grid"
+    :class="gridClasses">
+    <slot />
+  </div>
+</template>
 
 <script>
 export default {

@@ -11,7 +11,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="main">
+  <div
+    id="main"
+    class="p-component">
     <router-view v-slot="{ Component }">
       <transition name="fade">
         <component :is="Component" />

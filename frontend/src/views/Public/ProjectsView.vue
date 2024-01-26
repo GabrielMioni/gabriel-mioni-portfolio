@@ -83,7 +83,7 @@ onMounted(() => {
     </flex-row>
     <flex-row>
       <flex-column>
-        <div class="flex justify-center">
+        <div class="flex justify-content-center">
           <paginator
             v-model="currentPage"
             class="project-view__pagination"

@@ -11,18 +11,21 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-app>
-    <v-main>
-      <router-view v-slot="{ Component }">
-        <transition name="fade">
-          <component :is="Component" />
-        </transition>
-      </router-view>
-    </v-main>
-  </v-app>
+  <div id="main">
+    <router-view v-slot="{ Component }">
+      <transition name="fade">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </div>
 </template>
 
 <style lang="scss" scoped>
+#main {
+  flex: 1 0 auto;
+  max-width: 100%;
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.15s;

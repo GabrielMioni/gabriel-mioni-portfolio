@@ -44,59 +44,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-data-table-server
-    :items-per-page="itemsPerPage"
-    :items="projects"
-    :items-length="projectCount">
-    <thead>
-      <tr>
-        <th
-          v-for="header in headers"
-          :key="header">
-          {{ header.text }}
-        </th>
-        <th />
-      </tr>
-    </thead>
-    <tbody />
-    <tbody>
-      <tr
-        v-for="project in projects"
-        :key="project.id">
-        <td
-          v-for="(header, index) in headers"
-          :key="index">
-          {{ project[header.value] ? project[header.value] : '' }}
-        </td>
-        <td class="d-flex justify-end">
-          <v-menu>
-            <template #activator="{ props }">
-              <v-btn
-                icon
-                flat
-                v-bind="props">
-                <v-icon>
-                  mdi-dots-vertical
-                </v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item @click="editProject(project.id)">
-                <v-list-item-title>
-                  Edit
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="removeProject(project.id)">
-                <v-list-item-title>
-                  Remove
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </td>
-      </tr>
-    </tbody>
-  </v-data-table-server>
+  <div>
+    <div>This is where stuff will go</div>
+    <pre>{{ headers }}</pre>
+    <pre> {{ projects }}</pre>
+  </div>
 </template>
 
 <script>

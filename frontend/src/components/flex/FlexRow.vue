@@ -24,7 +24,7 @@ const props = defineProps({
 
 const gridClasses = computed(() => ({
   'grid-nogutter': props.noGutters,
-  'justify-center': props.justifyCenter
+  'justify-content-center': props.justifyCenter
 }))
 </script>
 

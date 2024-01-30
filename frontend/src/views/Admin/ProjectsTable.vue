@@ -7,11 +7,24 @@ const projectStore = useProjectsStore()
 // Data
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
-const headers = ref([
-  { text: 'Name', value: 'name' },
-  { text: 'Description', value: 'description' },
-  { text: 'Git', value: 'git' }
-])
+
+const columns = [
+  {
+    field: 'name',
+    header: 'Name',
+    sortable: true
+  },
+  {
+    field: 'description',
+    header: 'Description',
+    sortable: true
+  },
+  {
+    field: 'git',
+    header: 'Git',
+    sortable: true
+  }
+]
 
 // Computed
 const projects = computed(() => projectStore.projectsFormatted)
@@ -45,8 +58,16 @@ onMounted(() => {
 
 <template>
   <div>
-    <div>This is where stuff will go</div>
-    <pre>{{ headers }}</pre>
+    <h3>This is where stuff will go</h3>
+    <data-table :value="projects">
+      <column
+        v-for="col of columns"
+        :key="col.field"
+        :field="col.field"
+        :header="col.header"
+        :sortable="col.sortable" />
+    </data-table>
+    <pre>{{ columns }}</pre>
     <pre> {{ projects }}</pre>
   </div>
 </template>

@@ -7,6 +7,12 @@ const projectStore = useProjectsStore()
 // Data
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
+const tableParams = ref({
+  first: 0,
+  rows: 10,
+  sortField: null,
+  filters: []
+})
 
 const columns = [
   {
@@ -28,12 +34,16 @@ const columns = [
 
 // Computed
 const projects = computed(() => projectStore.projectsFormatted)
-const projectCount = computed(() => projectStore.projectCount)
+const totalRecords = computed(() => projectStore.projectCount)
 
 // Methods
 const loadProjectsForCurrentPage = () => {
   const skip = (currentPage.value - 1) * itemsPerPage.value
   projectStore.loadProjects({ skip, take: itemsPerPage.value })
+}
+
+const handleSort = (val) => {
+  console.log(val)
 }
 
 const editProject = (id) => {
@@ -59,7 +69,15 @@ onMounted(() => {
 <template>
   <div>
     <h3>This is where stuff will go</h3>
-    <data-table :value="projects">
+    <data-table
+      :value="projects"
+      :rows="10"
+      :rows-per-page-options="[10, 25, 50]"
+      :total-records="totalRecords"
+      paginator
+      paginator-template="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      current-page-report-template="{first} to {last} of {totalRecords}"
+      @sort="handleSort">
       <column
         v-for="col of columns"
         :key="col.field"

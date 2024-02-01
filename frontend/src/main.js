@@ -17,6 +17,7 @@ import Button from 'primevue/button'
 import Card from 'primevue/card'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
+import Dialog from 'primevue/dialog'
 import Image from 'primevue/image'
 import InputText from 'primevue/inputtext'
 import Paginator from 'primevue/paginator'
@@ -37,6 +38,7 @@ const primeComponents = [
   Card,
   Column,
   DataTable,
+  Dialog,
   Image,
   InputText,
   Paginator,

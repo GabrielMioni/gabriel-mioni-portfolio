@@ -1,7 +1,8 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
-import ProjectEditModal from '@/views/Admin/ProjectEditModal.vue'
+import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
+import PopupMenu from '@/components/PopupMenu.vue'
 
 const projectStore = useProjectsStore()
 
@@ -61,6 +62,26 @@ const removeProject = (id) => {
   console.log(`remove project - ID: ${id}`)
 }
 
+const getMenuItemsForRow = (id) => {
+  return [
+    {
+      label: 'Options',
+      items: [
+        {
+          label: 'Edit',
+          icon: 'pi pi-pencil',
+          command: () => editProject(id)
+        },
+        {
+          label: 'Delete',
+          icon: 'pi pi-trash',
+          command: () => removeProject(id)
+        }
+      ]
+    }
+  ]
+}
+
 // Watchers
 watch(currentPage, () => {
   loadProjectsForCurrentPage()
@@ -99,12 +120,12 @@ onMounted(() => {
         <template
           v-if="col.field === 'action'"
           #body="{ data }">
-          {{ data.id }}
+          <popup-menu :items="getMenuItemsForRow(data.id)" />
         </template>
       </column>
     </data-table>
-    <pre>{{ columns }}</pre>
-    <pre> {{ projects }}</pre>
+    <!--    <pre>{{ columns }}</pre>-->
+    <!--    <pre> {{ projects }}</pre>-->
   </div>
 </template>
 

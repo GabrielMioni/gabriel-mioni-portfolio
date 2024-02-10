@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import BaseForm from '@/components/inputs/BaseForm.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
+import FlexRow from '@/components/flex/FlexRow.vue'
 import TextField from '@/components/inputs/TextField/TextField.vue'
 
 const props = defineProps({

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
+import ProjectEditModal from '@/views/Admin/ProjectEditModal.vue'
 
 const projectStore = useProjectsStore()
 
@@ -13,6 +14,7 @@ const tableParams = ref({
   sortField: null,
   filters: []
 })
+const show = ref(false)
 
 const columns = [
   {
@@ -29,6 +31,11 @@ const columns = [
     field: 'git',
     header: 'Git',
     sortable: true
+  },
+  {
+    field: 'action',
+    header: ' ',
+    sortable: false
   }
 ]
 
@@ -69,6 +76,11 @@ onMounted(() => {
 <template>
   <div>
     <h3>This is where stuff will go</h3>
+    <Button
+      label="Show"
+      @click="show = true" />
+    <project-edit-modal v-model="show" />
+
     <data-table
       :value="projects"
       :rows="10"
@@ -83,7 +95,13 @@ onMounted(() => {
         :key="col.field"
         :field="col.field"
         :header="col.header"
-        :sortable="col.sortable" />
+        :sortable="col.sortable">
+        <template
+          v-if="col.field === 'action'"
+          #body="{ data }">
+          {{ data.id }}
+        </template>
+      </column>
     </data-table>
     <pre>{{ columns }}</pre>
     <pre> {{ projects }}</pre>

@@ -20,6 +20,7 @@ import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
 import Image from 'primevue/image'
 import InputText from 'primevue/inputtext'
+import Menu from 'primevue/menu'
 import Paginator from 'primevue/paginator'
 import Toolbar from 'primevue/toolbar'
 
@@ -41,6 +42,7 @@ const primeComponents = [
   Dialog,
   Image,
   InputText,
+  Menu,
   Paginator,
   Toolbar,
 ]

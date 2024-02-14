@@ -22,7 +22,7 @@ namespace backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("backend.Models.Image", b =>
+            modelBuilder.Entity("backend.Features.Projects.Models.Image", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,13 +66,16 @@ namespace backend.Migrations
                     b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("backend.Models.Project", b =>
+            modelBuilder.Entity("backend.Features.Projects.Models.Project", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -96,18 +99,18 @@ namespace backend.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("backend.Models.Image", b =>
+            modelBuilder.Entity("backend.Features.Projects.Models.Image", b =>
                 {
-                    b.HasOne("backend.Models.Project", "Project")
+                    b.HasOne("backend.Features.Projects.Models.Project", "Project")
                         .WithOne("Image")
-                        .HasForeignKey("backend.Models.Image", "ProjectId")
+                        .HasForeignKey("backend.Features.Projects.Models.Image", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("backend.Models.Project", b =>
+            modelBuilder.Entity("backend.Features.Projects.Models.Project", b =>
                 {
                     b.Navigation("Image");
                 });

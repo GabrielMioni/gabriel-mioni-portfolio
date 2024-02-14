@@ -9,5 +9,6 @@
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public Image? Image { get; set; }
         public string? Git { get; set; }
+        public bool Active { get; set; } = true;
     }
 }

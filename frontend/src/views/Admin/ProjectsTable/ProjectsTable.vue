@@ -3,6 +3,26 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
 import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
 import PopupMenu from '@/components/PopupMenu.vue'
+import { useConfirm } from 'primevue/useconfirm'
+
+const confirm = useConfirm()
+
+const confirm1 = () => {
+  confirm.require({
+    message: 'Are you sure you want to proceed?',
+    header: 'Confirmation',
+    icon: 'pi pi-exclamation-triangle',
+    rejectClass: 'p-button-secondary p-button-outlined',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Save',
+    accept: () => {
+      console.log('bringo')
+    },
+    reject: () => {
+      console.log('zingo')
+    }
+  })
+}
 
 const projectStore = useProjectsStore()
 
@@ -54,12 +74,16 @@ const handleSort = (val) => {
   console.log(val)
 }
 
+const removeActiveId = ref(null)
+const editActiveId = ref(null)
+
 const editProject = (id) => {
-  console.log(`edit project - ID: ${id}`)
+  editActiveId.value = id
+  confirm1()
 }
 
 const removeProject = (id) => {
-  console.log(`remove project - ID: ${id}`)
+  removeActiveId.value = id
 }
 
 const getMenuItemsForRow = (id) => {
@@ -99,8 +123,9 @@ onMounted(() => {
     <h3>This is where stuff will go</h3>
     <Button
       label="Show"
-      @click="show = true" />
+      @click="confirm1" />
     <project-edit-modal v-model="show" />
+    <confirm-dialog />
 
     <data-table
       :value="projects"

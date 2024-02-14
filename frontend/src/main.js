@@ -16,6 +16,8 @@ import '@/assets/global.scss'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 import Column from 'primevue/column'
+import ConfirmDialog from 'primevue/confirmdialog'
+import ConfirmationService from 'primevue/confirmationservice'
 import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
 import Image from 'primevue/image'
@@ -32,12 +34,14 @@ app.provide(DefaultApolloClient, apolloClient)
 
 app.use(pinia)
 app.use(PrimeVue)
+app.use(ConfirmationService)
 app.use(router)
 
 const primeComponents = [
   Button,
   Card,
   Column,
+  ConfirmDialog,
   DataTable,
   Dialog,
   Image,

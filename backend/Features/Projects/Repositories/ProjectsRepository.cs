@@ -11,9 +11,16 @@ namespace backend.Features.Projects.Repositories
             _context = context;
         }
 
-        public async Task<List<Project>> GetProjectsAsync(int skip = 0, int take = 10)
+        public async Task<List<Project>> GetProjectsAsync(int skip = 0, int take = 10, bool includeInactive = false)
         {
-            return await _context.Projects.Skip(skip).Take(take).ToListAsync();
+            var query = _context.Projects.AsQueryable();
+
+            if (!includeInactive)
+            {
+                query = query.Where(p => p.Active);
+            }
+
+            return await query.Skip(skip).Take(take).ToListAsync();
         }
 
         public async Task<Project> AddProjectAsync(Project newProject)

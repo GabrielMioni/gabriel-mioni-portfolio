@@ -5,7 +5,7 @@ namespace backend.Features.Projects.Repositories
     public interface IProjectsRepository
     {
         Task<Project> AddProjectAsync(Project newProject);
-        Task<List<Project>> GetProjectsAsync(int skip, int take);
+        Task<List<Project>> GetProjectsAsync(int skip, int take, bool IncludeInactive);
         Task<int> GetProjectCountAsync();
     }
 }

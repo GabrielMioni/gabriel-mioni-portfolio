@@ -12,7 +12,7 @@
         public long Size { get; set; }
 
         // Navigational properties
-        public int ProjectId { get; set; }
+        public string ProjectId { get; set; }
         public Project Project { get; set; }
     }
 }

@@ -18,6 +18,7 @@ namespace backend.Features.Projects.Repositories
 
         public async Task<Project> AddProjectAsync(Project newProject)
         {
+            newProject.Id = Guid.NewGuid().ToString();
             _context.Projects.Add(newProject);
             await _context.SaveChangesAsync();
             return newProject;

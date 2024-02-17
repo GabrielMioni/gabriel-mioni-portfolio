@@ -31,6 +31,23 @@ namespace backend.Features.Projects.Repositories
             return newProject;
         }
 
+        public async Task<OperationResult> RemoveProjectAsync(string id)
+        {
+            var project = _context.Projects.Where(p => p.Id  == id).FirstOrDefault();
+
+            var result = new OperationResult();
+
+            if (project == null)
+            {
+                return OperationResult.Fail($"Unable to find project with id {id} of ");
+            }
+
+            project.Active = false;
+            await _context.SaveChangesAsync();
+
+            return OperationResult.Success($"Project with id {id} has been successfully deactivated.");
+        }
+
         public async Task<int> GetProjectCountAsync()
         {
             return await _context.Projects.CountAsync();

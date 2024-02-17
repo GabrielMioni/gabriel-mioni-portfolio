@@ -19,5 +19,10 @@ namespace backend.GraphQL
 
             return await repository.AddProjectAsync(newProject);
         }
+
+        public async Task<OperationResult> RemoveProjectAsync(string id, [Service] IProjectsRepository repository)
+        {
+            return await repository.RemoveProjectAsync(id);
+        }
     }
 }

@@ -9,36 +9,6 @@ import RemoveProject from '@/views/Admin/ProjectsTable/graphql/RemoveProject.gql
 
 const confirm = useConfirm()
 
-const confirmRemoveProject = (id) => {
-  confirm.require({
-    message: `You are about to remove project ${id} you sure you want to proceed?`,
-    header: 'Remove Project',
-    icon: 'pi pi-exclamation-triangle',
-    rejectClass: 'p-button-secondary p-button-outlined',
-    rejectLabel: 'Cancel',
-    acceptLabel: 'Save',
-    accept: async () => {
-      console.log(id)
-      await removeProjectAsync(id)
-    }
-  })
-}
-
-const removeProjectAsync = async (id) => {
-  try {
-    const { data } = await apolloClient.mutate({
-      mutation: RemoveProject,
-      variables: {
-        id
-      },
-      errorPolicy: 'all'
-    })
-    console.log(data)
-  } catch (e) {
-    console.error(e)
-  }
-}
-
 const projectStore = useProjectsStore()
 
 // Data
@@ -89,12 +59,39 @@ const handleSort = (val) => {
   console.log(val)
 }
 
-const removeActiveId = ref(null)
 const editActiveId = ref(null)
 
 const editProject = (id) => {
   editActiveId.value = id
-  confirmRemoveProject()
+}
+
+const confirmRemoveProject = (id) => {
+  confirm.require({
+    message: `You are about to remove project ${id} you sure you want to proceed?`,
+    header: 'Remove Project',
+    icon: 'pi pi-exclamation-triangle',
+    rejectClass: 'p-button-secondary p-button-outlined',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Remove',
+    accept: async () => {
+      await removeProjectAsync(id)
+    }
+  })
+}
+
+const removeProjectAsync = async (id) => {
+  try {
+    const { data } = await apolloClient.mutate({
+      mutation: RemoveProject,
+      variables: {
+        id
+      },
+      errorPolicy: 'all'
+    })
+    console.log(data)
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 const removeProject = (id) => {

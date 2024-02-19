@@ -11,16 +11,18 @@ const confirm = useConfirm()
 
 const projectStore = useProjectsStore()
 
-// Data
+// Reactive
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
+const editActiveId = ref(null)
+const show = ref(false)
+
 const tableParams = ref({
   first: 0,
   rows: 10,
   sortField: null,
   filters: []
 })
-const show = ref(false)
 
 const columns = [
   {
@@ -50,16 +52,9 @@ const projects = computed(() => projectStore.projectsFormatted)
 const totalRecords = computed(() => projectStore.projectCount)
 
 // Methods
-const loadProjectsForCurrentPage = () => {
-  const skip = (currentPage.value - 1) * itemsPerPage.value
-  projectStore.loadProjects({ skip, take: itemsPerPage.value })
-}
-
 const handleSort = (val) => {
   console.log(val)
 }
-
-const editActiveId = ref(null)
 
 const editProject = (id) => {
   editActiveId.value = id
@@ -116,6 +111,11 @@ const getMenuItemsForRow = (id) => {
       ]
     }
   ]
+}
+
+const loadProjectsForCurrentPage = () => {
+  const skip = (currentPage.value - 1) * itemsPerPage.value
+  projectStore.loadProjects({ skip, take: itemsPerPage.value })
 }
 
 // Watchers

@@ -1,27 +1,42 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
+import apolloClient from '@/apollo/apolloClient.js'
 import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
 import PopupMenu from '@/components/PopupMenu.vue'
 import { useConfirm } from 'primevue/useconfirm'
+import RemoveProject from '@/views/Admin/ProjectsTable/graphql/RemoveProject.gql'
 
 const confirm = useConfirm()
 
-const confirm1 = () => {
+const confirmRemoveProject = (id) => {
   confirm.require({
-    message: 'Are you sure you want to proceed?',
-    header: 'Confirmation',
+    message: `You are about to remove project ${id} you sure you want to proceed?`,
+    header: 'Remove Project',
     icon: 'pi pi-exclamation-triangle',
     rejectClass: 'p-button-secondary p-button-outlined',
     rejectLabel: 'Cancel',
     acceptLabel: 'Save',
-    accept: () => {
-      console.log('bringo')
-    },
-    reject: () => {
-      console.log('zingo')
+    accept: async () => {
+      console.log(id)
+      await removeProjectAsync(id)
     }
   })
+}
+
+const removeProjectAsync = async (id) => {
+  try {
+    const { data } = await apolloClient.mutate({
+      mutation: RemoveProject,
+      variables: {
+        id
+      },
+      errorPolicy: 'all'
+    })
+    console.log(data)
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 const projectStore = useProjectsStore()
@@ -79,11 +94,11 @@ const editActiveId = ref(null)
 
 const editProject = (id) => {
   editActiveId.value = id
-  confirm1()
+  confirmRemoveProject()
 }
 
 const removeProject = (id) => {
-  removeActiveId.value = id
+  confirmRemoveProject(id)
 }
 
 const getMenuItemsForRow = (id) => {
@@ -97,7 +112,7 @@ const getMenuItemsForRow = (id) => {
           command: () => editProject(id)
         },
         {
-          label: 'Delete',
+          label: 'Remove',
           icon: 'pi pi-trash',
           command: () => removeProject(id)
         }
@@ -123,7 +138,7 @@ onMounted(() => {
     <h3>This is where stuff will go</h3>
     <Button
       label="Show"
-      @click="confirm1" />
+      @click="confirmRemoveProject" />
     <project-edit-modal v-model="show" />
     <confirm-dialog />
 

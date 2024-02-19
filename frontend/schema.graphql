@@ -17,6 +17,7 @@ type RootQuery {
 
 type RootMutation {
     addProject(name: String!, description: String!, git: String): Project!
+    removeProject(id: String!): OperationResult!
 }
 
 type ProjectResult {
@@ -26,13 +27,19 @@ type ProjectResult {
 }
 
 type Project {
-    id: Int!
+    id: String!
     name: String!
     description: String!
     createdAt: DateTime!
     updatedAt: DateTime!
     image: Image
     git: String
+    active: Boolean!
+}
+
+type OperationResult {
+    succeeded: Boolean!
+    message: String!
 }
 
 type Image {
@@ -44,7 +51,7 @@ type Image {
     createdAt: DateTime!
     updatedAt: DateTime!
     size: Long!
-    projectId: Int!
+    projectId: String!
     project: Project!
 }
 

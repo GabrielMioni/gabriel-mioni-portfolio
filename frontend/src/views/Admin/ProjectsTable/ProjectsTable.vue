@@ -1,13 +1,9 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
-import apolloClient from '@/apollo/apolloClient.js'
+import { useConfirmDialog } from '@/views/Admin/ProjectsTable/confirmRemoveProject.js'
 import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
 import PopupMenu from '@/components/PopupMenu.vue'
-import { useConfirm } from 'primevue/useconfirm'
-import RemoveProject from '@/views/Admin/ProjectsTable/graphql/RemoveProject.gql'
-
-const confirm = useConfirm()
 
 const projectStore = useProjectsStore()
 
@@ -60,37 +56,18 @@ const editProject = (id) => {
   editActiveId.value = id
 }
 
-const confirmRemoveProject = (id) => {
-  confirm.require({
-    message: `You are about to remove project ${id} you sure you want to proceed?`,
-    header: 'Remove Project',
-    icon: 'pi pi-exclamation-triangle',
-    rejectClass: 'p-button-secondary p-button-outlined',
-    rejectLabel: 'Cancel',
-    acceptLabel: 'Remove',
-    accept: async () => {
-      await removeProjectAsync(id)
-    }
-  })
-}
+const { showConfirmDialog } = useConfirmDialog()
 
-const removeProjectAsync = async (id) => {
+const confirmRemove = async (id) => {
   try {
-    const { data } = await apolloClient.mutate({
-      mutation: RemoveProject,
-      variables: {
-        id
-      },
-      errorPolicy: 'all'
-    })
-    console.log(data)
+    const result = await showConfirmDialog(id)
+    if (!result) {
+      return
+    }
+    console.log('Removed')
   } catch (e) {
     console.error(e)
   }
-}
-
-const removeProject = (id) => {
-  confirmRemoveProject(id)
 }
 
 const getMenuItemsForRow = (id) => {
@@ -106,7 +83,7 @@ const getMenuItemsForRow = (id) => {
         {
           label: 'Remove',
           icon: 'pi pi-trash',
-          command: () => removeProject(id)
+          command: () => confirmRemove(id)
         }
       ]
     }
@@ -133,9 +110,6 @@ onMounted(() => {
 <template>
   <div>
     <h3>This is where stuff will go</h3>
-    <Button
-      label="Show"
-      @click="confirmRemoveProject" />
     <project-edit-modal v-model="show" />
     <confirm-dialog />
 

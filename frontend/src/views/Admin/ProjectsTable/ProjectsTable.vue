@@ -11,15 +11,12 @@ const projectStore = useProjectsStore()
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const editActiveId = ref(null)
-const show = ref(false)
 const showInactive = ref(true)
 
-const tableParams = ref({
-  first: 0,
-  rows: 10,
-  sortField: null,
-  filters: []
-})
+const columnFields = {
+  active: 'active',
+  action: 'action'
+}
 
 const columns = [
   {
@@ -38,12 +35,12 @@ const columns = [
     sortable: false
   },
   {
-    field: 'active',
+    field: columnFields.active,
     header: 'Active',
     sortable: false
   },
   {
-    field: 'action',
+    field: columnFields.action,
     header: ' ',
     sortable: false
   }
@@ -62,10 +59,6 @@ const displayProjects = computed(() => {
 })
 
 // Methods
-const handleSort = (val) => {
-  console.log(val)
-}
-
 const editProject = (id) => {
   editActiveId.value = id
 }
@@ -134,8 +127,7 @@ onMounted(() => {
       :total-records="totalRecords"
       paginator
       paginator-template="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-      current-page-report-template="{first} to {last} of {totalRecords}"
-      @sort="handleSort">
+      current-page-report-template="{first} to {last} of {totalRecords}">
       <template #header>
         <div class="flex justify-content-end align-items-center gap-2">
           <input-switch
@@ -152,9 +144,9 @@ onMounted(() => {
         :sortable="col.sortable">
         <template #body="{ data }">
           <popup-menu
-            v-if="col.field === 'action'"
+            v-if="col.field === columnFields.action"
             :items="getMenuItemsForRow(data.id)" />
-          <template v-if="col.field === 'active'">
+          <template v-if="col.field === columnFields.active">
             <tag
               :severity="data.value ? 'success' : 'warning'"
               :value="data.value ? 'Active' : 'Inactive'" />

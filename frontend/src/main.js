@@ -21,6 +21,7 @@ import ConfirmationService from 'primevue/confirmationservice'
 import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
 import Image from 'primevue/image'
+import InputSwitch from 'primevue/inputswitch'
 import InputText from 'primevue/inputtext'
 import Menu from 'primevue/menu'
 import Paginator from 'primevue/paginator'
@@ -45,6 +46,7 @@ const primeComponents = [
   DataTable,
   Dialog,
   Image,
+  InputSwitch,
   InputText,
   Menu,
   Paginator,

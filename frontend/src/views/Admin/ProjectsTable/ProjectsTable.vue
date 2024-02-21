@@ -25,17 +25,22 @@ const columns = [
   {
     field: 'name',
     header: 'Name',
-    sortable: true
+    sortable: false
   },
   {
     field: 'description',
     header: 'Description',
-    sortable: true
+    sortable: false
   },
   {
     field: 'git',
     header: 'Git',
-    sortable: true
+    sortable: false
+  },
+  {
+    field: 'active',
+    header: 'Active',
+    sortable: false
   },
   {
     field: 'action',
@@ -47,6 +52,8 @@ const columns = [
 // Computed
 const projects = computed(() => projectStore.projectsFormatted)
 const totalRecords = computed(() => projectStore.projectCount)
+
+const displayColumns = computed(() => showInactive.value ? columns : columns.filter(col => col.field !== 'active'))
 
 const displayProjects = computed(() => {
   return projects.value.filter(proj => {
@@ -138,15 +145,23 @@ onMounted(() => {
         </div>
       </template>
       <column
-        v-for="col of columns"
+        v-for="col of displayColumns"
         :key="col.field"
         :field="col.field"
         :header="col.header"
         :sortable="col.sortable">
-        <template
-          v-if="col.field === 'action'"
-          #body="{ data }">
-          <popup-menu :items="getMenuItemsForRow(data.id)" />
+        <template #body="{ data }">
+          <popup-menu
+            v-if="col.field === 'action'"
+            :items="getMenuItemsForRow(data.id)" />
+          <template v-if="col.field === 'active'">
+            <tag
+              :severity="data.value ? 'success' : 'warning'"
+              :value="data.value ? 'Active' : 'Inactive'" />
+          </template>
+          <template v-else>
+            {{ data[col.field] }}
+          </template>
         </template>
       </column>
     </data-table>

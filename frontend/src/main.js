@@ -25,6 +25,7 @@ import InputSwitch from 'primevue/inputswitch'
 import InputText from 'primevue/inputtext'
 import Menu from 'primevue/menu'
 import Paginator from 'primevue/paginator'
+import Tag from 'primevue/tag'
 import Toolbar from 'primevue/toolbar'
 
 const app = createApp(App)
@@ -50,6 +51,7 @@ const primeComponents = [
   InputText,
   Menu,
   Paginator,
+  Tag,
   Toolbar,
 ]
 

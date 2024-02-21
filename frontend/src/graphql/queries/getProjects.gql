@@ -1,6 +1,7 @@
 query GetProjects($skip: Int!, $take: Int!) {
     projects(skip: $skip, take: $take) {
         nodes {
+            active
             description
             id
             git

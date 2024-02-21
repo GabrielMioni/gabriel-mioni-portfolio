@@ -12,6 +12,7 @@ const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const editActiveId = ref(null)
 const show = ref(false)
+const showInactive = ref(true)
 
 const tableParams = ref({
   first: 0,
@@ -46,6 +47,12 @@ const columns = [
 // Computed
 const projects = computed(() => projectStore.projectsFormatted)
 const totalRecords = computed(() => projectStore.projectCount)
+
+const displayProjects = computed(() => {
+  return projects.value.filter(proj => {
+    return showInactive.value ? true : proj.active
+  })
+})
 
 // Methods
 const handleSort = (val) => {
@@ -114,7 +121,7 @@ onMounted(() => {
     <confirm-dialog />
 
     <data-table
-      :value="projects"
+      :value="displayProjects"
       :rows="10"
       :rows-per-page-options="[10, 25, 50]"
       :total-records="totalRecords"
@@ -122,6 +129,14 @@ onMounted(() => {
       paginator-template="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}"
       @sort="handleSort">
+      <template #header>
+        <div class="flex justify-content-end align-items-center gap-2">
+          <input-switch
+            v-model="showInactive"
+            input-id="input-show-active" />
+          <label for="input-show-active">Show Inactive</label>
+        </div>
+      </template>
       <column
         v-for="col of columns"
         :key="col.field"

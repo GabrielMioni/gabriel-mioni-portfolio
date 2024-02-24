@@ -1,4 +1,4 @@
-mutation setProjectActive($id: String!, $setActive: Boolean!) {
+mutation SetProjectActive($id: String!, $setActive: Boolean!) {
     setProjectActive(id: $id, setActive: $setActive) {
         message,
         succeeded

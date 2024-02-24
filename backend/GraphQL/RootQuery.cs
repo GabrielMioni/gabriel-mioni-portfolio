@@ -19,7 +19,7 @@ namespace backend.GraphQL
             result.Errors = new List<string>();
             try
             {
-                var projects = await repository.GetProjectsAsync(skip, take);
+                var projects = await repository.GetProjectsAsync(skip, take, true);
                 result.Nodes = projects;
                 result.Count = await repository.GetProjectCountAsync();
             }

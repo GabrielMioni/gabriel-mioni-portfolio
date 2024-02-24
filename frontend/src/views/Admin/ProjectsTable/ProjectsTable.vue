@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
-import { useConfirmDialog } from '@/views/Admin/ProjectsTable/confirmRemoveProject.js'
-import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
+import { useAddOrRemoveDialog } from '@/views/Admin/ProjectsTable/showAddOrRemoveDialog.js'
+// import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
 import PopupMenu from '@/components/PopupMenu.vue'
 
 const projectStore = useProjectsStore()
@@ -63,21 +63,33 @@ const editProject = (id) => {
   editActiveId.value = id
 }
 
-const { showConfirmDialog } = useConfirmDialog()
+const { showAddOrRemoveDialog } = useAddOrRemoveDialog()
 
-const confirmRemove = async (id) => {
+const findProjectById = (id) => projects.value.find(p => p.id === id)
+
+const confirmAddOrRemove = async (id) => {
+  // const project = projects.value.find(p => p.id === id)
+  const project = findProjectById(id)
+  if (!project) {
+    console.warn(`Unable to find project with id of ${id}`)
+    return
+  }
+  const setActive = !project.active
   try {
-    const result = await showConfirmDialog(id)
+    const result = await showAddOrRemoveDialog(id, !project.active)
     if (!result) {
       return
     }
-    console.log('Removed')
+    projectStore.setProjectActive({ id, setActive })
+    console.log('Updated')
   } catch (e) {
     console.error(e)
   }
 }
 
 const getMenuItemsForRow = (id) => {
+  const project = findProjectById(id)
+  const actionType = project.active ? 'Remove' : 'Add'
   return [
     {
       label: 'Options',
@@ -88,9 +100,9 @@ const getMenuItemsForRow = (id) => {
           command: () => editProject(id)
         },
         {
-          label: 'Remove',
+          label: actionType,
           icon: 'pi pi-trash',
-          command: () => confirmRemove(id)
+          command: () => confirmAddOrRemove(id)
         }
       ]
     }
@@ -117,7 +129,6 @@ onMounted(() => {
 <template>
   <div>
     <h3>This is where stuff will go</h3>
-    <project-edit-modal v-model="show" />
     <confirm-dialog />
 
     <data-table
@@ -148,8 +159,8 @@ onMounted(() => {
             :items="getMenuItemsForRow(data.id)" />
           <template v-if="col.field === columnFields.active">
             <tag
-              :severity="data.value ? 'success' : 'warning'"
-              :value="data.value ? 'Active' : 'Inactive'" />
+              :severity="data.active ? 'success' : 'warning'"
+              :value="data.active ? 'Active' : 'Inactive'" />
           </template>
           <template v-else>
             {{ data[col.field] }}

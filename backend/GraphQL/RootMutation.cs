@@ -16,9 +16,9 @@ namespace backend.GraphQL
             return await repository.AddProjectAsync(newProject);
         }
 
-        public async Task<OperationResult> RemoveProjectAsync(string id, [Service] IProjectsRepository repository)
+        public async Task<OperationResult> SetProjectActiveAsync(string id, Boolean setActive, [Service] IProjectsRepository repository)
         {
-            return await repository.RemoveProjectAsync(id);
+            return await repository.SetProjectActiveAsync(id, setActive);
         }
     }
 }

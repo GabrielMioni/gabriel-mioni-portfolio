@@ -31,7 +31,7 @@ namespace backend.Features.Projects.Repositories
             return newProject;
         }
 
-        public async Task<OperationResult> RemoveProjectAsync(string id)
+        public async Task<OperationResult> SetProjectActiveAsync(string id, Boolean setActive)
         {
             var project = _context.Projects.Where(p => p.Id  == id).FirstOrDefault();
 
@@ -42,10 +42,12 @@ namespace backend.Features.Projects.Repositories
                 return OperationResult.Fail($"Unable to find project with id {id} of ");
             }
 
-            project.Active = false;
+            project.Active = setActive;
             await _context.SaveChangesAsync();
 
-            return OperationResult.Success($"Project with id {id} has been successfully deactivated.");
+            var action = setActive ? "activated" : "removed";
+
+            return OperationResult.Success($"Project with id {id} has been successfully {action}.");
         }
 
         public async Task<int> GetProjectCountAsync()

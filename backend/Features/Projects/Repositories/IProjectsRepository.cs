@@ -7,6 +7,6 @@ namespace backend.Features.Projects.Repositories
         Task<Project> AddProjectAsync(Project newProject);
         Task<List<Project>> GetProjectsAsync(int skip, int take, bool IncludeInactive = false);
         Task<int> GetProjectCountAsync();
-        Task<OperationResult> RemoveProjectAsync(string id);
+        Task<OperationResult> SetProjectActiveAsync(string id, Boolean value);
     }
 }

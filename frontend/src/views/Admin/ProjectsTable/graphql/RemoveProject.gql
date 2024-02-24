@@ -1,6 +1,0 @@
-mutation removeProject($id: String!) {
-    removeProject(id: $id) {
-        message
-        succeeded
-    }
-}

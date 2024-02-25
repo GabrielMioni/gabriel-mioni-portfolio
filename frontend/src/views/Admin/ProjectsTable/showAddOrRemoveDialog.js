@@ -30,7 +30,6 @@ export function useAddOrRemoveDialog () {
   const confirmService = useConfirm()
 
   const showAddOrRemoveDialog = async (id, setActive) => {
-
     const action = setActive ? 'add' : 'remove'
     const actionUc = upperCaseFirst(action)
 

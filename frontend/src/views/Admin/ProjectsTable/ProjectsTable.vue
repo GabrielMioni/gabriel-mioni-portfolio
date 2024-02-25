@@ -65,22 +65,13 @@ const editProject = (id) => {
 
 const { showAddOrRemoveDialog } = useAddOrRemoveDialog()
 
-const findProjectById = (id) => projects.value.find(p => p.id === id)
-
-const confirmAddOrRemove = async (id) => {
-  // const project = projects.value.find(p => p.id === id)
-  const project = findProjectById(id)
-  if (!project) {
-    console.warn(`Unable to find project with id of ${id}`)
-    return
-  }
-  const setActive = !project.active
+const confirmAddOrRemove = async (id, isActive) => {
   try {
-    const result = await showAddOrRemoveDialog(id, !project.active)
-    if (!result) {
+    const confirmAddOrRemove = await showAddOrRemoveDialog(id, !isActive)
+    if (!confirmAddOrRemove) {
       return
     }
-    projectStore.setProjectActive({ id, setActive })
+    projectStore.setProjectActive({ id, setActive: !isActive })
     console.log('Updated')
   } catch (e) {
     console.error(e)
@@ -88,8 +79,9 @@ const confirmAddOrRemove = async (id) => {
 }
 
 const getMenuItemsForRow = (id) => {
-  const project = findProjectById(id)
-  const actionType = project.active ? 'Remove' : 'Add'
+  const project = projects.value.find(p => p.id === id)
+  const isActive = project.active
+  const actionType = isActive ? 'Remove' : 'Add'
   return [
     {
       label: 'Options',
@@ -102,7 +94,7 @@ const getMenuItemsForRow = (id) => {
         {
           label: actionType,
           icon: 'pi pi-trash',
-          command: () => confirmAddOrRemove(id)
+          command: () => confirmAddOrRemove(id, isActive)
         }
       ]
     }

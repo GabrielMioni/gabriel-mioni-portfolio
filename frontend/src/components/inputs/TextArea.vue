@@ -1,7 +1,6 @@
 <script setup>
-import { useField } from 'vee-validate'
-import { computed, ref, watch } from 'vue'
 import { fieldProps } from '@/components/inputs/field-props.js'
+import { useFieldModel } from '@/components/inputs/useFieldModel.js'
 
 const props = defineProps({
   ...fieldProps,
@@ -14,25 +13,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const { errorMessage } = useField(props.fieldName, props.rules)
-
-const hasContent = computed(() => {
-  return textValue.value.trim().length > 0
-})
-
-const textValue = ref(props.modelValue)
-
-watch(() => props.modelValue, (newValue) => {
-  if (textValue.value !== newValue) {
-    textValue.value = newValue
-  }
-}, { immediate: true })
-
-watch(textValue, (newValue) => {
-  if (props.modelValue !== newValue) {
-    emit('update:modelValue', newValue)
-  }
-})
+const { errorMessage, textValue, hasContent } = useFieldModel(props, emit)
 
 </script>
 

@@ -1,8 +1,8 @@
 <script setup>
-import { computed, ref, onMounted, watch } from 'vue'
-import { useField } from 'vee-validate'
+import { computed } from 'vue'
 import TextFieldRender from '@/components/inputs/TextField/TextFieldRender.vue'
 import { fieldProps } from '@/components/inputs/field-props.js'
+import { useFieldModel } from '@/components/inputs/useFieldModel.js'
 
 const props = defineProps({
   ...fieldProps,
@@ -35,21 +35,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const { errorMessage } = useField(props.fieldName, props.rules)
-
-const textValue = ref(props.modelValue)
-
-watch(() => props.modelValue, (newValue) => {
-  if (textValue.value !== newValue) {
-    textValue.value = newValue
-  }
-}, { immediate: true })
-
-watch(textValue, (newValue) => {
-  if (props.modelValue !== newValue) {
-    emit('update:modelValue', newValue)
-  }
-})
+const { errorMessage, textValue } = useFieldModel(props, emit)
 
 const size = computed(() => {
   if (props.small) {

@@ -1,17 +1,26 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import BaseForm from '@/components/inputs/BaseForm.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 import TextField from '@/components/inputs/TextField/TextField.vue'
+import TextArea from '@/components/inputs/TextArea.vue'
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
     required: true
+  },
+  project: {
+    type: [Object, null],
+    required: true
   }
 })
+
+const name = ref('')
+const git = ref('')
+const description = ref('')
 
 const emit = defineEmits(['update:modelValue'])
 
@@ -22,8 +31,19 @@ const showValue = computed({
   }
 })
 
-const name = ref('')
 const formIsValid = ref(false)
+
+watch(() => props.project, (projectValue) => {
+  if (projectValue === null) {
+    name.value = ''
+    git.value = ''
+    description.value = ''
+    return
+  }
+  name.value = projectValue.name
+  git.value = projectValue.git
+  description.value = projectValue.description
+})
 
 </script>
 
@@ -41,15 +61,37 @@ const formIsValid = ref(false)
       <base-form v-model="formIsValid">
         <flex-container
           fluid
-          class="py-0 px-0">
+          class="px-0">
           <flex-row>
             <flex-column class="px-0">
               <text-field
+                :key="`name-${project?.id}`"
                 v-model="name"
+                hide-details
                 label="Name"
                 field-name="name"
                 float-label
                 small />
+            </flex-column>
+            <flex-column
+              class="px-0">
+              <text-field
+                :key="`git-${project?.id}`"
+                v-model="git"
+                hide-details
+                label="Git"
+                field-name="git"
+                float-label
+                small />
+            </flex-column>
+            <flex-column
+              class="px-0"
+              :cols="12">
+              <text-area
+                v-model="description"
+                label="Description"
+                field-name="description"
+                float-label />
             </flex-column>
           </flex-row>
         </flex-container>
@@ -64,6 +106,6 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 </style>

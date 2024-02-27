@@ -1,6 +1,6 @@
 <script setup>
 import { useField } from 'vee-validate'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { fieldProps } from '@/components/inputs/field-props.js'
 
 const props = defineProps({
@@ -14,21 +14,24 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const { value: fieldValue, errorMessage } = useField(props.fieldName, props.rules)
-
-const textValue = computed({
-  get: () => fieldValue.value,
-  set: (val) => {
-    fieldValue.value = val
-    emit('update:modelValue', val)
-  }
-})
+const { errorMessage } = useField(props.fieldName, props.rules)
 
 const hasContent = computed(() => {
-  if (!fieldValue.value) {
-    return false
+  return textValue.value.trim().length > 0
+})
+
+const textValue = ref(props.modelValue)
+
+watch(() => props.modelValue, (newValue) => {
+  if (textValue.value !== newValue) {
+    textValue.value = newValue
   }
-  return fieldValue.value.trim().length > 0
+}, { immediate: true })
+
+watch(textValue, (newValue) => {
+  if (props.modelValue !== newValue) {
+    emit('update:modelValue', newValue)
+  }
 })
 
 </script>
@@ -36,7 +39,7 @@ const hasContent = computed(() => {
 <template>
   <span :class="{ 'p-float-label' : floatLabel }">
     <label v-if="!floatLabel && label">
-      Username
+      {{ props.label }}
     </label>
     <textarea
       v-model="textValue"
@@ -47,7 +50,7 @@ const hasContent = computed(() => {
       }"
       :rows="rows" />
     <label v-if="floatLabel && label">
-      Username
+      {{ props.label }}
     </label>
   </span>
   <div

@@ -4,7 +4,7 @@ import { useProjectsStore } from '@/store/projects/index.js'
 import { useAddOrRemoveDialog } from '@/views/Admin/ProjectsTable/showAddOrRemoveDialog.js'
 // import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
 import PopupMenu from '@/components/PopupMenu.vue'
-
+import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
 const projectStore = useProjectsStore()
 
 // Reactive
@@ -58,10 +58,29 @@ const displayProjects = computed(() => {
   })
 })
 
+const projectBeingEdited = computed(() => {
+  const projectId = editActiveId.value
+  if (projectId === null) {
+    return null
+  }
+  return findProjectById(projectId) || null
+})
+
+const editActive = computed({
+  get: () => editActiveId.value !== null,
+  set: (val) => {
+    if (!val) {
+      editActiveId.value = null
+    }
+  }
+})
+
 // Methods
-const editProject = (id) => {
+const setEditActiveId = (id) => {
   editActiveId.value = id
 }
+
+const findProjectById = (id) => projects.value.find(p => p.id === id)
 
 const { showAddOrRemoveDialog } = useAddOrRemoveDialog()
 
@@ -79,7 +98,7 @@ const confirmAddOrRemove = async (id, isActive) => {
 }
 
 const getMenuItemsForRow = (id) => {
-  const project = projects.value.find(p => p.id === id)
+  const project = findProjectById(id)
   const isActive = project.active
   const actionType = isActive ? 'Remove' : 'Add'
   return [
@@ -89,7 +108,7 @@ const getMenuItemsForRow = (id) => {
         {
           label: 'Edit',
           icon: 'pi pi-pencil',
-          command: () => editProject(id)
+          command: () => setEditActiveId(id)
         },
         {
           label: actionType,
@@ -122,7 +141,9 @@ onMounted(() => {
   <div>
     <h3>This is where stuff will go</h3>
     <confirm-dialog />
-
+    <project-edit-modal
+      v-model="editActive"
+      :project="projectBeingEdited" />
     <data-table
       :value="displayProjects"
       :rows="10"

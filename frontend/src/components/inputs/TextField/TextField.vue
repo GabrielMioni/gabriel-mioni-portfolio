@@ -37,14 +37,18 @@ const emit = defineEmits(['update:modelValue'])
 
 const { errorMessage } = useField(props.fieldName, props.rules)
 
-const textValue = ref('')
+const textValue = ref(props.modelValue)
 
-onMounted(() => {
-  textValue.value = props.modelValue
-})
+watch(() => props.modelValue, (newValue) => {
+  if (textValue.value !== newValue) {
+    textValue.value = newValue
+  }
+}, { immediate: true })
 
-watch(textValue, (textVal) => {
-  emit('update:modelValue', textVal)
+watch(textValue, (newValue) => {
+  if (props.modelValue !== newValue) {
+    emit('update:modelValue', newValue)
+  }
 })
 
 const size = computed(() => {

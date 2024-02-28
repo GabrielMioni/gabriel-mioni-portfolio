@@ -1,8 +1,11 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { makeRequiredRule } from '@/rules/index.js'
+
+import BaseButton from '@/components/BaseButton.vue'
 import BaseForm from '@/components/inputs/BaseForm.vue'
-import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
+import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 import TextField from '@/components/inputs/TextField/TextField.vue'
 import TextArea from '@/components/inputs/TextArea.vue'
@@ -21,6 +24,9 @@ const props = defineProps({
 const name = ref('')
 const git = ref('')
 const description = ref('')
+
+const nameRule = makeRequiredRule('Name')
+const descriptionRule = makeRequiredRule('Description')
 
 const emit = defineEmits(['update:modelValue'])
 
@@ -71,7 +77,8 @@ watch(() => props.project, (projectValue) => {
                 label="Name"
                 field-name="name"
                 float-label
-                small />
+                small
+                :rules="[nameRule]" />
             </flex-column>
             <flex-column
               class="px-0">
@@ -91,12 +98,23 @@ watch(() => props.project, (projectValue) => {
                 v-model="description"
                 label="Description"
                 field-name="description"
-                float-label />
+                float-label
+                :rules="[descriptionRule]" />
             </flex-column>
           </flex-row>
         </flex-container>
       </base-form>
     </div>
+    <template #footer>
+      <base-button
+        :filled="false"
+        @click="showValue = false">
+        Cancel
+      </base-button>
+      <base-button :disabled="!formIsValid">
+        Save
+      </base-button>
+    </template>
   </Dialog>
 </template>
 

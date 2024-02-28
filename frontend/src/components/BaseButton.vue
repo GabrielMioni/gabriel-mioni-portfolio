@@ -11,6 +11,11 @@ const props = defineProps({
     type: String,
     required: false,
     default: null
+  },
+  filled: {
+    type: Boolean,
+    required: false,
+    default: true
   }
 })
 
@@ -26,7 +31,7 @@ const renderAsLink = computed(() => {
     :to="to">
     <button
       class="p-button base-button"
-      :class="{ disabled }"
+      :class="{ disabled, 'not-filled': !filled }"
       :disabled="disabled">
       <slot />
     </button>
@@ -34,7 +39,7 @@ const renderAsLink = computed(() => {
   <button
     v-else
     class="p-button base-button"
-    :class="{ disabled }"
+    :class="{ disabled, 'not-filled': !filled }"
     :disabled="disabled">
     <slot />
   </button>
@@ -53,6 +58,10 @@ $white: #ffffff;
   font-size: 14px;
   letter-spacing: 1.25px;
   &.p-button {
+    &.not-filled {
+      background: unset;
+      color: unset;
+    }
     &:not(.disabled) {
       &:after {
         content: '';

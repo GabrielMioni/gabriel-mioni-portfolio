@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from 'vue'
-import TextFieldRender from '@/components/inputs/TextField/TextFieldRender.vue'
 import { fieldProps } from '@/components/inputs/field-props.js'
 import { useFieldModel } from '@/components/inputs/useFieldModel.js'
+import TextFieldRender from '@/components/inputs/TextField/TextFieldRender.vue'
 
 const props = defineProps({
   ...fieldProps,

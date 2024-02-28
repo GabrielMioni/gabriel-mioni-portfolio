@@ -1,0 +1,6 @@
+mutation editProject($id: String!, $description: String!, $git: String!, $name: String!) {
+    editProject(id: $id, description: $description, git: $git, name: $name) {
+        message
+        succeeded
+    }
+}

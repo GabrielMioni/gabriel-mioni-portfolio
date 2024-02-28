@@ -20,5 +20,10 @@ namespace backend.GraphQL
         {
             return await repository.SetProjectActiveAsync(id, setActive);
         }
+
+        public async Task<OperationResult> EditProjectAsync(string id, string name, string description, [Service] IProjectsRepository repository, string? git = "")
+        {
+             return await repository.EditProjectAsync(id, name, description, git);
+        }
     }
 }

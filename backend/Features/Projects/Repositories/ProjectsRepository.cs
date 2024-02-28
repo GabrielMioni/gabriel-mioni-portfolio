@@ -1,6 +1,7 @@
 ﻿using backend.Data;
 using backend.Features.Projects.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace backend.Features.Projects.Repositories
 {
@@ -48,6 +49,25 @@ namespace backend.Features.Projects.Repositories
             var action = setActive ? "activated" : "removed";
 
             return OperationResult.Success($"Project with id {id} has been successfully {action}.");
+        }
+
+        public async Task<OperationResult> EditProjectAsync(string id, string name, string description, string? git = "")
+        {
+            var project = _context.Projects.Where(p => p.Id == id).FirstOrDefault();
+
+            var result = new OperationResult();
+
+            if (project == null) {
+                return OperationResult.Fail($"Unable to find project with id {id} of ");
+            }
+
+            project.Name = name;
+            project.Git = git;
+            project.Description = description;
+
+            await _context.SaveChangesAsync();
+
+            return OperationResult.Success($"Project with id {id} has been updated.");
         }
 
         public async Task<int> GetProjectCountAsync()

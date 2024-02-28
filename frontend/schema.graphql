@@ -18,6 +18,12 @@ type RootQuery {
 type RootMutation {
     addProject(name: String!, description: String!, git: String): Project!
     setProjectActive(id: String!, setActive: Boolean!): OperationResult!
+    editProject(
+        id: String!
+        name: String!
+        description: String!
+        git: String = ""
+    ): OperationResult!
 }
 
 type ProjectResult {

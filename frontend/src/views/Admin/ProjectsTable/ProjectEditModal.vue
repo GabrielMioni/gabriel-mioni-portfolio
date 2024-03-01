@@ -1,6 +1,9 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { makeRequiredRule } from '@/rules/index.js'
+import apolloClient from '@/apollo/apolloClient.js'
+import { useProjectsStore } from '@/store/projects/index.js'
+import EditProject from '@/views/Admin/ProjectsTable/graphql/EditProject.graphql'
 
 import BaseButton from '@/components/BaseButton.vue'
 import BaseForm from '@/components/inputs/BaseForm.vue'
@@ -57,6 +60,28 @@ watch(() => props.project, (projectValue) => {
   git.value = projectValue.git
   description.value = projectValue.description
 })
+
+const projectStore = useProjectsStore()
+
+const saveProject = async () => {
+  const id = props.project?.id
+
+  try {
+    await apolloClient.mutate({
+      mutation: EditProject,
+      variables: {
+        id,
+        description: description.value,
+        git: git.value,
+        name: name.value
+      }
+    })
+
+    projectStore.updateProject({ id, description: description.value, git: git.value, name: name.value })
+  } catch (e) {
+    console.warn(`Unable to save project: ${e}`)
+  }
+}
 
 </script>
 
@@ -118,7 +143,9 @@ watch(() => props.project, (projectValue) => {
         @click="showValue = false">
         Cancel
       </base-button>
-      <base-button :disabled="!(formIsValid && projectHasBeenEdited)">
+      <base-button
+        :disabled="!(formIsValid && projectHasBeenEdited)"
+        @click="saveProject">
         Save
       </base-button>
     </template>

@@ -7,7 +7,7 @@ export const actions = {
   async loadProjects ({ skip, take }) {
     const { projects, count } = await fetchProjects({ skip, take }).catch(e => console.error(e))
     if (projects.length <= 0) {
-      console.warn('No projects loaded')
+      console.warn('No projectsStore loaded')
     }
     this.PROJECTS = projects
     this.PROJECTS_COUNT = count
@@ -28,6 +28,19 @@ export const actions = {
         updateProject,
         ...this.PROJECTS.slice(projectIndex + 1)
       ]
+    })
+  },
+  updateProject ({ id, description, git, name }) {
+    const index = this.PROJECTS.findIndex(item => item.id === id)
+    if (index < 0) {
+      console.warn(`Unable to update project using id ${id}`)
+      return
+    }
+    const updatedProject = { ...this.PROJECTS[index], description, git, name }
+    const projects = [...this.PROJECTS]
+    projects[index] = updatedProject
+    this.$patch({
+      PROJECTS: projects
     })
   },
   setProjectsLoading (value) {

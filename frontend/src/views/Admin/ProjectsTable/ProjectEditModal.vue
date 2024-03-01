@@ -37,6 +37,13 @@ const showValue = computed({
   }
 })
 
+const projectHasBeenEdited = computed(() => {
+  if (!props.project) {
+    return false
+  }
+  return name.value !== props.project.name || git.value !== props.project.git || description.value !== props.project.description
+})
+
 const formIsValid = ref(false)
 
 watch(() => props.project, (projectValue) => {
@@ -111,7 +118,7 @@ watch(() => props.project, (projectValue) => {
         @click="showValue = false">
         Cancel
       </base-button>
-      <base-button :disabled="!formIsValid">
+      <base-button :disabled="!(formIsValid && projectHasBeenEdited)">
         Save
       </base-button>
     </template>

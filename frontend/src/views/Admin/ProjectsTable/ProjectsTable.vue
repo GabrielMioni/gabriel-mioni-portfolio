@@ -5,6 +5,10 @@ import { useAddOrRemoveDialog } from '@/views/Admin/ProjectsTable/showAddOrRemov
 // import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
 import PopupMenu from '@/components/PopupMenu.vue'
 import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
+import BaseButton from '@/components/BaseButton.vue'
+import FlexContainer from '@/components/flex/FlexContainer.vue'
+import FlexColumn from '@/components/flex/FlexColumn.vue'
+import FlexRow from '@/components/flex/FlexRow.vue'
 const projectStore = useProjectsStore()
 
 // Reactive
@@ -12,6 +16,7 @@ const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const editActiveId = ref(null)
 const showInactive = ref(true)
+const createNewProjectActive = ref(false)
 
 const columnFields = {
   active: 'active',
@@ -58,7 +63,18 @@ const displayProjects = computed(() => {
   })
 })
 
+const emptyProject = {
+  active: true,
+  description: '',
+  id: null,
+  git: '',
+  name: ''
+}
+
 const projectBeingEdited = computed(() => {
+  if (createNewProjectActive.value) {
+    return emptyProject
+  }
   const projectId = editActiveId.value
   if (projectId === null) {
     return null
@@ -67,7 +83,7 @@ const projectBeingEdited = computed(() => {
 })
 
 const editActive = computed({
-  get: () => editActiveId.value !== null,
+  get: () => editActiveId.value !== null || createNewProjectActive.value,
   set: (val) => {
     if (!val) {
       editActiveId.value = null
@@ -125,6 +141,10 @@ const loadProjectsForCurrentPage = () => {
   projectStore.loadProjects({ skip, take: itemsPerPage.value })
 }
 
+const createNewProject = () => {
+  createNewProjectActive.value = true
+}
+
 // Watchers
 watch(currentPage, () => {
   loadProjectsForCurrentPage()
@@ -153,12 +173,32 @@ onMounted(() => {
       paginator-template="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}">
       <template #header>
-        <div class="flex justify-content-end align-items-center gap-2">
-          <input-switch
-            v-model="showInactive"
-            input-id="input-show-active" />
-          <label for="input-show-active">Show Inactive</label>
-        </div>
+        <flex-container
+          fluid
+          class="p-0">
+          <flex-row>
+            <flex-column
+              :cols="6"
+              class="flex justify-content-center">
+              <div class="flex gap-2">
+                <input-switch
+                  v-model="showInactive"
+                  input-id="input-show-active" />
+                <label for="input-show-active">Show Inactive</label>
+              </div>
+            </flex-column>
+            <flex-column
+              :cols="6"
+              class="flex justify-content-center"
+              style="text-align: end">
+              <div>
+                <base-button @click="createNewProject">
+                  Create Project
+                </base-button>
+              </div>
+            </flex-column>
+          </flex-row>
+        </flex-container>
       </template>
       <column
         v-for="col of displayColumns"

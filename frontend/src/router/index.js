@@ -6,6 +6,7 @@ import ProjectsView from '@/views/Public/ProjectsView.vue'
 import PublicLayout from '@/views/Public/PublicLayout.vue'
 import ProjectsTable from '@/views/Admin/ProjectsTable/ProjectsTable.vue'
 import PrimeVue from '@/views/Public/PrimeVue.vue'
+import ValidationForm from '@/components/ValidationForm.vue'
 
 const routes = [
   {
@@ -33,6 +34,10 @@ const routes = [
       {
         path: '',
         component: ProjectsTable
+      },
+      {
+        path: 'validation',
+        component: ValidationForm
       }
     ]
   }

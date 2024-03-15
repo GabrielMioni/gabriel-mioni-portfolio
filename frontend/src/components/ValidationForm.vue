@@ -2,6 +2,10 @@
 import { ref } from 'vue'
 import TextFieldV2 from '@/components/TextFieldV2.vue'
 import BaseFormV2 from '@/components/inputs/BaseFormV2.vue'
+import FlexContainer from '@/components/flex/FlexContainer.vue'
+import FlexRow from '@/components/flex/FlexRow.vue'
+import FlexColumn from '@/components/flex/FlexColumn.vue'
+import BaseButton from '@/components/BaseButton.vue'
 
 const validateEmail = (email) => {
   const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
@@ -22,20 +26,38 @@ const name = ref('')
 
 <template>
   <base-form-v2 v-slot="{ isValid }">
-    <text-field-v2
-      v-model="email"
-      field-name="email"
-      :rules="[validateEmail]" />
-    <text-field-v2
-      v-model="name"
-      field-name="name"
-      :rules="[required]" />
-    <pre>
-      {{ `isValid: ${isValid}` }}
-    </pre>
-    <button :disabled="!isValid">
-      Sign Up!
-    </button>
+    <flex-container fluid>
+      <flex-row>
+        <flex-column>
+          <text-field-v2
+            v-model="email"
+            field-name="email"
+            label="Email"
+            float-label
+            small
+            :rules="[validateEmail]" />
+        </flex-column>
+      </flex-row>
+      <flex-row>
+        <flex-column>
+          <text-field-v2
+            v-model="name"
+            field-name="name"
+            help-text="Name"
+            label="Name"
+            float-label
+            small
+            :rules="[required]" />
+        </flex-column>
+      </flex-row>
+      <flex-column>
+        <flex-row>
+          <base-button :disabled="!isValid">
+            Sign Up
+          </base-button>
+        </flex-row>
+      </flex-column>
+    </flex-container>
   </base-form-v2>
 </template>
 

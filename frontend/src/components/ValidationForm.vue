@@ -6,6 +6,7 @@ import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import BaseButton from '@/components/BaseButton.vue'
+import TextAreaV2 from '@/components/TextAreaV2.vue'
 
 const validateEmail = (email) => {
   const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
@@ -19,6 +20,7 @@ const required = (value) => {
   return (value ? value.trim().length > 0 : false) || 'This field is required'
 }
 
+const description = ref('')
 const email = ref('')
 const name = ref('')
 
@@ -47,6 +49,16 @@ const name = ref('')
             label="Name"
             float-label
             small
+            :rules="[required]" />
+        </flex-column>
+      </flex-row>
+      <flex-row>
+        <flex-column>
+          <text-area-v2
+            v-model="description"
+            label="Description"
+            field-name="description"
+            float-label
             :rules="[required]" />
         </flex-column>
       </flex-row>

@@ -17,11 +17,6 @@ const props = defineProps({
     required: false,
     default: false
   },
-  helpText: {
-    type: String,
-    required: false,
-    default: null
-  },
   hideDetails: {
     type: Boolean,
     required: false,
@@ -60,23 +55,11 @@ const iconClasses = computed( () => {
         v-if="floatLabel"
         name="label" />
     </div>
-    <div class="flex flex-column">
-      <div
-        v-if="!hideDetails"
-        class="details">
-        <small
-          v-if="errorMessage"
-          class="p-error">
-          {{ errorMessage }}
-        </small>
-      </div>
-      <div
-        v-if="helpText"
-        class="details">
-        <small>
-          {{ helpText }}
-        </small>
-      </div>
+    <div
+      v-if="!hideDetails"
+      class="flex flex-column">
+      <slot name="error" />
+      <slot name="helpText" />
     </div>
   </div>
 </template>

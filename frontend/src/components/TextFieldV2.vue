@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { fieldProps } from '@/components/inputs/field-props.js'
 import { ErrorMessage, Field } from 'vee-validate'
 import TextFieldRender from '@/components/inputs/TextField/TextFieldRender.vue'
@@ -55,7 +55,6 @@ const fieldNameDisplay = props.fieldName.toString().toLowerCase()
     :hide-details="hideDetails"
     :prepend-icon="prependIcon"
     :float-label="floatLabel"
-    :help-text="helpText"
     class="text-field">
     <template #label>
       <label
@@ -78,6 +77,11 @@ const fieldNameDisplay = props.fieldName.toString().toLowerCase()
     <template #error>
       <small class="p-error">
         <ErrorMessage :name="fieldName" />
+      </small>
+    </template>
+    <template #helpText>
+      <small>
+        {{ helpText }}
       </small>
     </template>
   </text-field-render>

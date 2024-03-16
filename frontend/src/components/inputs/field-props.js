@@ -36,7 +36,7 @@ export const fieldProps = {
   floatLabel: {
     type: Boolean,
     required: false,
-    default: false
+    default: true
   },
   rules: {
     type: Array,

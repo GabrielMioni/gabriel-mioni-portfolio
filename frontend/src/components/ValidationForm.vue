@@ -35,7 +35,6 @@ const name = ref('')
             v-model="email"
             field-name="email"
             label="Email"
-            float-label
             small
             :rules="[validateEmail]" />
         </flex-column>
@@ -47,7 +46,6 @@ const name = ref('')
             field-name="name"
             help-text="Name"
             label="Name"
-            float-label
             small
             :rules="[required]" />
         </flex-column>
@@ -58,7 +56,6 @@ const name = ref('')
             v-model="description"
             label="Description"
             field-name="description"
-            float-label
             :rules="[required]" />
         </flex-column>
       </flex-row>

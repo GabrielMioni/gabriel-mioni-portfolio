@@ -87,6 +87,7 @@ const editActive = computed({
   set: (val) => {
     if (!val) {
       editActiveId.value = null
+      createNewProjectActive.value = false
     }
   }
 })

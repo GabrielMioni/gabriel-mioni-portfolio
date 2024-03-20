@@ -66,10 +66,12 @@ const fieldNameDisplay = props.fieldName.toString().toLowerCase()
     </template>
     <Field
       v-slot="{ field, errors, meta }"
+      :model-value="fieldValue"
       :name="fieldName"
       :type="type"
       :rules="rules">
       <input-text
+        :id="fieldNameDisplay"
         v-model="fieldValue"
         v-bind="field"
         :class="{ 'p-invalid': errors.length > 0 && meta.touched }" />

@@ -26,6 +26,7 @@ const fieldValue = computed({
     </label>
     <Field
       v-slot="{ field, errors, meta }"
+      :model-value="fieldValue"
       :name="fieldName"
       :rules="rules">
       <div class="p-float-label">

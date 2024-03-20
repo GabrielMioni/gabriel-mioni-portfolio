@@ -3,15 +3,14 @@ import { computed, ref, watch } from 'vue'
 import { makeRequiredRule } from '@/rules/index.js'
 import apolloClient from '@/apollo/apolloClient.js'
 import { useProjectsStore } from '@/store/projects/index.js'
-import EditProject from '@/views/Admin/ProjectsTable/graphql/EditProject.graphql'
-
-import BaseButton from '@/components/BaseButton.vue'
-import BaseForm from '@/components/inputs/BaseForm.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
-import TextField from '@/components/inputs/TextField/TextField.vue'
-import TextArea from '@/components/inputs/TextArea.vue'
+import EditProject from '@/views/Admin/ProjectsTable/graphql/EditProject.graphql'
+import BaseFormV2 from '@/components/inputs/BaseFormV2.vue'
+import BaseButton from '@/components/BaseButton.vue'
+import TextAreaV2 from '@/components/TextAreaV2.vue'
+import TextFieldV2 from '@/components/TextFieldV2.vue'
 
 const props = defineProps({
   modelValue: {
@@ -50,6 +49,7 @@ const projectHasBeenEdited = computed(() => {
 const formIsValid = ref(false)
 
 watch(() => props.project, (projectValue) => {
+  console.log('projectValue', projectValue)
   if (projectValue === null) {
     name.value = ''
     git.value = ''
@@ -86,23 +86,23 @@ const saveProject = async () => {
 </script>
 
 <template>
-  <Dialog
-    v-model:visible="showValue"
-    class="project-edit-modal"
-    modal
-    header="Edit Profile"
-    :style="{ width: '25rem' }">
-    <template #header>
-      <span class="font-bold">Edit Item</span>
-    </template>
-    <div class="project-edit-modal__content">
-      <base-form v-model="formIsValid">
+  <base-form-v2 v-slot="{ isValid }">
+    <Dialog
+      v-model:visible="showValue"
+      class="project-edit-modal"
+      modal
+      header="Edit Profile"
+      :style="{ width: '25rem' }">
+      <template #header>
+        <span class="font-bold">Edit Item</span>
+      </template>
+      <div class="project-edit-modal__content">
         <flex-container
           fluid
           class="px-0">
           <flex-row>
             <flex-column class="px-0">
-              <text-field
+              <text-field-v2
                 :key="`name-${project?.id}`"
                 v-model="name"
                 hide-details
@@ -114,7 +114,7 @@ const saveProject = async () => {
             </flex-column>
             <flex-column
               class="px-0">
-              <text-field
+              <text-field-v2
                 :key="`git-${project?.id}`"
                 v-model="git"
                 hide-details
@@ -126,7 +126,7 @@ const saveProject = async () => {
             <flex-column
               class="px-0"
               :cols="12">
-              <text-area
+              <text-area-v2
                 v-model="description"
                 label="Description"
                 field-name="description"
@@ -135,21 +135,21 @@ const saveProject = async () => {
             </flex-column>
           </flex-row>
         </flex-container>
-      </base-form>
-    </div>
-    <template #footer>
-      <base-button
-        :filled="false"
-        @click="showValue = false">
-        Cancel
-      </base-button>
-      <base-button
-        :disabled="!(formIsValid && projectHasBeenEdited)"
-        @click="saveProject">
-        Save
-      </base-button>
-    </template>
-  </Dialog>
+      </div>
+      <template #footer>
+        <base-button
+          :filled="false"
+          @click="showValue = false">
+          Cancel
+        </base-button>
+        <base-button
+          :disabled="!(isValid && projectHasBeenEdited)"
+          @click="saveProject">
+          Save
+        </base-button>
+      </template>
+    </Dialog>
+  </base-form-v2>
 </template>
 
 <script>

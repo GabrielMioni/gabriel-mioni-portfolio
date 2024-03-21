@@ -1,17 +1,24 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { makeRequiredRule } from '@/rules/index.js'
-import apolloClient from '@/apollo/apolloClient.js'
 import { useProjectsStore } from '@/store/projects/index.js'
+import apolloClient from '@/apollo/apolloClient.js'
+
+// GraphQL
+import AddProject from '@/views/Admin/ProjectsTable/graphql/AddProject.gql'
+import EditProject from '@/views/Admin/ProjectsTable/graphql/EditProject.graphql'
+
+// Rules
+import { makeRequiredRule } from '@/rules/index.js'
+
+// Components
+import BaseButton from '@/components/BaseButton.vue'
+import BaseFormV2 from '@/components/inputs/BaseFormV2.vue'
+import TextAreaV2 from '@/components/TextAreaV2.vue'
+import TextFieldV2 from '@/components/TextFieldV2.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
-import EditProject from '@/views/Admin/ProjectsTable/graphql/EditProject.graphql'
-import BaseFormV2 from '@/components/inputs/BaseFormV2.vue'
-import BaseButton from '@/components/BaseButton.vue'
-import TextAreaV2 from '@/components/TextAreaV2.vue'
-import TextFieldV2 from '@/components/TextFieldV2.vue'
-import AddProject from '@/views/Admin/ProjectsTable/graphql/AddProject.gql'
+
 
 const props = defineProps({
   modelValue: {
@@ -47,10 +54,7 @@ const projectHasBeenEdited = computed(() => {
   return name.value !== props.project.name || git.value !== props.project.git || description.value !== props.project.description
 })
 
-const formIsValid = ref(false)
-
 watch(() => props.project, (projectValue) => {
-  console.log('projectValue', projectValue)
   if (projectValue === null) {
     name.value = ''
     git.value = ''
@@ -93,7 +97,7 @@ const saveEdit = async (id) => {
 
 const saveNewProject = async () => {
   try {
-    await apolloClient.mutate({
+    const { data: { addProject: project } } = await apolloClient.mutate({
       mutation: AddProject,
       variables: {
         description: description.value,
@@ -101,7 +105,7 @@ const saveNewProject = async () => {
         name: name.value
       }
     })
-    projectStore.addProject({ description: description.value, git: git.value, name: name.value })
+    projectStore.addProject({ ...project, active: true })
   } catch (e) {
     console.warn(`Unable to save project: ${e}`)
   }

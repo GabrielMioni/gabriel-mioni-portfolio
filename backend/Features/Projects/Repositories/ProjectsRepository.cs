@@ -21,6 +21,8 @@ namespace backend.Features.Projects.Repositories
                 query = query.Where(p => p.Active);
             }
 
+            query = query.OrderByDescending(p => p.CreatedAt);
+
             return await query.Skip(skip).Take(take).ToListAsync();
         }
 

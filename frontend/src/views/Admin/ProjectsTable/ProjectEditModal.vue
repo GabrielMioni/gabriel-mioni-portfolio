@@ -11,6 +11,7 @@ import BaseFormV2 from '@/components/inputs/BaseFormV2.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import TextAreaV2 from '@/components/TextAreaV2.vue'
 import TextFieldV2 from '@/components/TextFieldV2.vue'
+import AddProject from '@/views/Admin/ProjectsTable/graphql/AddProject.gql'
 
 const props = defineProps({
   modelValue: {
@@ -65,7 +66,14 @@ const projectStore = useProjectsStore()
 
 const saveProject = async () => {
   const id = props.project?.id
+  if (!id) {
+    await saveNewProject()
+    return
+  }
+  await saveEdit(id)
+}
 
+const saveEdit = async (id) => {
   try {
     await apolloClient.mutate({
       mutation: EditProject,
@@ -78,6 +86,22 @@ const saveProject = async () => {
     })
 
     projectStore.updateProject({ id, description: description.value, git: git.value, name: name.value })
+  } catch (e) {
+    console.warn(`Unable to save project: ${e}`)
+  }
+}
+
+const saveNewProject = async () => {
+  try {
+    await apolloClient.mutate({
+      mutation: AddProject,
+      variables: {
+        description: description.value,
+        git: git.value,
+        name: name.value
+      }
+    })
+    projectStore.addProject({ description: description.value, git: git.value, name: name.value })
   } catch (e) {
     console.warn(`Unable to save project: ${e}`)
   }

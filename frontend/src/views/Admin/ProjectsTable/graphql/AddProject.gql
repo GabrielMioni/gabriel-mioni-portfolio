@@ -1,0 +1,9 @@
+mutation AddProject($name: String!, $description: String!, $git: String) {
+    addProject(name: $name, description: $description, git: $git) {
+        id
+        name
+        description
+        createdAt
+        updatedAt
+    }
+}

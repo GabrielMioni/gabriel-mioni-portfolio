@@ -1,9 +1,11 @@
 mutation AddProject($name: String!, $description: String!, $git: String) {
     addProject(name: $name, description: $description, git: $git) {
         id
-        name
-        description
+        active
         createdAt
+        description
+        git
+        name
         updatedAt
     }
 }

@@ -2,7 +2,9 @@ import { fetchProjects } from '@/services/projectsService.js'
 
 export const actions = {
   addProject (project) {
-    this.PROJECTS.push(project)
+    this.$patch({
+      PROJECTS: [project, ...this.PROJECTS]
+    })
   },
   async loadProjects ({ skip, take }) {
     const { projects, count } = await fetchProjects({ skip, take }).catch(e => console.error(e))

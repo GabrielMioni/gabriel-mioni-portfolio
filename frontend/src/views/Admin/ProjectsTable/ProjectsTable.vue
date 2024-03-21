@@ -2,7 +2,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
 import { useAddOrRemoveDialog } from '@/views/Admin/ProjectsTable/showAddOrRemoveDialog.js'
-// import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
 import PopupMenu from '@/components/PopupMenu.vue'
 import ProjectEditModal from '@/views/Admin/ProjectsTable/ProjectEditModal.vue'
 import BaseButton from '@/components/BaseButton.vue'
@@ -10,6 +9,7 @@ import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 const projectStore = useProjectsStore()
+import moment from 'moment'
 
 // Reactive
 const currentPage = ref(1)
@@ -20,13 +20,19 @@ const createNewProjectActive = ref(false)
 
 const columnFields = {
   active: 'active',
-  action: 'action'
+  action: 'action',
+  createdAt: 'createdAt'
 }
 
 const columns = [
   {
     field: 'name',
     header: 'Name',
+    sortable: false
+  },
+  {
+    field: 'createdAt',
+    header: 'Created At',
     sortable: false
   },
   {
@@ -137,6 +143,10 @@ const getMenuItemsForRow = (id) => {
   ]
 }
 
+const formatDisplayDate = (date) => {
+  return moment(date).format('MM/DD/YYYY HH:mm')
+}
+
 const loadProjectsForCurrentPage = () => {
   const skip = (currentPage.value - 1) * itemsPerPage.value
   projectStore.loadProjects({ skip, take: itemsPerPage.value })
@@ -211,10 +221,13 @@ onMounted(() => {
           <popup-menu
             v-if="col.field === columnFields.action"
             :items="getMenuItemsForRow(data.id)" />
-          <template v-if="col.field === columnFields.active">
+          <template v-else-if="col.field === columnFields.active">
             <tag
               :severity="data.active ? 'success' : 'warning'"
               :value="data.active ? 'Active' : 'Inactive'" />
+          </template>
+          <template v-else-if="col.field === columnFields.createdAt">
+            {{ formatDisplayDate(data[col.field]) }}
           </template>
           <template v-else>
             {{ data[col.field] }}

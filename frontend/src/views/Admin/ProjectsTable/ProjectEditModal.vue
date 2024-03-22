@@ -70,11 +70,12 @@ const projectStore = useProjectsStore()
 
 const saveProject = async () => {
   const id = props.project?.id
-  if (!id) {
+  if (id) {
+    await saveEdit(id)
+  } else {
     await saveNewProject()
-    return
   }
-  await saveEdit(id)
+  showValue.value = false
 }
 
 const saveEdit = async (id) => {

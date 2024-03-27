@@ -27,6 +27,8 @@ import Menu from 'primevue/menu'
 import Paginator from 'primevue/paginator'
 import Tag from 'primevue/tag'
 import Textarea from 'primevue/textarea'
+import Toast from 'primevue/toast'
+import ToastService from 'primevue/toastservice'
 import Toolbar from 'primevue/toolbar'
 
 const app = createApp(App)
@@ -38,6 +40,7 @@ app.provide(DefaultApolloClient, apolloClient)
 app.use(pinia)
 app.use(PrimeVue)
 app.use(ConfirmationService)
+app.use(ToastService)
 app.use(router)
 
 const primeComponents = [
@@ -54,6 +57,7 @@ const primeComponents = [
   Paginator,
   Tag,
   Textarea,
+  Toast,
   Toolbar,
 ]
 

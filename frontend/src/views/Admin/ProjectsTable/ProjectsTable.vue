@@ -10,10 +10,6 @@ import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 const projectStore = useProjectsStore()
 import moment from 'moment'
-import eventBus from '@/services/EventBus.js'
-import ToastMessage from '@/components/ToastMessage.vue'
-
-console.log(eventBus)
 
 // Reactive
 const currentPage = ref(1)
@@ -160,11 +156,6 @@ const createNewProject = () => {
   createNewProjectActive.value = true
 }
 
-const sendToast = () => {
-  console.log('called sendToast')
-  eventBus.$emit('blah', { severity: 'success', summary: 'Success', message: 'Project added successfully' })
-}
-
 // Watchers
 watch(currentPage, () => {
   loadProjectsForCurrentPage()
@@ -215,11 +206,6 @@ onMounted(() => {
               <div>
                 <base-button @click="createNewProject">
                   Create Project
-                </base-button>
-              </div>
-              <div>
-                <base-button @click="sendToast">
-                  Send Toast
                 </base-button>
               </div>
             </flex-column>

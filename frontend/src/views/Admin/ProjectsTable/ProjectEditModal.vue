@@ -18,6 +18,7 @@ import TextFieldV2 from '@/components/TextFieldV2.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
+import eventBus from '@/services/EventBus.js'
 
 
 const props = defineProps({
@@ -68,6 +69,14 @@ watch(() => props.project, (projectValue) => {
 
 const projectStore = useProjectsStore()
 
+// const sendProjectUpdateToast = (message) => {
+//   eventBus.$emit('toast', { severity: 'success', summary: 'Success', message, life: 3000 })
+// }
+
+const sendProjectUpdateToast = (message, severity = 'success', summary = 'Success') => {
+  eventBus.$emit('toast', { severity, summary, message, life: 3000 })
+}
+
 const saveProject = async () => {
   const id = props.project?.id
   if (id) {
@@ -91,7 +100,9 @@ const saveEdit = async (id) => {
     })
 
     projectStore.updateProject({ id, description: description.value, git: git.value, name: name.value })
+    sendProjectUpdateToast('Project updated successfully')
   } catch (e) {
+    sendProjectUpdateToast('Unable to update project', 'error', 'Error')
     console.warn(`Unable to save project: ${e}`)
   }
 }
@@ -107,7 +118,9 @@ const saveNewProject = async () => {
       }
     })
     projectStore.addProject({ ...project, active: true })
+    sendProjectUpdateToast('Project added successfully')
   } catch (e) {
+    sendProjectUpdateToast('Unable to save new project', 'error', 'Error')
     console.warn(`Unable to save project: ${e}`)
   }
 }

@@ -17,9 +17,16 @@ const git = ref('')
 
 const nameRule = makeRequiredRule('Name')
 const descriptionRule = makeRequiredRule('Description')
+import eventBus from '@/services/EventBus.js'
 
 const handleSubmit = async () => {
-  await addNewProject({ name: name.value, description: description.value, git: git.value })
+  try {
+    await addNewProject({ name: name.value, description: description.value, git: git.value })
+    eventBus.$emit('toast', { severity: 'success', summary: 'Success', message: 'Project added successfully' })
+  } catch (error) {
+    console.error('Error adding new project:', error)
+    eventBus.$emit('toast', { severity: 'error', summary: 'Error', message: 'Error adding new project' })
+  }
 }
 
 </script>

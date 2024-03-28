@@ -2,10 +2,13 @@
 import { useToast } from 'primevue/usetoast'
 import eventBus from '@/services/EventBus.js'
 
+console.log(eventBus)
+
 const toast = useToast()
 
-eventBus.$on('toast', ({ severity, summary, message, life = 3000 }) => {
-  toast.add({ severity, summary, detail: message, life })
+eventBus.$on('toast', ({ severity, summary, message }) => {
+  console.log('toast event received', { severity, summary, message })
+  toast.add({ severity, summary, detail: message })
 })
 
 eventBus.$off('toast')

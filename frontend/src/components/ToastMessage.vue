@@ -1,17 +1,23 @@
 <script setup>
 import { useToast } from 'primevue/usetoast'
 import eventBus from '@/services/EventBus.js'
-
-console.log(eventBus)
+import { onBeforeMount, onBeforeUnmount } from 'vue'
 
 const toast = useToast()
 
-eventBus.$on('toast', ({ severity, summary, message }) => {
-  console.log('toast event received', { severity, summary, message })
-  toast.add({ severity, summary, detail: message })
+const displayToastMessage = ({ severity, summary, message, life }) => {
+  toast.add({ severity, summary, detail: message, life })
+}
+
+onBeforeMount(() => {
+  eventBus.$on('toast', ({ severity, summary, message, life }) => {
+    displayToastMessage({ severity, summary, message, life })
+  })
 })
 
-eventBus.$off('toast')
+onBeforeUnmount(() => {
+  eventBus.$off('toast', displayToastMessage)
+})
 
 </script>
 

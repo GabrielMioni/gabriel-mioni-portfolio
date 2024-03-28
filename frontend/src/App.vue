@@ -1,17 +1,12 @@
 <script setup>
-import { onBeforeMount, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { fetchWeatherForecast } from '@/api/index.js'
 import ToastMessage from '@/components/ToastMessage.vue'
-import EventBus from '@/services/EventBus.js'
 
 onMounted(async () => {
   const result = await fetchWeatherForecast()
     .catch(error => console.error(error))
   console.log(result)
-})
-
-onBeforeMount(() => {
-  EventBus.$on('blah', { severity: 'info', summary: 'Info', message: 'Weather forecast loaded' })
 })
 
 </script>
@@ -20,6 +15,7 @@ onBeforeMount(() => {
   <div
     id="main"
     class="p-component">
+    <ToastMessage />
     <router-view v-slot="{ Component }">
       <transition name="fade">
         <component :is="Component" />

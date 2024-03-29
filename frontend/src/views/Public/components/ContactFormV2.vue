@@ -58,6 +58,10 @@ const messageRule = makeRequiredRule('Message')
                 :rules="[messageRule]" />
             </flex-column>
           </flex-row>
+        </flex-container>
+      </template>
+      <template #footer>
+        <flex-container class="py-0">
           <flex-row>
             <flex-column>
               <span class="flex justify-content-end">
@@ -80,5 +84,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
+::v-deep(.p-card-content) {
+  padding: 1rem 0;
+}
+::v-deep(.p-card .p-card-footer) {
+  padding: 0;
+}
 </style>

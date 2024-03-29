@@ -9,7 +9,7 @@ import FlexColumn from '@/components/flex/FlexColumn.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseFormV2 from '@/components/inputs/BaseFormV2.vue'
 import TextAreaV2 from '@/components/TextAreaV2.vue'
-import TextFieldV2 from '@/components/TextFieldV2.vue'
+import TextFieldV2 from '@/components/inputs/TextField/TextFieldV2.vue'
 
 const name = ref('')
 const email = ref('')

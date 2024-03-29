@@ -89,6 +89,12 @@ const fieldNameDisplay = props.fieldName.toString().toLowerCase()
   </text-field-render>
 </template>
 
+<script>
+export default {
+  name: 'TextFieldV2'
+}
+</script>
+
 <style scoped lang="scss">
 
 </style>

@@ -10,6 +10,7 @@ import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 const projectStore = useProjectsStore()
 import moment from 'moment'
+import ToastMessage from '@/components/ToastMessage.vue'
 
 // Reactive
 const currentPage = ref(1)

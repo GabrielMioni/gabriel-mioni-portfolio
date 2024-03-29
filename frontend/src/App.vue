@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
 import { fetchWeatherForecast } from '@/api/index.js'
-import ToastMessage from '@/components/ToastMessage.vue'
 
 onMounted(async () => {
   const result = await fetchWeatherForecast()
@@ -15,7 +14,6 @@ onMounted(async () => {
   <div
     id="main"
     class="p-component">
-    <ToastMessage />
     <router-view v-slot="{ Component }">
       <transition name="fade">
         <component :is="Component" />

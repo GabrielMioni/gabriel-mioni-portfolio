@@ -1,6 +1,6 @@
 <script setup>
 import profilePic from '@/assets/saturn-eating-his-son.png'
-import ContactForm from '@/views/Public/components/ContactForm.vue'
+import ContactFormV2 from '@/views/Public/components/ContactFormV2.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
@@ -25,7 +25,7 @@ import FlexColumn from '@/components/flex/FlexColumn.vue'
                 :src="profilePic">
             </flex-column>
             <flex-column>
-              <contact-form />
+              <contact-form-v2 />
             </flex-column>
           </flex-row>
         </flex-column>

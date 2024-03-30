@@ -13,7 +13,7 @@ import { makeRequiredRule } from '@/rules/index.js'
 // Components
 import BaseButton from '@/components/BaseButton.vue'
 import BaseForm from '@/components/inputs/BaseForm.vue'
-import TextAreaV2 from '@/components/TextAreaV2.vue'
+import TextArea from '@/components/TextArea.vue'
 import TextField from '@/components/inputs/TextField/TextField.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
@@ -168,7 +168,7 @@ const saveNewProject = async () => {
             <flex-column
               class="px-0"
               :cols="12">
-              <text-area-v2
+              <text-area
                 v-model="description"
                 label="Description"
                 field-name="description"

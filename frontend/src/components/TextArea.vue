@@ -51,6 +51,12 @@ const fieldValue = computed({
   </div>
 </template>
 
+<script>
+export default {
+  name: 'TextArea'
+}
+</script>
+
 <style scoped lang="scss">
 
 </style>

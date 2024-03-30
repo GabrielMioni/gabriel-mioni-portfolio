@@ -6,7 +6,7 @@ import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import BaseButton from '@/components/BaseButton.vue'
-import TextAreaV2 from '@/components/TextAreaV2.vue'
+import TextArea from '@/components/TextArea.vue'
 
 const validateEmail = (email) => {
   const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
@@ -52,7 +52,7 @@ const name = ref('')
       </flex-row>
       <flex-row>
         <flex-column>
-          <text-area-v2
+          <text-area
             v-model="description"
             label="Description"
             field-name="description"

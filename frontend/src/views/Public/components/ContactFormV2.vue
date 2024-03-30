@@ -8,7 +8,7 @@ import FlexColumn from '@/components/flex/FlexColumn.vue'
 
 import BaseButton from '@/components/BaseButton.vue'
 import BaseForm from '@/components/inputs/BaseForm.vue'
-import TextAreaV2 from '@/components/TextAreaV2.vue'
+import TextArea from '@/components/TextArea.vue'
 import TextField from '@/components/inputs/TextField/TextField.vue'
 
 const name = ref('')
@@ -50,7 +50,7 @@ const messageRule = makeRequiredRule('Message')
           </flex-row>
           <flex-row>
             <flex-column>
-              <text-area-v2
+              <text-area
                 v-model="message"
                 label="Message"
                 field-name="message"

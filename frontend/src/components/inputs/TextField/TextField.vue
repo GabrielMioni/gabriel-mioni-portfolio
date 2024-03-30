@@ -91,7 +91,7 @@ const fieldNameDisplay = props.fieldName.toString().toLowerCase()
 
 <script>
 export default {
-  name: 'TextFieldV2'
+  name: 'TextField'
 }
 </script>
 

@@ -64,7 +64,7 @@ const fieldNameDisplay = props.fieldName.toString().toLowerCase()
         {{ label }}
       </label>
     </template>
-    <Field
+    <field
       v-slot="{ field, errors, meta }"
       :model-value="fieldValue"
       :name="fieldName"
@@ -75,10 +75,10 @@ const fieldNameDisplay = props.fieldName.toString().toLowerCase()
         v-model="fieldValue"
         v-bind="field"
         :class="{ 'p-invalid': errors.length > 0 && meta.touched }" />
-    </Field>
+    </field>
     <template #error>
       <small class="p-error">
-        <ErrorMessage :name="fieldName" />
+        <error-message :name="fieldName" />
       </small>
     </template>
     <template #helpText>

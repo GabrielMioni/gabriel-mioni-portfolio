@@ -79,7 +79,7 @@ const messageRule = makeRequiredRule('Message')
 
 <script>
 export default {
-  name: 'ContactFormV2'
+  name: 'ContactForm'
 }
 </script>
 

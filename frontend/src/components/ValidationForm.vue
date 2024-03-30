@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import TextFieldV2 from '@/components/inputs/TextField/TextFieldV2.vue'
+import TextField from '@/components/inputs/TextField/TextField.vue'
 import BaseForm from '@/components/inputs/BaseForm.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
@@ -31,7 +31,7 @@ const name = ref('')
     <flex-container fluid>
       <flex-row>
         <flex-column>
-          <text-field-v2
+          <text-field
             v-model="email"
             field-name="email"
             label="Email"
@@ -41,7 +41,7 @@ const name = ref('')
       </flex-row>
       <flex-row>
         <flex-column>
-          <text-field-v2
+          <text-field
             v-model="name"
             field-name="name"
             help-text="Name"

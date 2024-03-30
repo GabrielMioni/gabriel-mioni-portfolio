@@ -9,7 +9,7 @@ import FlexColumn from '@/components/flex/FlexColumn.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseForm from '@/components/inputs/BaseForm.vue'
 import TextAreaV2 from '@/components/TextAreaV2.vue'
-import TextFieldV2 from '@/components/inputs/TextField/TextFieldV2.vue'
+import TextField from '@/components/inputs/TextField/TextField.vue'
 
 const name = ref('')
 const email = ref('')
@@ -28,7 +28,7 @@ const messageRule = makeRequiredRule('Message')
         <flex-container fluid>
           <flex-row>
             <flex-column>
-              <text-field-v2
+              <text-field
                 v-model="name"
                 label="Name"
                 field-name="name"
@@ -39,7 +39,7 @@ const messageRule = makeRequiredRule('Message')
           </flex-row>
           <flex-row>
             <flex-column>
-              <text-field-v2
+              <text-field
                 v-model="email"
                 label="Email"
                 field-name="email"

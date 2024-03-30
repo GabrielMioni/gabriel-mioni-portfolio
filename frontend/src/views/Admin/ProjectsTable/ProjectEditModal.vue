@@ -14,7 +14,7 @@ import { makeRequiredRule } from '@/rules/index.js'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseForm from '@/components/inputs/BaseForm.vue'
 import TextAreaV2 from '@/components/TextAreaV2.vue'
-import TextFieldV2 from '@/components/inputs/TextField/TextFieldV2.vue'
+import TextField from '@/components/inputs/TextField/TextField.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
@@ -144,7 +144,7 @@ const saveNewProject = async () => {
           class="px-0">
           <flex-row>
             <flex-column class="px-0">
-              <text-field-v2
+              <text-field
                 :key="`name-${project?.id}`"
                 v-model="name"
                 hide-details
@@ -156,7 +156,7 @@ const saveNewProject = async () => {
             </flex-column>
             <flex-column
               class="px-0">
-              <text-field-v2
+              <text-field
                 :key="`git-${project?.id}`"
                 v-model="git"
                 hide-details

@@ -1,3 +1,18 @@
+<script setup>
+defineProps({
+  fluid: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  fillHeight: {
+    type: Boolean,
+    required: false,
+    default: false
+  }
+})
+</script>
+
 <template>
   <div
     class="flex-container"
@@ -12,18 +27,6 @@
 <script>
 export default {
   name: 'FlexContainer',
-  props: {
-    fluid: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    fillHeight: {
-      type: Boolean,
-      required: false,
-      default: false
-    }
-  }
 }
 </script>
 

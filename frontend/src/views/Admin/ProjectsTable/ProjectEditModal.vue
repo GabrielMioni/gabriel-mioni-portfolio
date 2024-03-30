@@ -12,7 +12,7 @@ import { makeRequiredRule } from '@/rules/index.js'
 
 // Components
 import BaseButton from '@/components/BaseButton.vue'
-import BaseFormV2 from '@/components/inputs/BaseFormV2.vue'
+import BaseForm from '@/components/inputs/BaseForm.vue'
 import TextAreaV2 from '@/components/TextAreaV2.vue'
 import TextFieldV2 from '@/components/inputs/TextField/TextFieldV2.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
@@ -128,7 +128,7 @@ const saveNewProject = async () => {
 </script>
 
 <template>
-  <base-form-v2 v-slot="{ isValid }">
+  <base-form v-slot="{ isValid }">
     <Dialog
       v-model:visible="showValue"
       class="project-edit-modal"
@@ -191,7 +191,7 @@ const saveNewProject = async () => {
         </base-button>
       </template>
     </Dialog>
-  </base-form-v2>
+  </base-form>
 </template>
 
 <script>

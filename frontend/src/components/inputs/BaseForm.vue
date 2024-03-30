@@ -11,7 +11,7 @@ import { Form  } from 'vee-validate'
 
 <script>
 export default {
-  name: 'BaseFormV2'
+  name: 'BaseForm'
 }
 </script>
 

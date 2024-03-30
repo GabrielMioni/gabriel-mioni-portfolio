@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import TextFieldV2 from '@/components/inputs/TextField/TextFieldV2.vue'
-import BaseFormV2 from '@/components/inputs/BaseFormV2.vue'
+import BaseForm from '@/components/inputs/BaseForm.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
@@ -27,7 +27,7 @@ const name = ref('')
 </script>
 
 <template>
-  <base-form-v2 v-slot="{ isValid }">
+  <base-form v-slot="{ isValid }">
     <flex-container fluid>
       <flex-row>
         <flex-column>
@@ -67,7 +67,7 @@ const name = ref('')
         </flex-row>
       </flex-column>
     </flex-container>
-  </base-form-v2>
+  </base-form>
 </template>
 
 <style>

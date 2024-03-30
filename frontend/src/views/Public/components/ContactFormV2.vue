@@ -7,7 +7,7 @@ import FlexRow from '@/components/flex/FlexRow.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 
 import BaseButton from '@/components/BaseButton.vue'
-import BaseFormV2 from '@/components/inputs/BaseFormV2.vue'
+import BaseForm from '@/components/inputs/BaseForm.vue'
 import TextAreaV2 from '@/components/TextAreaV2.vue'
 import TextFieldV2 from '@/components/inputs/TextField/TextFieldV2.vue'
 
@@ -22,7 +22,7 @@ const messageRule = makeRequiredRule('Message')
 </script>
 
 <template>
-  <base-form-v2 v-slot="{ isValid }">
+  <base-form v-slot="{ isValid }">
     <card>
       <template #content>
         <flex-container fluid>
@@ -74,7 +74,7 @@ const messageRule = makeRequiredRule('Message')
         </flex-container>
       </template>
     </card>
-  </base-form-v2>
+  </base-form>
 </template>
 
 <script>

@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { fieldProps } from '@/components/inputs/field-props.js'
 import { ErrorMessage, Field } from 'vee-validate'
-import TextFieldRender from '@/components/inputs/TextField/TextFieldRender.vue'
+import TextFieldLayout from '@/components/inputs/TextField/TextFieldLayout.vue'
 
 const props = defineProps({
   ...fieldProps,
@@ -50,7 +50,7 @@ const fieldNameDisplay = props.fieldName.toString().toLowerCase()
 </script>
 
 <template>
-  <text-field-render
+  <text-field-layout
     :append-icon="appendIcon"
     :hide-details="hideDetails"
     :prepend-icon="prependIcon"
@@ -86,7 +86,7 @@ const fieldNameDisplay = props.fieldName.toString().toLowerCase()
         {{ helpText }}
       </small>
     </template>
-  </text-field-render>
+  </text-field-layout>
 </template>
 
 <script>

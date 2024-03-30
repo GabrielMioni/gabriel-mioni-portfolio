@@ -147,7 +147,6 @@ const saveNewProject = async () => {
               <text-field
                 :key="`name-${project?.id}`"
                 v-model="name"
-                hide-details
                 label="Name"
                 field-name="name"
                 float-label

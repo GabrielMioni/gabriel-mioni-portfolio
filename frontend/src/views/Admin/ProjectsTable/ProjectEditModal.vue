@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
+import useVModel from '@/services/useVModel.js'
 import apolloClient from '@/apollo/apolloClient.js'
 
 // GraphQL
@@ -41,12 +42,7 @@ const descriptionRule = makeRequiredRule('Description')
 
 const emit = defineEmits(['update:modelValue'])
 
-const showValue = computed({
-  get: () => props.modelValue,
-  set: (val) => {
-    emit('update:modelValue', val)
-  }
-})
+const { localValue: showValue } = useVModel(props, emit)
 
 const projectHasBeenEdited = computed(() => {
   if (!props.project) {

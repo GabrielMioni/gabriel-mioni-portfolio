@@ -1,7 +1,7 @@
 <script setup>
-import { computed } from 'vue'
-import { fieldProps } from '@/components/inputs/field-props.js'
+import useVModel from '@/services/useVModel.js'
 import { ErrorMessage, Field } from 'vee-validate'
+import { fieldProps } from '@/components/inputs/field-props.js'
 import TextFieldLayout from '@/components/inputs/TextField/TextFieldLayout.vue'
 
 const props = defineProps({
@@ -40,10 +40,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const fieldValue = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+const { localValue: fieldValue } = useVModel(props, emit)
 
 const fieldNameDisplay = props.fieldName.toString().toLowerCase()
 

@@ -19,6 +19,7 @@ import TextField from '@/components/inputs/TextField/TextField.vue'
 import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
+import FileUploadDropZone from '@/views/Admin/ProjectsTable/FileUploadDropZone.vue'
 import eventBus from '@/services/EventBus.js'
 
 
@@ -130,7 +131,7 @@ const saveNewProject = async () => {
       class="project-edit-modal"
       modal
       header="Edit Profile"
-      :style="{ width: '25rem' }">
+      :style="{ width: '50rem' }">
       <template #header>
         <span class="font-bold">Edit Item</span>
       </template>
@@ -139,36 +140,41 @@ const saveNewProject = async () => {
           fluid
           class="px-0">
           <flex-row>
-            <flex-column class="px-0">
-              <text-field
-                :key="`name-${project?.id}`"
-                v-model="name"
-                label="Name"
-                field-name="name"
-                float-label
-                small
-                :rules="[nameRule]" />
+            <flex-column>
+              <flex-column class="px-0">
+                <text-field
+                  :key="`name-${project?.id}`"
+                  v-model="name"
+                  label="Name"
+                  field-name="name"
+                  float-label
+                  small
+                  :rules="[nameRule]" />
+              </flex-column>
+              <flex-column
+                class="px-0">
+                <text-field
+                  :key="`git-${project?.id}`"
+                  v-model="git"
+                  hide-details
+                  label="Git"
+                  field-name="git"
+                  float-label
+                  small />
+              </flex-column>
+              <flex-column
+                class="px-0"
+                :cols="12">
+                <text-area
+                  v-model="description"
+                  label="Description"
+                  field-name="description"
+                  float-label
+                  :rules="[descriptionRule]" />
+              </flex-column>
             </flex-column>
-            <flex-column
-              class="px-0">
-              <text-field
-                :key="`git-${project?.id}`"
-                v-model="git"
-                hide-details
-                label="Git"
-                field-name="git"
-                float-label
-                small />
-            </flex-column>
-            <flex-column
-              class="px-0"
-              :cols="12">
-              <text-area
-                v-model="description"
-                label="Description"
-                field-name="description"
-                float-label
-                :rules="[descriptionRule]" />
+            <flex-column>
+              <file-upload-drop-zone />
             </flex-column>
           </flex-row>
         </flex-container>

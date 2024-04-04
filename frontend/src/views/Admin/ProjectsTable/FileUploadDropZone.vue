@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useDropzone } from 'vue3-dropzone'
+import { sendToast, messageTypes } from '@/services/sendToast.js'
 
 const file = ref(null)
 const fileUrl = computed(() => {
@@ -11,11 +12,21 @@ const fileUrl = computed(() => {
 })
 
 const onDrop = (files) => {
-  file.value = files[0]
-  console.log(files)
+  if (files.length <= 0) {
+    const toastPayload = { message: 'You may only upload a single file', type: messageTypes.error }
+    sendToast({ ...toastPayload })
+    return
+  }
+  const droppedFile = files?.[0]
+  if (!droppedFile || !droppedFile.type.startsWith('image/')) {
+    const toastPayload = { message: 'You may only upload an image file', type: messageTypes.error }
+    sendToast({ ...toastPayload })
+    return
+  }
+  file.value = droppedFile
 }
 
-const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, multiple: false })
 
 </script>
 
@@ -24,7 +35,10 @@ const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
     <div
       v-bind="getRootProps()"
       class="file-upload-drop-zone__area">
-      <input v-bind="getInputProps()">
+      <input
+        v-bind="getInputProps()"
+        type="file"
+        accept="image/*">
       <div class="file-upload-drop-zone__area__content">
         <img
           v-if="fileUrl"

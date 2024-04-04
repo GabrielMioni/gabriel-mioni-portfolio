@@ -27,6 +27,10 @@ const onDrop = (files) => {
   file.value = droppedFile
 }
 
+const removeFile = () => {
+  file.value = null
+}
+
 const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, multiple: false })
 
 </script>
@@ -41,16 +45,23 @@ const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, mult
         type="file"
         accept="image/*">
       <div class="file-upload-drop-zone__area__content">
-        <img
-          v-if="fileUrl"
-          :src="fileUrl"
-          alt="file">
+        <template v-if="fileUrl">
+          <img
+            v-if="fileUrl"
+            :src="fileUrl"
+            alt="file">
+          <button
+            class="remove-button"
+            @click.stop="removeFile">
+            <i class="pi pi-trash" />
+          </button>
+        </template>
         <template v-else>
           <p v-if="isDragActive">
             Drop the files here ...
           </p>
           <p v-else>
-            Drag 'n' drop some files here, or click to select files
+            Drag 'n' drop a file here, or click to select one
           </p>
         </template>
       </div>
@@ -59,23 +70,44 @@ const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, mult
 </template>
 
 <style scoped lang="scss">
+$remove-button-size: 2rem;
+$dropZoneColor: #c0c0c0;
+
 .file-upload-drop-zone {
   height: 230px;
   &__area {
-    border: 2px dashed #c0c0c0;
+    border: 2px dashed $dropZoneColor;
     height: 100%;
     border-radius: 4px;
     padding: 20px;
     text-align: center;
     cursor: pointer;
     font-size: 1.2em;
-    color: #c0c0c0;
+    color: $dropZoneColor;
     &__content {
       width: 100%;
       height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
+      .remove-button {
+        background: white;
+        border: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        cursor: pointer;
+        border-radius: 50%;
+        height: $remove-button-size;
+        width: $remove-button-size;
+        opacity: .5;
+        transition: opacity .3s;
+        &:hover,
+        &:focus {
+          opacity: 1;
+        }
+      }
       img {
         max-width: 100%;
         max-height: 100%;

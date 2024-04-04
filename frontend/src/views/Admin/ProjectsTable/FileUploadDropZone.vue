@@ -1,15 +1,12 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useDropzone } from 'vue3-dropzone'
 import { sendToast, messageTypes } from '@/services/sendToast.js'
 
+const emit = defineEmits(['fileChange'])
+
 const file = ref(null)
-const fileUrl = computed(() => {
-  if (!file.value) {
-    return ''
-  }
-  return URL.createObjectURL(file.value)
-})
+watch(file, file => emit('fileChange', file))
 
 const onDrop = (files) => {
   const toastPayload = { message: '', type: messageTypes.error }
@@ -32,6 +29,13 @@ const removeFile = () => {
 }
 
 const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, multiple: false })
+
+const fileUrl = computed(() => {
+  if (!file.value) {
+    return ''
+  }
+  return URL.createObjectURL(file.value)
+})
 
 </script>
 
@@ -68,6 +72,12 @@ const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, mult
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'FileUploadDropZone'
+}
+</script>
 
 <style scoped lang="scss">
 $remove-button-size: 2rem;

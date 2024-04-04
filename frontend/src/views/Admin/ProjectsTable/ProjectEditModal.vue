@@ -37,6 +37,7 @@ const props = defineProps({
 const name = ref('')
 const git = ref('')
 const description = ref('')
+const file = ref(null)
 
 const nameRule = makeRequiredRule('Name')
 const descriptionRule = makeRequiredRule('Description')
@@ -122,6 +123,11 @@ const saveNewProject = async () => {
   }
 }
 
+const fileChanged = (file) => {
+  console.log('fileChanged', file)
+  file.value = file
+}
+
 </script>
 
 <template>
@@ -174,7 +180,7 @@ const saveNewProject = async () => {
               </flex-column>
             </flex-column>
             <flex-column class="flex justify-content-around">
-              <file-upload-drop-zone />
+              <file-upload-drop-zone @file-change="fileChanged" />
             </flex-column>
           </flex-row>
         </flex-container>

@@ -173,7 +173,7 @@ const saveNewProject = async () => {
                   :rules="[descriptionRule]" />
               </flex-column>
             </flex-column>
-            <flex-column>
+            <flex-column class="flex justify-content-around">
               <file-upload-drop-zone />
             </flex-column>
           </flex-row>

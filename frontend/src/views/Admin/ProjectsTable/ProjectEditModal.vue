@@ -123,9 +123,8 @@ const saveNewProject = async () => {
   }
 }
 
-const fileChanged = (file) => {
-  console.log('fileChanged', file)
-  file.value = file
+const fileChanged = (newFile) => {
+  file.value = newFile
 }
 
 </script>

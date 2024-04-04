@@ -12,15 +12,15 @@ const fileUrl = computed(() => {
 })
 
 const onDrop = (files) => {
-  const type = messageTypes.error
+  const toastPayload = { message: '', type: messageTypes.error }
   if (files.length <= 0) {
-    const toastPayload = { message: 'You may only upload a single file', type }
+    toastPayload.message = 'You may only upload a single file'
     sendToast({ ...toastPayload })
     return
   }
   const droppedFile = files?.[0]
   if (!droppedFile || !droppedFile.type.startsWith('image/')) {
-    const toastPayload = { message: 'You may only upload an image file', type }
+    toastPayload.message = 'You may only upload an image file'
     sendToast({ ...toastPayload })
     return
   }

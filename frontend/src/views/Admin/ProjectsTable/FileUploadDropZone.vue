@@ -3,6 +3,14 @@ import { ref, computed, watch } from 'vue'
 import { useDropzone } from 'vue3-dropzone'
 import { sendToast, messageTypes } from '@/services/sendToast.js'
 
+const props = defineProps({
+  projectImageUrl: {
+    type: String,
+    required: false,
+    default: null
+  }
+})
+
 const emit = defineEmits(['fileChange'])
 
 const file = ref(null)
@@ -31,6 +39,9 @@ const removeFile = () => {
 const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, multiple: false })
 
 const fileUrl = computed(() => {
+  if (props.projectImageUrl && !file.value) {
+    return props.projectImageUrl
+  }
   if (!file.value) {
     return ''
   }

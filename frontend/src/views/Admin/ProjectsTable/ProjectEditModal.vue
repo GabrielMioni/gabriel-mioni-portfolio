@@ -1,8 +1,9 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useProjectsStore } from '@/store/projects/index.js'
-import useVModel from '@/services/useVModel.js'
 import apolloClient from '@/apollo/apolloClient.js'
+import useVModel from '@/services/useVModel.js'
+import { sendToast, messageTypes } from '@/services/sendToast.js'
 
 // GraphQL
 import AddProject from '@/views/Admin/ProjectsTable/graphql/AddProject.gql'
@@ -20,7 +21,6 @@ import FlexColumn from '@/components/flex/FlexColumn.vue'
 import FlexContainer from '@/components/flex/FlexContainer.vue'
 import FlexRow from '@/components/flex/FlexRow.vue'
 import FileUploadDropZone from '@/views/Admin/ProjectsTable/FileUploadDropZone.vue'
-import eventBus from '@/services/EventBus.js'
 
 
 const props = defineProps({
@@ -58,6 +58,7 @@ watch(() => props.project, (projectValue) => {
     name.value = ''
     git.value = ''
     description.value = ''
+    file.value = null
     return
   }
   name.value = projectValue.name
@@ -66,14 +67,6 @@ watch(() => props.project, (projectValue) => {
 })
 
 const projectStore = useProjectsStore()
-
-// const sendProjectUpdateToast = (message) => {
-//   eventBus.$emit('toast', { severity: 'success', summary: 'Success', message, life: 3000 })
-// }
-
-const sendProjectUpdateToast = (message, severity = 'success', summary = 'Success') => {
-  eventBus.$emit('toast', { severity, summary, message, life: 3000 })
-}
 
 const saveProject = async () => {
   const id = props.project?.id
@@ -98,9 +91,9 @@ const saveEdit = async (id) => {
     })
 
     projectStore.updateProject({ id, description: description.value, git: git.value, name: name.value })
-    sendProjectUpdateToast('Project updated successfully')
+    sendToast({ message: 'Project updated successfully', type: messageTypes.success })
   } catch (e) {
-    sendProjectUpdateToast('Unable to update project', 'error', 'Error')
+    sendToast({ message: 'Unable to update project', type: messageTypes.error })
     console.warn(`Unable to save project: ${e}`)
   }
 }
@@ -116,9 +109,9 @@ const saveNewProject = async () => {
       }
     })
     projectStore.addProject({ ...project, active: true })
-    sendProjectUpdateToast('Project added successfully')
+    sendToast({ message: 'Project added successfully', type: messageTypes.success })
   } catch (e) {
-    sendProjectUpdateToast('Unable to save new project', 'error', 'Error')
+    sendToast({ message: 'Unable to save new project', type: messageTypes.error })
     console.warn(`Unable to save project: ${e}`)
   }
 }

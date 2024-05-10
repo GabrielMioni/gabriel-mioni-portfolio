@@ -4,6 +4,7 @@ import { useProjectsStore } from '@/store/projects/index.js'
 import apolloClient from '@/apollo/apolloClient.js'
 import useVModel from '@/services/useVModel.js'
 import { sendToast, messageTypes } from '@/services/sendToast.js'
+import { uploadProjectFile } from '@/api/index.js'
 
 // GraphQL
 import AddProject from '@/views/Admin/ProjectsTable/graphql/AddProject.gql'
@@ -108,6 +109,15 @@ const saveNewProject = async () => {
         name: name.value
       }
     })
+    if (!project) {
+      sendToast({ message: 'Unable to save new project', type: messageTypes.error })
+      return
+    }
+    const projectId = project.id
+    if (file.value) {
+      const uploadResponse = await uploadProjectFile(file.value, projectId)
+      console.log(uploadResponse)
+    }
     projectStore.addProject({ ...project, active: true })
     sendToast({ message: 'Project added successfully', type: messageTypes.success })
   } catch (e) {
@@ -117,6 +127,7 @@ const saveNewProject = async () => {
 }
 
 const fileChanged = (newFile) => {
+  console.log('fileChanged', newFile)
   file.value = newFile
 }
 
@@ -172,7 +183,14 @@ const fileChanged = (newFile) => {
               </flex-column>
             </flex-column>
             <flex-column class="flex justify-content-around">
-              <file-upload-drop-zone @file-change="fileChanged" />
+              <img
+                v-if="project?.imageUrl"
+                :src="project?.imageUrl"
+                class="project-edit-modal__image"
+                alt="image">
+              <file-upload-drop-zone
+                v-else
+                @file-change="fileChanged" />
             </flex-column>
           </flex-row>
         </flex-container>
@@ -200,5 +218,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.project-edit-modal__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style>

@@ -1,4 +1,5 @@
 ﻿using backend.Data;
+using backend.Features.Aws.Services;
 using backend.Features.Projects.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,13 +9,17 @@ namespace backend.Features.Projects.Repositories
     public class ProjectsRepository : IProjectsRepository
     {
         private readonly ApplicationDbContext _context;
-        public ProjectsRepository(ApplicationDbContext context) { 
+        private readonly IAwsService _awsService;
+        public ProjectsRepository(ApplicationDbContext context, IAwsService awsService)
+        {
             _context = context;
+            _awsService = awsService;
         }
 
-        public async Task<List<Project>> GetProjectsAsync(int skip = 0, int take = 10, bool includeInactive = false)
+        public async Task<List<ProjectDto>> GetProjectsAsync(int skip = 0, int take = 10, bool includeInactive = false)
         {
             var query = _context.Projects.AsQueryable();
+            query = query.Include(p => p.Image);
 
             if (!includeInactive)
             {
@@ -23,7 +28,25 @@ namespace backend.Features.Projects.Repositories
 
             query = query.OrderByDescending(p => p.CreatedAt);
 
-            return await query.Skip(skip).Take(take).ToListAsync();
+            var projects = await query.Skip(skip).Take(take).ToListAsync();
+            var projectDtos = new List<ProjectDto>();
+            foreach (var project in projects)
+            {
+                var fileName = project.Image?.FileName;
+                var fileUrl = fileName != null ? _awsService.GetFileUrlByKey(fileName) : null;
+
+                projectDtos.Add(new ProjectDto()
+                {
+                    Id = project.Id,
+                    Active = project.Active,
+                    Description = project.Description,
+                    Git = project.Git,
+                    ImageUrl = fileUrl,
+                    Name = project.Name
+                });
+            }
+
+            return projectDtos;
         }
 
         public async Task<Project> AddProjectAsync(Project newProject)

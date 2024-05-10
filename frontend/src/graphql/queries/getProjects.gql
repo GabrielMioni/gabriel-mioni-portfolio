@@ -3,13 +3,9 @@ query GetProjects($skip: Int!, $take: Int!) {
         nodes {
             active
             description
-            createdAt
-            updatedAt
             id
             git
-            image {
-                altText
-            }
+            imageUrl
             name
         }
         count

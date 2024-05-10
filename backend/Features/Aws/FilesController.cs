@@ -1,4 +1,6 @@
 ﻿using backend.Features.Aws.Services;
+using backend.Features.Projects.Models;
+using backend.Features.Projects.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Features.Aws
@@ -8,16 +10,36 @@ namespace backend.Features.Aws
     public class FilesController : ControllerBase
     {
         private IAwsService _awsService;
+        private IImageRepository _imageRepository;
 
-        public FilesController(IAwsService awsService)
+        public FilesController(IAwsService awsService, IImageRepository imageRepository)
         {
             _awsService = awsService;
+            _imageRepository = imageRepository;
         }
 
         [HttpPost]
         public async Task<IActionResult> UploadFileAsync(IFormFile file, string? prefix)
         {
             await _awsService.UploadFileAsync(file, prefix);
+            return Ok($"File {file.FileName} uploaded to S3 successfully");
+        }
+
+        [HttpPost("project/{projectId}")]
+        public async Task<IActionResult> UploadProjectImageAsync(IFormFile file, string projectId)
+        {
+            var image = new Image()
+            {
+                AltText = file.FileName,
+                FileName = file.FileName,
+                Title = file.FileName,
+                ContentType = file.ContentType,
+                Size = file.Length,
+                ProjectId = projectId
+            };
+            var fileExtension = System.IO.Path.GetExtension(file.FileName);
+            await _imageRepository.AddImageAsync(image);
+            await _awsService.UploadFileAsync(file, fileExtension);
             return Ok($"File {file.FileName} uploaded to S3 successfully");
         }
 

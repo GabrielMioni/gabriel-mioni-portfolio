@@ -59,6 +59,17 @@ namespace backend.Features.Aws.Services
             return fileResult;
         }
 
+        public string GetFileUrlByKey(string key)
+        {
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = _bucketName,
+                Key = key,
+                Expires = DateTime.UtcNow.AddMinutes(10)
+            };
+            return _amazonS3.GetPreSignedURL(request);
+        }
+
         public async Task<FileUploadResultDto> UploadFileAsync(IFormFile file, string? prefix)
         {
             var request = new PutObjectRequest()

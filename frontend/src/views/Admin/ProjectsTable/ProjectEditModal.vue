@@ -183,11 +183,21 @@ const fileChanged = (newFile) => {
               </flex-column>
             </flex-column>
             <flex-column class="flex justify-content-around">
-              <img
+              <div
                 v-if="project?.imageUrl"
-                :src="project?.imageUrl"
-                class="project-edit-modal__image"
-                alt="image">
+                class="project-edit-modal__image-container">
+                <Button
+                  class="close"
+                  icon="pi pi-trash"
+                  severity="secondary"
+                  text
+                  rounded
+                  aria-label="Cancel" />
+                <img
+                  :src="project?.imageUrl"
+                  alt="image"
+                  class="project-edit-modal__image">
+              </div>
               <file-upload-drop-zone
                 v-else
                 @file-change="fileChanged" />
@@ -218,9 +228,53 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.project-edit-modal__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.project-edit-modal {
+  &__image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+      .close {
+        opacity: 1;
+      }
+
+      &:before {
+        background-color: rgba(0, 0, 0, 0.25);
+      }
+    }
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0);
+      transition: background-color 0.5s;
+      z-index: 1;
+    }
+
+    .close {
+      color: white !important;
+      position: absolute;
+      height: 1rem !important;
+      width: 1rem !important;
+      top: 1rem;
+      right: 1rem;
+      transition: opacity 0.5s;
+      opacity: 0;
+      z-index: 1;
+    }
+  }
+
+  &__image {
+    width: 100%;
+    object-fit: contain;
+  }
 }
 </style>

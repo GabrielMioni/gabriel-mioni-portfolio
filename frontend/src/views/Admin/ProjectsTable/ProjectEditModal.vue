@@ -39,6 +39,7 @@ const name = ref('')
 const git = ref('')
 const description = ref('')
 const file = ref(null)
+const shouldDeleteImage = ref(false)
 
 const nameRule = makeRequiredRule('Name')
 const descriptionRule = makeRequiredRule('Description')
@@ -51,7 +52,12 @@ const projectHasBeenEdited = computed(() => {
   if (!props.project) {
     return false
   }
-  return name.value !== props.project.name || git.value !== props.project.git || description.value !== props.project.description
+  return name.value !==
+      props.project.name ||
+      git.value !== props.project.git ||
+      description.value !== props.project.description ||
+      file.value !== null ||
+      shouldDeleteImage.value
 })
 
 watch(() => props.project, (projectValue) => {
@@ -60,6 +66,7 @@ watch(() => props.project, (projectValue) => {
     git.value = ''
     description.value = ''
     file.value = null
+    shouldDeleteImage.value = false
     return
   }
   name.value = projectValue.name
@@ -184,7 +191,7 @@ const fileChanged = (newFile) => {
             </flex-column>
             <flex-column class="flex justify-content-around">
               <div
-                v-if="project?.imageUrl"
+                v-if="project?.imageUrl && !shouldDeleteImage"
                 class="project-edit-modal__image-container">
                 <Button
                   class="close"
@@ -192,7 +199,8 @@ const fileChanged = (newFile) => {
                   severity="secondary"
                   text
                   rounded
-                  aria-label="Cancel" />
+                  aria-label="Delete image"
+                  @click="shouldDeleteImage = true" />
                 <img
                   :src="project?.imageUrl"
                   alt="image"

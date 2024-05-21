@@ -70,12 +70,12 @@ namespace backend.Features.Aws.Services
             return _amazonS3.GetPreSignedURL(request);
         }
 
-        public async Task<FileUploadResultDto> UploadFileAsync(IFormFile file, string? prefix)
+        public async Task<FileUploadResultDto> UploadFileAsync(IFormFile file, string key)
         {
             var request = new PutObjectRequest()
             {
                 BucketName = _bucketName,
-                Key = string.IsNullOrEmpty(prefix) ? file.FileName : $"{prefix?.TrimEnd('/')}/{file.FileName}",
+                Key = key,
                 InputStream = file.OpenReadStream()
             };
             request.Metadata.Add("Content-Type", file.ContentType);

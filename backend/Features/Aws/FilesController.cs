@@ -2,6 +2,7 @@
 using backend.Features.Projects.Models;
 using backend.Features.Projects.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Path = System.IO.Path;
 
 namespace backend.Features.Aws
 {
@@ -28,19 +29,30 @@ namespace backend.Features.Aws
         [HttpPost("project/{projectId}")]
         public async Task<IActionResult> UploadProjectImageAsync(IFormFile file, string projectId)
         {
-            var image = new Image()
+            try
             {
-                AltText = file.FileName,
-                FileName = file.FileName,
-                Title = file.FileName,
-                ContentType = file.ContentType,
-                Size = file.Length,
-                ProjectId = projectId
-            };
-            var fileExtension = System.IO.Path.GetExtension(file.FileName);
-            await _imageRepository.AddImageAsync(image);
-            await _awsService.UploadFileAsync(file, fileExtension);
-            return Ok($"File {file.FileName} uploaded to S3 successfully");
+                var uniqueFileName = Guid.NewGuid().ToString();
+
+                var image = new Image()
+                {
+                    AltText = file.FileName,
+                    FileName = uniqueFileName,
+                    Title = file.FileName,
+                    ContentType = file.ContentType, 
+                    Size = file.Length,
+                    ProjectId = projectId
+                };
+                await _imageRepository.AddImageAsync(image);
+                await _awsService.UploadFileAsync(file, uniqueFileName);
+
+                var fileUrl = _awsService.GetFileUrlByKey(uniqueFileName);
+
+                return Ok(new { message = $"File {file.FileName} uploaded to S3 successfully", fileUrl });
+
+            } catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpGet]

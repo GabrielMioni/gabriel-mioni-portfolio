@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   nitro: {
     routeRules: {
       '/api/**': {
-        proxy: 'http://127.0.0.1:5217/api/**'
+        proxy: 'http://localhost:5217/api/**'
       }
     }
   }

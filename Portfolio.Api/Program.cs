@@ -7,6 +7,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("client", p => p
+        .WithOrigins("http://localhost:3000") // Nuxt dev server)
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+    );
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -18,7 +28,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("client");
+
 app.UseAuthorization();
+
+app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }));
 
 app.MapControllers();
 

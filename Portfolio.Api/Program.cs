@@ -1,43 +1,34 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("client", p => p
-        .WithOrigins("http://localhost:3000") // Nuxt dev server)
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials()
-    );
+      .WithOrigins("http://localhost:3000")
+      .AllowAnyHeader()
+      .AllowAnyMethod()
+      .AllowCredentials());
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddAuthorization();
 
 builder.Services
   .AddIdentityApiEndpoints<IdentityUser>()
   .AddRoles<IdentityRole>()
   .AddEntityFrameworkStores<AppDbContext>();
 
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
-app.MapIdentityApi<IdentityUser>();
-
-await IdentitySeed.SeedAdminAsync(app);
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -45,15 +36,34 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors("client");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }))
-    .RequireAuthorization();
+// Block registration
+app.Use(async (ctx, next) =>
+{
+    if (ctx.Request.Path.Equals("/api/auth/register", StringComparison.OrdinalIgnoreCase))
+    {
+        if (!(ctx.User?.Identity?.IsAuthenticated ?? false) || !ctx.User.IsInRole("Admin"))
+        {
+            ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+            return;
+        }
+    }
 
+    await next();
+});
+
+app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
+
+// app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" })).RequireAuthorization();
+app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }));
 
 app.MapControllers();
+
+// Seeding can be here or right after Build(); either is fine
+await IdentitySeed.SeedAdminAsync(app);
 
 app.Run();

@@ -27,12 +27,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddAuthorization();
 
 builder.Services
-    .AddIdentityApiEndpoints<IdentityUser>()
-    .AddEntityFrameworkStores<AppDbContext>();
+  .AddIdentityApiEndpoints<IdentityUser>()
+  .AddRoles<IdentityRole>()
+  .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
 
 app.MapIdentityApi<IdentityUser>();
+
+await IdentitySeed.SeedAdminAsync(app);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

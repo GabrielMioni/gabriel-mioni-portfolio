@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Portfolio.Api.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -17,7 +21,18 @@ builder.Services.AddCors(options =>
     );
 });
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+  options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddAuthorization();
+
+builder.Services
+    .AddIdentityApiEndpoints<IdentityUser>()
+    .AddEntityFrameworkStores<AppDbContext>();
+
 var app = builder.Build();
+
+app.MapIdentityApi<IdentityUser>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -32,7 +47,9 @@ app.UseCors("client");
 
 app.UseAuthorization();
 
-app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }));
+app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }))
+    .RequireAuthorization();
+
 
 app.MapControllers();
 

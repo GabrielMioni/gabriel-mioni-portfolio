@@ -35,7 +35,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("client");
 
 app.UseAuthentication();
@@ -63,7 +67,6 @@ app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }));
 
 app.MapControllers();
 
-// Seeding can be here or right after Build(); either is fine
 await IdentitySeed.SeedAdminAsync(app);
 
 app.Run();

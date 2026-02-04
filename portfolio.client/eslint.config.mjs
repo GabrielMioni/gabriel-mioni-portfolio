@@ -16,6 +16,15 @@ export default withNuxt(
       quotes: ['error', 'single', { avoidEscape: true }],
       'no-trailing-spaces': 'error',
       'eol-last': ['error', 'always'],
-    },
+      'vue/max-attributes-per-line': ['error', {
+        singleline: {
+          max: 1
+        },
+        multiline: {
+          max: 1
+        }
+      }],
+      'comma-dangle': ['error', 'never']
+    }
   }
 )

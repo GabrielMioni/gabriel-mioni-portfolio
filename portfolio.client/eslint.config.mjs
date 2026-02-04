@@ -11,7 +11,7 @@ export default withNuxt(
       'space-before-function-paren': ['error', {
         anonymous: 'always',
         named: 'always',
-        asyncArrow: 'always',
+        asyncArrow: 'always'
       }],
       quotes: ['error', 'single', { avoidEscape: true }],
       'no-trailing-spaces': 'error',

@@ -1,20 +1,23 @@
 <script setup lang="ts">
+const { email: emailRule, required: requiredRule } = useValidation()
+
 const email = ref('')
 const password = ref('')
-
-const isValid = computed(() => email.value.length > 0 && password.value.length > 0)
+const isValid = ref(false)
 
 const { apiFetch } = useApiFetch()
 
 const login = async () => {
   try {
-    const result = await apiFetch('/auth/login', {
+    const loginResponse = await apiFetch('/auth/login?useCookies=true', {
       body: {
         email: email.value,
         password: password.value
       }
     })
-    console.log(result)
+    console.log(loginResponse)
+    const userResponse = await apiFetch('/users')
+    console.log(userResponse)
   } catch (e) {
     console.error(e)
   }
@@ -29,16 +32,18 @@ const login = async () => {
       <v-col :cols="4">
         <v-card>
           <v-card-text>
-            <v-form>
+            <v-form v-model="isValid">
               <v-container>
                 <v-row>
                   <v-text-field
                     v-model="email"
+                    :rules="[emailRule]"
                     label="email" />
                 </v-row>
                 <v-row>
                   <v-text-field
                     v-model="password"
+                    :rules="[requiredRule]"
                     type="password"
                     label="password"/>
                 </v-row>

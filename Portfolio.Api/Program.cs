@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,6 +65,16 @@ app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 
 // app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" })).RequireAuthorization();
 app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }));
+
+app.MapGet("/api/me", (ClaimsPrincipal user) =>
+{
+    return Results.Ok(new
+    {
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false,
+        name = user.Identity?.Name
+    });
+}).RequireAuthorization();
+
 
 app.MapControllers();
 

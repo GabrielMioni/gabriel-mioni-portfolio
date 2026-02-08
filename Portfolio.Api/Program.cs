@@ -58,6 +58,21 @@ app.UseAuthorization();
 
 app.MapGraphQL();
 
+app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
+
+app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }));
+
+app.MapGet("/api/me", (ClaimsPrincipal user) =>
+{
+    return Results.Ok(new
+    {
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false,
+        name = user.Identity?.Name
+    });
+}).RequireAuthorization();
+
+app.MapControllers();
+
 // Block registration
 app.Use(async (ctx, next) =>
 {
@@ -72,23 +87,6 @@ app.Use(async (ctx, next) =>
 
     await next();
 });
-
-app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
-
-// app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" })).RequireAuthorization();
-app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }));
-
-app.MapGet("/api/me", (ClaimsPrincipal user) =>
-{
-    return Results.Ok(new
-    {
-        isAuthenticated = user.Identity?.IsAuthenticated ?? false,
-        name = user.Identity?.Name
-    });
-}).RequireAuthorization();
-
-
-app.MapControllers();
 
 await IdentitySeed.SeedAdminAsync(app);
 

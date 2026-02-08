@@ -39,5 +39,15 @@ namespace Portfolio.Api.Services
 
             return newProject;
         }
+
+        public async Task<List<Project>> GetPublishedAsync()
+        {
+            await using var db = await _dbFactory.CreateDbContextAsync();
+
+            return db.Projects
+                .Where(p => p.Status == ProjectStatus.Published)
+                .OrderByDescending(p => p.PublishedAt)
+                .ToList();
+        }
     }
 }

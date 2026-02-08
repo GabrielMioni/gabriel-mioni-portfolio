@@ -16,7 +16,7 @@ const login = async () => {
       }
     })
     console.log(loginResponse)
-    const userResponse = await apiFetch('/users')
+    const userResponse = await apiFetch('/user')
     console.log(userResponse)
   } catch (e) {
     console.error(e)

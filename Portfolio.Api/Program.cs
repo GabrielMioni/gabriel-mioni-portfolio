@@ -20,8 +20,13 @@ builder.Services.AddCors(options =>
       .AllowCredentials());
 });
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContextPool<AppDbContext>(options =>
+  options.UseSqlServer(conn));
+
+builder.Services.AddPooledDbContextFactory<AppDbContext>(options =>
+  options.UseSqlServer(conn));
 
 builder.Services
   .AddIdentityApiEndpoints<IdentityUser>()
@@ -68,6 +73,21 @@ app.MapGet("/api/me", (ClaimsPrincipal user) =>
     {
         isAuthenticated = user.Identity?.IsAuthenticated ?? false,
         name = user.Identity?.Name
+    });
+}).RequireAuthorization();
+
+app.MapGet("/api/user", (ClaimsPrincipal user) =>
+{
+    if (!(user.Identity?.IsAuthenticated ?? false))
+    {
+        return Results.Unauthorized();
+    }
+
+    return Results.Ok(new
+    {
+        isAuthenticated = true,
+        name = user.Identity?.Name,
+        claims = user.Claims.Select(c => new { c.Type, c.Value })
     });
 }).RequireAuthorization();
 

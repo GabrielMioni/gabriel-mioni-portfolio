@@ -18,5 +18,26 @@ namespace Portfolio.Api.Services
             await using var db = await _dbFactory.CreateDbContextAsync();
             return await db.Projects.FirstOrDefaultAsync(p => p.Id == id);
         }
+
+        public async Task<Project> CreateAsync(string title, string? body, string? summary, CancellationToken ct = default)
+        {
+            await using var db = await _dbFactory.CreateDbContextAsync();
+
+            var newProject = new Project
+            {
+                Title = title,
+                Body = body,
+                Summary = summary,
+                Status = ProjectStatus.Draft,
+                PublishedAt = null,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+
+            db.Projects.Add(newProject);
+            await db.SaveChangesAsync(ct);
+
+            return newProject;
+        }
     }
 }

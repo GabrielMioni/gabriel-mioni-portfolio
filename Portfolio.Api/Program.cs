@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
+using Portfolio.Api.GraphQL.Projects;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,10 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<ProjectQuery>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -45,6 +50,8 @@ app.UseCors("client");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGraphQL();
 
 // Block registration
 app.Use(async (ctx, next) =>

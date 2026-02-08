@@ -11,9 +11,7 @@
 		<PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="15.1.12" />
 		<PackageReference Include="HotChocolate.Data" Version="15.1.12" />
 		<PackageReference Include="HotChocolate.Data.EntityFramework" Version="15.1.12" />
-		<PackageReference Include="HotChocolate.Types.Analyzers"
-						  Version="15.1.12"
-						  PrivateAssets="all" />
+		<PackageReference Include="HotChocolate.Types.Analyzers" Version="15.1.12" PrivateAssets="all" />
 
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.21" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.21">

@@ -33,7 +33,10 @@ builder.Services.AddAuthorization();
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<ProjectQuery>()
-    .AddType<ProjectType>();
+    .AddType<ProjectType>()
+    .AddProjections()
+    .AddFiltering()
+    .AddSorting();
 
 var app = builder.Build();
 

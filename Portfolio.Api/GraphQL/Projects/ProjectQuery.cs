@@ -13,6 +13,7 @@ namespace Portfolio.Api.GraphQL.Projects
                 Summary = "This is a summary of project 1.",
                 Body = "This is the body of project 1.",
                 CreatedAt = DateTimeOffset.UtcNow,
+                PublishedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow,
                 Status = ProjectStatus.Published
             };

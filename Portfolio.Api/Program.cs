@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
 using Portfolio.Api.GraphQL.Projects;
+using Portfolio.Api.GraphQL.Projects.Types;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +32,8 @@ builder.Services.AddAuthorization();
 
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType<ProjectQuery>();
+    .AddQueryType<ProjectQuery>()
+    .AddType<ProjectType>();
 
 var app = builder.Build();
 

@@ -1,22 +1,19 @@
 ﻿using Portfolio.Api.Domain.Projects;
+using Portfolio.Api.Services;
 
 namespace Portfolio.Api.GraphQL.Projects
 {
+
     public class ProjectQuery
     {
-        public Project GetProject()
+        public Task<Project?> GetProjectById(Guid id, [Service] ProjectService projects, CancellationToken ct = default)
         {
-            return new Project
-            {
-                Id = Guid.NewGuid(),
-                Title = "Project 1",
-                Summary = "This is a summary of project 1.",
-                Body = "This is the body of project 1.",
-                CreatedAt = DateTimeOffset.UtcNow,
-                PublishedAt = DateTimeOffset.UtcNow,
-                UpdatedAt = DateTimeOffset.UtcNow,
-                Status = ProjectStatus.Published
-            };
+            return projects.GetByIdAsync(id, ct);
+        }
+
+        public Task<List<Project>> GetPublsihedProjects([Service] ProjectService projects, CancellationToken ct = default)
+        {
+            return projects.GetPublishedAsync(ct);
         }
     }
 }

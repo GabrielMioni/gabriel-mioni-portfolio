@@ -49,5 +49,39 @@ namespace Portfolio.Api.Services
                 .OrderByDescending(p => p.PublishedAt)
                 .ToListAsync(ct);
         }
+
+        public async Task<Project?> PublishAsync(Guid id, CancellationToken ct = default)
+        {
+            await using var db = await _dbFactory.CreateDbContextAsync();
+
+            var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null) return null;
+
+            project.PublishedAt = DateTimeOffset.UtcNow;
+            project.UpdatedAt = DateTimeOffset.UtcNow;
+            project.Status = ProjectStatus.Published;
+
+            await db.SaveChangesAsync(ct);
+
+            return project;
+        }
+
+        public async Task<Project?> UnpublishAsync(Guid id, CancellationToken ct = default)
+        {
+            await using var db = await _dbFactory.CreateDbContextAsync();
+
+            var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null) return null;
+
+            project.PublishedAt = null;
+            project.UpdatedAt = DateTimeOffset.UtcNow;
+            project.Status = ProjectStatus.Archived;
+
+            await db.SaveChangesAsync(ct);
+
+            return project;
+        }
     }
 }

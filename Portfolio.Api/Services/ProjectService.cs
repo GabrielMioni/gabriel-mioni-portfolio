@@ -13,9 +13,9 @@ namespace Portfolio.Api.Services
             _dbFactory = dbFactory;
         }
 
-        public async Task<Project?> GetByIdAsync(Guid id)
+        public async Task<Project?> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
-            await using var db = await _dbFactory.CreateDbContextAsync();
+            await using var db = await _dbFactory.CreateDbContextAsync(ct);
             return await db.Projects.FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -67,7 +67,7 @@ namespace Portfolio.Api.Services
             return project;
         }
 
-        public async Task<Project?> UnpublishAsync(Guid id, CancellationToken ct = default)
+        public async Task<Project?> ArchiveAsync(Guid id, CancellationToken ct = default)
         {
             await using var db = await _dbFactory.CreateDbContextAsync();
 

@@ -16,5 +16,10 @@
     "vue": "^3.5.27",
     "vue-router": "^4.6.4",
     "vuetify-nuxt-module": "^0.19.5"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^6.1.1",
+    "@graphql-codegen/client-preset": "^5.2.2",
+    "graphql": "^16.12.0"
   }
 }

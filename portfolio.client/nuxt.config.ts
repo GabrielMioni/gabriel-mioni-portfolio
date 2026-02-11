@@ -11,13 +11,17 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      apiBase: '/api'
+      apiBase: '/api',
+      graphQlBase: '/graphql'
     }
   },
   nitro: {
     routeRules: {
       '/api/**': {
         proxy: 'http://localhost:5217/api/**'
+      },
+      '/graphql': {
+        proxy: 'http://localhost:5217/graphql'
       }
     }
   }

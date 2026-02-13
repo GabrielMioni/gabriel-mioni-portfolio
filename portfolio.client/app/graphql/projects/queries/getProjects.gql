@@ -1,0 +1,21 @@
+query GetProjects($includeUnpublished: Boolean!, $first: Int, $after: String, $order: [ProjectSortInput!], $where: ProjectFilterInput) {
+    projects(
+        includeUnpublished: $includeUnpublished
+        first: $first
+        after: $after
+        order: $order
+        where: $where
+    ) {
+        nodes {
+            id
+            title
+            body
+            publishedAt
+            createdAt
+        }
+        pageInfo {
+            hasNextPage
+            endCursor
+        }
+    }
+}

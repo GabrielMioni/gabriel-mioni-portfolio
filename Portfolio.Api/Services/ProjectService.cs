@@ -50,6 +50,16 @@ namespace Portfolio.Api.Services
                 .ToListAsync(ct);
         }
 
+        public IQueryable<Project> QueryProjects(AppDbContext db, bool includeUnpublished)
+        {
+            var q = db.Projects.AsQueryable();
+
+            if (!includeUnpublished)
+                q = q.Where(p => p.Status == ProjectStatus.Published);
+
+            return q;
+        }          
+
         public async Task<Project?> PublishAsync(Guid id, CancellationToken ct = default)
         {
             await using var db = await _dbFactory.CreateDbContextAsync();

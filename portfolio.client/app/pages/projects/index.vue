@@ -1,24 +1,31 @@
 <script setup lang="ts">
-import { useQuery } from '@urql/vue'
-import { GetProjectByIdDocument } from '~/generated/graphql'
+import {
+  type ProjectQueryProjectsArgs,
+  SortEnumType
+} from '~/generated/graphql'
 
-const { data, fetching, error } = useQuery({
-  query: GetProjectByIdDocument,
-  variables: {
-    id: '3b61d270-70f3-4a1f-421c-08de6781bdd2'
-  }
+const input = ref<ProjectQueryProjectsArgs>({
+  includeUnpublished: true,
+  first: 5,
+  after: null,
+  before: null,
+  order: [{ createdAt: SortEnumType.Desc }]
 })
+
+const { projects, pageInfo, fetchingProjects, projectError } = useProjects(input.value)
+
 </script>
 
 <template>
-  <div v-if="fetching">
+  <div v-if="fetchingProjects">
     Loading...
   </div>
-  <div v-else-if="error">
-    Error: {{ error }}
+  <div v-else-if="projectError">
+    Error: {{ projectError }}
   </div>
   <div v-else>
-    <pre>{{ data }}</pre>
+    <pre>{{ projects }}</pre>
+    <pre>{{ pageInfo }}</pre>
   </div>
 </template>
 

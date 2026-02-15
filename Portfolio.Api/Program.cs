@@ -43,7 +43,13 @@ builder.Services
     .AddType<ProjectType>()
     .AddProjections()
     .AddFiltering()
-    .AddSorting();
+    .AddSorting()
+    .ModifyCostOptions(o =>
+    {
+        o.MaxFieldCost = 5000;
+        o.Sorting.VariableMultiplier = 1;
+        o.Filtering.VariableMultiplier = 1;
+    });
 
 builder.Services.AddScoped<ProjectService>();
 

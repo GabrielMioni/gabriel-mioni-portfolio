@@ -15,6 +15,7 @@ query GetProjects($includeUnpublished: Boolean!, $first: Int, $after: String, $o
         }
         pageInfo {
             hasNextPage
+            hasPreviousPage
             endCursor
         }
     }

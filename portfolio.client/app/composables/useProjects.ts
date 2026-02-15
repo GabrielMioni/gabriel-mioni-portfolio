@@ -29,11 +29,14 @@ export const useProjects = (input: ProjectQueryProjectsArgs) => {
   )
 
   const pageInfo = computed(() =>
-    data ? data?.value?.projects?.pageInfo : null
+    data.value?.projects?.pageInfo ?? {
+      hasNextPage: false,
+      hasPreviousPage: false
+    }
   )
 
   const totalCount = computed(() =>
-    data ? data?.value?.projects?.totalCount : 0
+    data?.value?.projects?.totalCount ?? 0
   )
 
   return {

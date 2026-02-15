@@ -6,7 +6,9 @@ query GetProjects($includeUnpublished: Boolean!, $first: Int, $after: String, $o
         order: $order
         where: $where
     ) {
+        __typename
         nodes {
+            __typename
             id
             title
             body
@@ -14,6 +16,7 @@ query GetProjects($includeUnpublished: Boolean!, $first: Int, $after: String, $o
             createdAt
         }
         pageInfo {
+            __typename
             hasNextPage
             hasPreviousPage
             endCursor

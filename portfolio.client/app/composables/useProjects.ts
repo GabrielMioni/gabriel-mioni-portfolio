@@ -26,7 +26,7 @@ export const useProjects = (input: ProjectQueryProjectsArgs) => {
   )
 
   const pageInfo = computed(() =>
-    data ? data?.value?.projects?.pageInfo : {}
+    data ? data?.value?.projects?.pageInfo : null
   )
 
   return {

@@ -6,13 +6,12 @@ import {
 
 const input = ref<ProjectQueryProjectsArgs>({
   includeUnpublished: true,
-  first: 5,
-  after: null,
-  before: null,
+  skip: 0,
+  take: 5,
   order: [{ createdAt: SortEnumType.Desc }]
 })
 
-const { projects, pageInfo, fetchingProjects, projectError } = useProjects(input.value)
+const { projects, pageInfo, fetchingProjects, projectError, totalCount } = useProjects(input.value)
 
 </script>
 
@@ -26,6 +25,7 @@ const { projects, pageInfo, fetchingProjects, projectError } = useProjects(input
   <div v-else>
     <pre>{{ projects }}</pre>
     <pre>{{ pageInfo }}</pre>
+    <pre>{{ totalCount }}</pre>
   </div>
 </template>
 

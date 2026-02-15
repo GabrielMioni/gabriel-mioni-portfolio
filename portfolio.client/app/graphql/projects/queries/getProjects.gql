@@ -1,25 +1,28 @@
-query GetProjects($includeUnpublished: Boolean!, $first: Int, $after: String, $order: [ProjectSortInput!], $where: ProjectFilterInput) {
+query GetProjects(
+    $skip: Int!
+    $take: Int!
+    $includeUnpublished: Boolean!
+    $where: ProjectFilterInput
+    $order: [ProjectSortInput!]
+) {
     projects(
+        skip: $skip
+        take: $take
         includeUnpublished: $includeUnpublished
-        first: $first
-        after: $after
+        where: $where,
         order: $order
-        where: $where
     ) {
-        __typename
-        nodes {
-            __typename
+        items {
             id
             title
             body
             publishedAt
             createdAt
+            updatedAt
+            summary
+            status
         }
-        pageInfo {
-            __typename
-            hasNextPage
-            hasPreviousPage
-            endCursor
-        }
+        totalCount
+        pageInfo { hasNextPage hasPreviousPage }
     }
 }

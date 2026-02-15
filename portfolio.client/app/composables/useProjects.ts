@@ -13,25 +13,30 @@ export const useProjects = (input: ProjectQueryProjectsArgs) => {
   } = useQuery({
     query: GetProjectsDocument,
     variables: {
-      includeUnpublished: input.includeUnpublished ?? true,
-      first: input.first,
-      after: input.after,
-      before: input.before,
-      order: [{ createdAt: SortEnumType.Desc }]
+      skip: input.skip || 0,
+      take: input.take || 5,
+      includeUnpublished: input.includeUnpublished || true,
+      where: input.where,
+      order: input.order || [{ createdAt: SortEnumType.Desc }]
     }
   })
 
   const projects = computed(() =>
-    data ? data?.value?.projects?.nodes : []
+    data ? data?.value?.projects?.items : []
   )
 
   const pageInfo = computed(() =>
     data ? data?.value?.projects?.pageInfo : null
   )
 
+  const totalCount = computed(() =>
+    data ? data?.value?.projects?.totalCount : 0
+  )
+
   return {
     projects,
     pageInfo,
+    totalCount,
     fetchingProjects,
     projectError
   }

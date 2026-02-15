@@ -17,7 +17,7 @@ namespace Portfolio.Api.GraphQL.Projects
             return projects.GetPublishedAsync(ct);
         }
 
-        [UsePaging]
+        [UseOffsetPaging(IncludeTotalCount = true)]
         [UseSorting]
         [UseFiltering]
         public IQueryable<Project> GetProjects(

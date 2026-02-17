@@ -1,32 +1,52 @@
 <script setup lang="ts">
-import {
-  type ProjectQueryProjectsArgs,
-  SortEnumType
-} from '~/generated/graphql'
+import type { ProjectQueryProjectsArgs } from '~/generated/graphql'
+import type { TableOptions } from '~/types/ui/datatable'
+import { toGraphqlSort } from '~/utils/graphql'
 
-const input = ref<ProjectQueryProjectsArgs>({
-  includeUnpublished: true,
-  skip: 0,
-  take: 5,
-  order: [{ createdAt: SortEnumType.Desc }]
+const tableOptions = ref<TableOptions>({
+  page: 1,
+  itemsPerPage: 10,
+  sortBy: [],
+  groupBy: [],
+  search: ''
 })
 
-const { projects, pageInfo, fetchingProjects, projectError, totalCount } = useProjects(input.value)
+const queryArgs = computed<ProjectQueryProjectsArgs>(() => {
+  const skip = (tableOptions.value.page - 1) * tableOptions.value.itemsPerPage
+  const take = tableOptions.value.itemsPerPage
+  const includeUnpublished = true
+  const order = tableOptions.value.sortBy
+    ? toGraphqlSort(tableOptions.value.sortBy)
+    : []
+
+  return {
+    includeUnpublished,
+    skip,
+    take,
+    order
+  }
+})
+
+const {
+  projects,
+  pageInfo,
+  totalCount
+} = useProjects(queryArgs)
 
 </script>
 
 <template>
-  <div v-if="fetchingProjects">
-    Loading...
-  </div>
-  <div v-else-if="projectError">
-    Error: {{ projectError }}
-  </div>
-  <div v-else>
-    <pre>{{ projects }}</pre>
-    <pre>{{ pageInfo }}</pre>
-    <pre>{{ totalCount }}</pre>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col>
+        <ProjectsTable
+          v-model:options="tableOptions"
+          :projects="projects"
+          :total-count="totalCount"
+          :page-info="pageInfo" />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <style scoped>

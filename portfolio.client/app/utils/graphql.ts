@@ -1,6 +1,8 @@
 import type { SortBy } from '~/types/ui/datatable'
 import {
   type ProjectSortInput,
+  type ProjectFilterInput,
+  type InputMaybe,
   SortEnumType
 } from '~/generated/graphql'
 
@@ -14,3 +16,20 @@ export const toGraphqlSort = (sortBy: SortBy): ProjectSortInput[] =>
   (sortBy ?? []).map(s => ({
     [s.key as keyof ProjectSortInput]: toSortEnum(s.order)
   }))
+
+export const toGraphqlFilterInput = (
+  search: string | null | undefined
+): InputMaybe<ProjectFilterInput> => {
+  const trimmed = search?.trim()
+  if (!trimmed) return undefined
+
+  return {
+    or: [
+      { title:   { contains: trimmed } },
+      { summary: { contains: trimmed } },
+      { body:    { contains: trimmed } }
+    ]
+  }
+}
+
+

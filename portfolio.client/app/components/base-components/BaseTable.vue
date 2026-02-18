@@ -11,10 +11,22 @@ const options = defineModel<TableOptions>('options', {
   })
 })
 
-defineProps<{
-  items: NonNullable<Items>
-  itemsLength: number
-}>()
+withDefaults(
+  defineProps<{
+    items: NonNullable<Items>
+    itemsLength: number,
+    appendIcon?: string | undefined,
+    searchLabel?: string,
+    useSearch?: boolean
+  }>(),
+  {
+    appendIcon: undefined,
+    searchLabel: 'Search',
+    useSearch: false
+  }
+)
+
+const search = defineModel<string>('search')
 
 </script>
 
@@ -22,5 +34,17 @@ defineProps<{
   <v-data-table-server
     v-model:options="options"
     :items="items"
-    :items-length="itemsLength" />
+    :items-length="itemsLength">
+    <template
+      v-if="useSearch"
+      #top>
+      <v-text-field
+        v-model="search"
+        :label="searchLabel"
+        :append-inner-icon="appendIcon"
+        clearable
+        hide-details
+        class="mx-4" />
+    </template>
+  </v-data-table-server>
 </template>

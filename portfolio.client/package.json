@@ -23,6 +23,8 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^6.1.1",
     "@graphql-codegen/client-preset": "^5.2.2",
+    "@vueuse/core": "^14.2.1",
+    "@vueuse/nuxt": "^14.2.1",
     "graphql": "^16.12.0"
   }
 }

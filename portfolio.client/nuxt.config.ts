@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   },
   modules: [
     '@nuxt/eslint',
+    '@vueuse/nuxt',
     'vuetify-nuxt-module'
   ],
   runtimeConfig: {

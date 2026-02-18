@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProjectQueryProjectsArgs } from '~/generated/graphql'
+import type { GetProjectsQueryVariables } from '~/generated/graphql'
 import type { TableOptions } from '~/types/ui/datatable'
 import { toGraphqlSort } from '~/utils/graphql'
 
@@ -11,19 +11,19 @@ const tableOptions = ref<TableOptions>({
   search: ''
 })
 
-const queryArgs = computed<ProjectQueryProjectsArgs>(() => {
-  const skip = (tableOptions.value.page - 1) * tableOptions.value.itemsPerPage
-  const take = tableOptions.value.itemsPerPage
-  const includeUnpublished = true
-  const order = tableOptions.value.sortBy
-    ? toGraphqlSort(tableOptions.value.sortBy)
-    : []
+const queryVars = computed<GetProjectsQueryVariables>(() => {
+  const options = tableOptions.value
+  const skip = (options.page - 1) * options.itemsPerPage
+  const take = options.itemsPerPage
 
   return {
-    includeUnpublished,
     skip,
     take,
-    order
+    includeUnpublished: true,
+    order: options.sortBy?.length
+      ? toGraphqlSort(options.sortBy)
+      : undefined
+    // where: toGraphqlFilterInput(tableOptions.value.search) ?? undefined
   }
 })
 
@@ -31,7 +31,7 @@ const {
   projects,
   pageInfo,
   totalCount
-} = useProjects(queryArgs)
+} = useProjects(queryVars)
 
 </script>
 

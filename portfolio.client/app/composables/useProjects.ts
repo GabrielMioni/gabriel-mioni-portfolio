@@ -1,21 +1,11 @@
 import { useQuery } from '@urql/vue'
 import {
+  type GetProjectsQueryVariables,
   type Project,
-  type ProjectQueryProjectsArgs,
-  // SortEnumType,
   GetProjectsDocument
 } from '~/generated/graphql'
 
-export const useProjects = (input: Ref<ProjectQueryProjectsArgs>) => {
-  const variables = computed(() => ({
-    skip: input.value.skip ?? 0,
-    take: input.value.take ?? 5,
-    includeUnpublished: input.value.includeUnpublished ?? true,
-    // order: input.value.order ?? [{ createdAt: SortEnumType.Desc }],
-    order: input.value.order ?? [],
-    where: input.value.where
-  }))
-
+export const useProjects = (variables: Ref<GetProjectsQueryVariables>) => {
   const {
     data,
     fetching: fetchingProjects,
@@ -24,7 +14,6 @@ export const useProjects = (input: Ref<ProjectQueryProjectsArgs>) => {
     query: GetProjectsDocument,
     variables
   })
-
 
   const projects = computed(() =>
     (data.value?.projects?.items ?? []).filter(

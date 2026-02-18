@@ -17,9 +17,7 @@ export const toGraphqlSort = (sortBy: SortBy): ProjectSortInput[] =>
     [s.key as keyof ProjectSortInput]: toSortEnum(s.order)
   }))
 
-export const toGraphqlFilterInput = (
-  search: string | null | undefined
-): InputMaybe<ProjectFilterInput> => {
+export const toGraphqlFilterInput = (search: string | null | undefined): InputMaybe<ProjectFilterInput> => {
   const trimmed = search?.trim()
   if (!trimmed) return undefined
 
@@ -31,5 +29,3 @@ export const toGraphqlFilterInput = (
     ]
   }
 }
-
-

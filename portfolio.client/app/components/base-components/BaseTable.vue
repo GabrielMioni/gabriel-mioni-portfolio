@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Items, TableOptions } from '~/types/ui/datatable'
+import type { Items, Header, TableOptions } from '~/types/ui/datatable'
 
 const options = defineModel<TableOptions>('options', {
   default: () => ({
@@ -13,14 +13,16 @@ const options = defineModel<TableOptions>('options', {
 
 withDefaults(
   defineProps<{
+    appendIcon?: string | undefined,
+    headers?: Header[] | undefined,
     items: NonNullable<Items>
     itemsLength: number,
-    appendIcon?: string | undefined,
     searchLabel?: string,
     useSearch?: boolean
   }>(),
   {
     appendIcon: undefined,
+    headers: undefined,
     searchLabel: 'Search',
     useSearch: false
   }
@@ -33,8 +35,9 @@ const search = defineModel<string>('search')
 <template>
   <v-data-table-server
     v-model:options="options"
-    :items="items"
-    :items-length="itemsLength">
+    :headers
+    :items
+    :items-length>
     <template
       v-if="useSearch"
       #top>

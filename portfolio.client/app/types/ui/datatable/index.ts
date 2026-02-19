@@ -1,14 +1,24 @@
 import type { VDataTableServer } from 'vuetify/components'
 
-export type SortBy = InstanceType<typeof VDataTableServer>['$props']['sortBy']
-export type GroupBy = InstanceType<typeof VDataTableServer>['$props']['groupBy']
-export type Items = InstanceType<typeof VDataTableServer>['$props']['items']
-type Search = InstanceType<typeof VDataTableServer>['$props']['search']
+type Props = InstanceType<typeof VDataTableServer>['$props']
 
-export interface TableOptions {
+export type SortBy = Props['sortBy']
+export type GroupBy = Props['groupBy']
+export type Items = Props['items']
+export type Search = Props['search']
+
+export type Header<K extends string = string> = {
+  title: string
+  key: K
+  sortable?: boolean
+  align?: 'start' | 'center' | 'end'
+  width?: number | string
+}
+
+export type TableOptions = {
   page: number
   itemsPerPage: number
-  search: Search,
+  search?: Search
   sortBy: SortBy
   groupBy: GroupBy
 }

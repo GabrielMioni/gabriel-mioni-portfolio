@@ -4,7 +4,6 @@ type Props = InstanceType<typeof VDataTableServer>['$props']
 
 export type SortBy = Props['sortBy']
 export type GroupBy = Props['groupBy']
-export type Items = Props['items']
 export type Search = Props['search']
 
 export type Header<K extends string = string> = {

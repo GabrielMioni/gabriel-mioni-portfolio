@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Project } from '~/generated/graphql'
 import type { Header, TableOptions } from '~/types/ui/datatable'
-import BaseTable from '~/components/base-components/BaseTable.vue'
 
 type ProjectKey = keyof Project
 type ActionKey = 'action'
@@ -53,7 +52,7 @@ const headers: ProjectHeader[] = [
     key: 'status'
   },
   {
-    title: 'Action',
+    title: '',
     align: 'end',
     sortable: false,
     key: 'action'
@@ -78,5 +77,10 @@ defineProps<{
     :items="projects"
     :items-length="totalCount"
     append-icon="mdi-magnify"
-    use-search />
+    use-search>
+    <template #item="{ item }">
+      <ProjectTableRow
+        :project="item" />
+    </template>
+  </BaseTable>
 </template>

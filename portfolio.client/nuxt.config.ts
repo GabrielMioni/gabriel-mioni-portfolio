@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   devServer: {
     port: 3000
   },
+  components: [
+    { path: '~/components', pathPrefix: false }
+  ],
   modules: [
     '@nuxt/eslint',
     '@vueuse/nuxt',

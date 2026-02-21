@@ -67,6 +67,18 @@ defineProps<{
   totalCount: number
 }>()
 
+const onEdit = (id: string) => {
+  console.log('edit', id)
+}
+const onDelete = (id: string) => {
+  console.log('delete', id)
+}
+
+provide('projectActions', {
+  edit: onEdit,
+  delete: onDelete
+})
+
 </script>
 
 <template>

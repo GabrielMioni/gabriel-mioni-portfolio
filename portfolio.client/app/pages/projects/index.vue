@@ -2,6 +2,7 @@
 import type { GetProjectsQueryVariables } from '~/generated/graphql'
 import type { TableOptions } from '~/types/ui/datatable'
 import { toGraphqlSort, toGraphqlFilterInput } from '~/utils/graphql'
+import EditProjectDialog from '~/components/projects/EditProjectDialog.vue'
 
 const tableOptions = ref<TableOptions>({
   page: 1,
@@ -39,11 +40,27 @@ watchDebounced(
   { debounce: 350, maxWait: 1000 }
 )
 
+const editDialogId = ref<string | null>(null)
+const deleteDialogId = ref<string | null>(null)
+
+const editDialog = computed({
+  get: () => !!editDialogId.value,
+  set: (val) => {
+    if (!val) editDialogId.value = null
+  }
+})
+
+const selectedEditProject = computed(() => {
+  const id = editDialogId.value
+  if (!id) return null
+  return projects.value.find((p) => p.id === id) ?? null
+})
+
 const onEdit = (id: string) => {
-  console.log('edit', id)
+  editDialogId.value = id
 }
 const onDelete = (id: string) => {
-  console.log('delete', id)
+  deleteDialogId.value = id
 }
 
 provide('projectActions', {
@@ -72,6 +89,10 @@ const {
           :page-info="pageInfo" />
       </v-col>
     </v-row>
+    <EditProjectDialog
+      v-if="selectedEditProject"
+      v-model="editDialog"
+      :project="selectedEditProject"/>
   </v-container>
 </template>
 

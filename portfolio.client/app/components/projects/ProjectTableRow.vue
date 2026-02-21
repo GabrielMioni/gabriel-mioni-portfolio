@@ -17,10 +17,7 @@ defineProps<{
     <td>{{ project.summary }}</td>
     <td>{{ project.status }}</td>
     <td class="text-end">
-      <v-btn
-        size="small"
-        variant="flat"
-        icon="mdi-dots-vertical" />
+      <ProjectMenu :project-id="project.id"/>
     </td>
   </tr>
 </template>

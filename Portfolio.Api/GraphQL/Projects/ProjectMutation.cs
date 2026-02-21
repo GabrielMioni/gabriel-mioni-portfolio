@@ -11,6 +11,11 @@ namespace Portfolio.Api.GraphQL.Projects
             return projects.CreateAsync(input, ct);
         }
 
+        public Task<Project?> EditProject(EditProjectInput input, [Service] ProjectService projects, CancellationToken ct = default)
+        {
+            return projects.EditProjectAsync(input, ct);
+        }
+
         public Task<Project?> PublishProject(Guid id, [Service] ProjectService projects, CancellationToken ct = default)
         {
             return projects.PublishAsync(id, ct);

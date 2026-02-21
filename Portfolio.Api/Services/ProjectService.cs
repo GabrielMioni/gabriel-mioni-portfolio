@@ -41,6 +41,50 @@ namespace Portfolio.Api.Services
             return newProject;
         }
 
+        public async Task<Project?> EditProjectAsync(EditProjectInput input, CancellationToken ct = default)
+        {
+            await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+            var project = await db.Projects
+                .FirstOrDefaultAsync(p => p.Id == input.Id, ct);
+
+            if (project is null) return null;
+
+            var changed = false;
+
+            if (input.Title is not null && input.Title != project.Title)
+            {
+                project.Title = input.Title;
+                changed = true;
+            }
+
+            if (input.Body is not null && input.Body != project.Body)
+            {
+                project.Body = input.Body;
+                changed = true;
+            }
+
+            if (input.Summary is not null && input.Summary != project.Summary)
+            {
+                project.Summary = input.Summary;
+                changed = true;
+            }
+
+            if (input.Status is not null && input.Status.Value != project.Status)
+            {
+                project.Status = input.Status.Value;
+                changed = true;
+            }
+
+            if (!changed)
+                return project;
+
+            project.UpdatedAt = DateTimeOffset.UtcNow;
+
+            await db.SaveChangesAsync(ct);
+            return project;
+        }
+
         public async Task<List<Project>> GetPublishedAsync(CancellationToken ct = default)
         {
             await using var db = await _dbFactory.CreateDbContextAsync();

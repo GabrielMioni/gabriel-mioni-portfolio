@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
+using Portfolio.Api.GraphQL.Projects.Inputs;
 
 namespace Portfolio.Api.Services
 {
@@ -19,15 +20,15 @@ namespace Portfolio.Api.Services
             return await db.Projects.FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<Project> CreateAsync(string title, string? body, string? summary, CancellationToken ct = default)
+        public async Task<Project> CreateAsync(CreateProjectInput input, CancellationToken ct = default)
         {
             await using var db = await _dbFactory.CreateDbContextAsync();
 
             var newProject = new Project
             {
-                Title = title,
-                Body = body,
-                Summary = summary,
+                Title = input.Title,
+                Body = input.Body,
+                Summary = input.Summary,
                 Status = ProjectStatus.Draft,
                 PublishedAt = null,
                 CreatedAt = DateTimeOffset.UtcNow,

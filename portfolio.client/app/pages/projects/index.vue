@@ -39,6 +39,18 @@ watchDebounced(
   { debounce: 350, maxWait: 1000 }
 )
 
+const onEdit = (id: string) => {
+  console.log('edit', id)
+}
+const onDelete = (id: string) => {
+  console.log('delete', id)
+}
+
+provide('projectActions', {
+  edit: onEdit,
+  delete: onDelete
+})
+
 
 const {
   projects,

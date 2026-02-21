@@ -1,13 +1,14 @@
 ﻿using Portfolio.Api.Domain.Projects;
+using Portfolio.Api.GraphQL.Projects.Inputs;
 using Portfolio.Api.Services;
 
 namespace Portfolio.Api.GraphQL.Projects
 {
     public class ProjectMutation
     {
-        public Task<Project> CreateProject(string title, string? body, string? summary, [Service] ProjectService projects, CancellationToken ct = default)
+        public Task<Project> CreateProject(CreateProjectInput input, [Service] ProjectService projects, CancellationToken ct = default)
         {
-            return projects.CreateAsync(title, body, summary, ct);
+            return projects.CreateAsync(input, ct);
         }
 
         public Task<Project?> PublishProject(Guid id, [Service] ProjectService projects, CancellationToken ct = default)

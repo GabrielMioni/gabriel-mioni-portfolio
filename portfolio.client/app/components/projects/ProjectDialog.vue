@@ -25,7 +25,7 @@ const form = reactive<ProjectForm>({
 })
 
 const props = defineProps<{
-  project?: Project
+  project?: Project | null
 }>()
 
 const createInput = computed<CreateProjectInput>(() => ({
@@ -43,13 +43,6 @@ const updateInput = computed<EditProjectInput>(() => ({
   status: form.status
 }))
 
-const resetForm = () => {
-  form.id = ''
-  form.title = ''
-  form.summary = ''
-  form.body = ''
-  form.status = ProjectStatus.Draft
-}
 
 watch(
   () => dialog.value,
@@ -57,17 +50,13 @@ watch(
     if (!isOpen) return
 
     const project = props.project
-    if (!project) {
-      resetForm()
-      return
-    }
 
-    form.id = project.id
-    form.title = project.title ?? ''
-    form.summary = project.summary ?? ''
-    form.body = project.body ?? ''
-    form.status = project.status ?? ProjectStatus.Draft
-  }
+    form.id = project?.id ?? ''
+    form.title = project?.title ?? ''
+    form.summary = project?.summary ?? ''
+    form.body = project?.body ?? ''
+  },
+  { immediate: true }
 )
 
 
@@ -76,8 +65,6 @@ const submitCreateProject = async () => {
     await createProject(createInput.value)
   } catch (error) {
     console.error('Failed to create project', error)
-  } finally {
-    dialog.value = false
   }
 }
 
@@ -86,17 +73,16 @@ const submitEditProject = async () => {
     await editProject(updateInput.value)
   } catch (error) {
     console.error('Failed to save project', error)
-  } finally {
-    editing.value = false
   }
 }
 
-const submit = () => {
+const submit = async () => {
   if (props.project) {
-    submitEditProject()
+    await submitEditProject()
   } else {
-    submitCreateProject()
+    await submitCreateProject()
   }
+  dialog.value = false
 }
 
 </script>

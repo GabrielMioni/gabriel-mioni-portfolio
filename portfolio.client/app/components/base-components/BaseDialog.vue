@@ -5,12 +5,14 @@ withDefaults(
   defineProps<{
     title?: string
     divider?: boolean
+    persistent?: boolean
     toolbarColor?: string,
     width?: string | number
   }>(),
   {
     title: undefined,
     divider: false,
+    persistent: false,
     toolbarColor: 'primary',
     width: 600
   }
@@ -21,7 +23,8 @@ withDefaults(
 <template>
   <v-dialog
     v-model="dialog"
-    :width="width">
+    :width="width"
+    :persistent="persistent">
     <v-toolbar
       :color="toolbarColor"
       density="comfortable"

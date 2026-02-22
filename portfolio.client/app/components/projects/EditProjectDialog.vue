@@ -5,6 +5,8 @@ import {
 } from '~/generated/graphql'
 import type { ProjectForm } from '~/types/ui/form'
 
+const { editing, editProject } = useProjectMutations()
+
 const dialog = defineModel<boolean>()
 
 const form = reactive<ProjectForm>({
@@ -33,8 +35,14 @@ watch(
   { immediate: true }
 )
 
-const submit = () => {
-  console.log('submit', form)
+const submit = async () => {
+  try {
+    await editProject(form)
+  } catch (error) {
+    console.error('Failed to save project', error)
+  } finally {
+    editing.value = false
+  }
 }
 
 </script>
@@ -43,7 +51,8 @@ const submit = () => {
   <BaseDialog
     v-model="dialog"
     divider
-    title="Edit Project">
+    title="Edit Project"
+    :persistent="editing">
     <v-form>
       <v-container
         class="pa-0"
@@ -84,6 +93,7 @@ const submit = () => {
       <v-btn
         variant="flat"
         color="primary"
+        :loading="editing"
         @click="submit">
         Save
       </v-btn>

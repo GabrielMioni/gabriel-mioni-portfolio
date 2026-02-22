@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import {
   type Project,
+  type CreateProjectInput,
+  type EditProjectInput,
   ProjectStatus
 } from '~/generated/graphql'
 import type { ProjectForm } from '~/types/ui/form'
 
-const { editing, editProject } = useProjectMutations()
+const {
+  creating,
+  createProject,
+  editing,
+  editProject
+} = useProjectMutations()
 
 const dialog = defineModel<boolean>()
 
@@ -18,30 +25,77 @@ const form = reactive<ProjectForm>({
 })
 
 const props = defineProps<{
-  project: Project
+  project?: Project
 }>()
 
+const createInput = computed<CreateProjectInput>(() => ({
+  title: form.title,
+  summary: form.summary,
+  body: form.body,
+  status: form.status
+}))
+
+const updateInput = computed<EditProjectInput>(() => ({
+  id: form.id,
+  title: form.title,
+  summary: form.summary,
+  body: form.body,
+  status: form.status
+}))
+
+const resetForm = () => {
+  form.id = ''
+  form.title = ''
+  form.summary = ''
+  form.body = ''
+  form.status = ProjectStatus.Draft
+}
 
 watch(
-  () => [dialog.value, props.project] as const,
-  ([isOpen, project]) => {
+  () => dialog.value,
+  (isOpen) => {
     if (!isOpen) return
+
+    const project = props.project
+    if (!project) {
+      resetForm()
+      return
+    }
 
     form.id = project.id
     form.title = project.title ?? ''
     form.summary = project.summary ?? ''
     form.body = project.body ?? ''
-  },
-  { immediate: true }
+    form.status = project.status ?? ProjectStatus.Draft
+  }
 )
 
-const submit = async () => {
+
+const submitCreateProject = async () => {
   try {
-    await editProject(form)
+    await createProject(createInput.value)
+  } catch (error) {
+    console.error('Failed to create project', error)
+  } finally {
+    dialog.value = false
+  }
+}
+
+const submitEditProject = async () => {
+  try {
+    await editProject(updateInput.value)
   } catch (error) {
     console.error('Failed to save project', error)
   } finally {
     editing.value = false
+  }
+}
+
+const submit = () => {
+  if (props.project) {
+    submitEditProject()
+  } else {
+    submitCreateProject()
   }
 }
 
@@ -93,7 +147,7 @@ const submit = async () => {
       <v-btn
         variant="flat"
         color="primary"
-        :loading="editing"
+        :loading="creating || editing"
         @click="submit">
         Save
       </v-btn>

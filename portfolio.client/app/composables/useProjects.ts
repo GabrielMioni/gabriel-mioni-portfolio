@@ -12,7 +12,8 @@ export const useProjects = (variables: Ref<GetProjectsQueryVariables>) => {
     error: projectError
   } = useQuery({
     query: GetProjectsDocument,
-    variables
+    variables,
+    requestPolicy: 'cache-and-network'
   })
 
   const projects = computed(() =>

@@ -1,11 +1,21 @@
-import urql, { createClient, cacheExchange, fetchExchange, type ClientOptions } from '@urql/vue'
+import urql, { createClient, fetchExchange, type ClientOptions } from '@urql/vue'
+import { cacheExchange } from '@urql/exchange-graphcache'
+
 
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig()
 
   const clientOptions: ClientOptions = {
     url: config.public.graphQlBase, // '/graphql'
-    exchanges: [cacheExchange, fetchExchange],
+    exchanges: [
+      cacheExchange({
+        keys: {
+          ProjectsCollectionSegment: () => null,
+          CollectionSegmentInfo: () => null
+        }
+      }),
+      fetchExchange
+    ],
     fetchOptions: {
       credentials: 'include'
     }

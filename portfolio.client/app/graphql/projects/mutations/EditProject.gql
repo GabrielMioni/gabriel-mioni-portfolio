@@ -1,0 +1,11 @@
+mutation editProject ($input: EditProjectInput!) {
+    editProject(input: $input) {
+        id
+        title
+        summary
+        body
+        publishedAt
+        createdAt
+        updatedAt
+    }
+}

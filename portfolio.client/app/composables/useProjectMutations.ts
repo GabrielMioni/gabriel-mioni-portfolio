@@ -1,17 +1,32 @@
 import { useMutation } from '@urql/vue'
 import {
+  type CreateProjectInput,
   type EditProjectInput,
+  CreateProjectDocument,
   EditProjectDocument
 } from '~/generated/graphql'
 
 export const useProjectMutations = () => {
   const {
-    executeMutation,
+    executeMutation: executeCreateProject,
+    fetching: creating
+  } = useMutation(CreateProjectDocument)
+
+  const {
+    executeMutation: executeEditProject,
     fetching: editing
   } = useMutation(EditProjectDocument)
 
+  const createProject = async (input: CreateProjectInput) => {
+    const response = await executeCreateProject({ input })
+
+    if (response.error) throw response.error
+
+    return response.data?.createProject
+  }
+
   const editProject = async (input: EditProjectInput) => {
-    const response = await executeMutation({ input })
+    const response = await executeEditProject({ input })
 
     if (response.error) throw response.error
 
@@ -19,6 +34,8 @@ export const useProjectMutations = () => {
   }
 
   return {
+    createProject,
+    creating,
     editProject,
     editing
   }

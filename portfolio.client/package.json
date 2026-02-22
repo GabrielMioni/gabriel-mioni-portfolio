@@ -12,10 +12,8 @@
     "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },
   "dependencies": {
-    "@nuxt/eslint": "^1.13.0",
     "@urql/exchange-graphcache": "^9.0.0",
     "@urql/vue": "^2.0.0",
-    "eslint": "^9.39.2",
     "nuxt": "^4.3.0",
     "vue": "^3.5.27",
     "vue-router": "^4.6.4",
@@ -24,8 +22,10 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^6.1.1",
     "@graphql-codegen/client-preset": "^5.2.2",
+    "@nuxt/eslint": "^1.15.1",
     "@vueuse/core": "^14.2.1",
     "@vueuse/nuxt": "^14.2.1",
+    "eslint": "^9.39.3",
     "graphql": "^16.12.0"
   }
 }

@@ -1,22 +1,40 @@
 <script setup lang="ts">
-import type { Project } from '~/generated/graphql'
+import {
+  type Project,
+  ProjectStatus
+} from '~/generated/graphql'
+import type { ProjectForm } from '~/types/ui/form'
+
 const dialog = defineModel<boolean>()
+
+const form = reactive<ProjectForm>({
+  id: '',
+  title: '',
+  summary: '',
+  body: '',
+  status: ProjectStatus.Draft
+})
 
 const props = defineProps<{
   project: Project
 }>()
 
-const projectState = ref<Project>(props.project)
 
 watch(
-  () => props.project,
-  (val) => {
-    projectState.value = val
-  }
+  () => [dialog.value, props.project] as const,
+  ([isOpen, project]) => {
+    if (!isOpen) return
+
+    form.id = project.id
+    form.title = project.title ?? ''
+    form.summary = project.summary ?? ''
+    form.body = project.body ?? ''
+  },
+  { immediate: true }
 )
 
 const submit = () => {
-  console.log('submit', projectState.value)
+  console.log('submit', form)
 }
 
 </script>
@@ -30,13 +48,29 @@ const submit = () => {
       <v-container
         class="pa-0"
         fluid>
-        <v-row>
+        <v-row no-gutters>
           <v-col>
             <v-text-field
-              v-model="projectState.title"
+              v-model="form.title"
               variant="filled"
               label="Title" />
           </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col>
+            <v-text-field
+              v-model="form.summary"
+              variant="filled"
+              label="Summary" />
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-textarea
+            v-model="form.body"
+            max-height="300"
+            label="Body"
+            auto-grow
+            persistent-hint />
         </v-row>
       </v-container>
     </v-form>

@@ -2,6 +2,7 @@
 import type { GetProjectsQueryVariables } from '~/generated/graphql'
 import type { TableOptions } from '~/types/ui/datatable'
 import { toGraphqlSort, toGraphqlFilterInput } from '~/utils/graphql'
+import { useProjectQueries } from '~/composables/useProjectQueries'
 
 const tableOptions = ref<TableOptions>({
   page: 1,
@@ -76,7 +77,7 @@ const {
   projects,
   pageInfo,
   totalCount
-} = useProjects(queryVars)
+} = useProjectQueries(queryVars)
 
 </script>
 

@@ -5,7 +5,7 @@ import {
   GetProjectsDocument
 } from '~/generated/graphql'
 
-export const useProjects = (variables: Ref<GetProjectsQueryVariables>) => {
+export const useProjectQueries = (variables: Ref<GetProjectsQueryVariables>) => {
   const {
     data,
     fetching: fetchingProjects,

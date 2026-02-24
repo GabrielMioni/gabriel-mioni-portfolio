@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import BaseMenu from '~/components/base-components/BaseMenu.vue'
+
 const props = defineProps<{
   projectId: string
 }>()
@@ -19,7 +21,7 @@ const menuItems = [
   {
     title: 'Delete',
     icon: 'mdi-delete',
-    class: 'text-error',
+    itemClass: 'text-error',
     action: () => {
       actions.delete(props.projectId)
     }
@@ -29,25 +31,7 @@ const menuItems = [
 </script>
 
 <template>
-  <v-menu>
-    <template #activator="{ props: activatorProps }">
-      <v-btn
-        v-bind="activatorProps"
-        size="small"
-        variant="flat"
-        icon="mdi-dots-vertical" />
-    </template>
-    <v-list>
-      <v-list-item
-        v-for="(item, index) in menuItems"
-        :key="index"
-        :append-icon="item.icon"
-        :class="item.class ?? undefined"
-        @click="item.action()">
-        <v-list-item-title>{{ item.title }}</v-list-item-title>
-      </v-list-item>
-    </v-list>
-  </v-menu>
+  <BaseMenu :items="menuItems" />
 </template>
 
 <style scoped>

@@ -16,39 +16,27 @@ const headers: ProjectHeader[] = [
     key: 'title'
   },
   {
-    title: 'Body',
-    align: 'start',
-    sortable: true,
-    key: 'body'
-  },
-  {
-    title: 'Published Date',
-    align: 'start',
-    sortable: true,
-    key: 'publishedAt'
-  },
-  {
-    title: 'Created Date',
-    align: 'start',
-    sortable: true,
-    key: 'createdAt'
-  },
-  {
-    title: 'Last Updated Date',
-    align: 'start',
-    sortable: true,
-    key: 'updatedAt'
-  },
-  {
     title: 'Summary',
     align: 'start',
     sortable: true,
     key: 'summary'
   },
   {
-    title: 'Status',
+    title: 'Body',
     align: 'start',
     sortable: true,
+    key: 'body'
+  },
+  {
+    title: 'Created',
+    align: 'start',
+    sortable: true,
+    key: 'createdAt'
+  },
+  {
+    title: 'Status',
+    align: 'start',
+    sortable: false,
     key: 'status'
   },
   {

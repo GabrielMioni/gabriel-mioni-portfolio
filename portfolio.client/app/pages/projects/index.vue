@@ -84,22 +84,14 @@ const {
 <template>
   <v-container>
     <v-row>
-      <v-col>
-        <v-btn
-          color="primary"
-          @click="createDialog = true">
-          Create Project
-        </v-btn>
-      </v-col>
-    </v-row>
-    <v-row>
       <v-col class="px-0">
         <ProjectsTable
           v-model:options="tableOptions"
           v-model:search="search"
           :projects="projects"
           :total-count="totalCount"
-          :page-info="pageInfo" />
+          :page-info="pageInfo"
+          @create-project="createDialog = true"/>
       </v-col>
     </v-row>
     <ProjectDialog

@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import type { Project } from '~/generated/graphql'
 import type { Header, TableOptions } from '~/types/ui/datatable'
+import type { MenuItem } from '~/types/ui/MenuItem'
 
 type ProjectKey = keyof Project
 type ActionKey = 'action'
 type ColumnKey = ProjectKey | ActionKey
 
 type ProjectHeader = Header<ColumnKey>
+
+const emits = defineEmits<{
+  (e: 'create-project'): void
+}>()
 
 const headers: ProjectHeader[] = [
   {
@@ -47,6 +52,16 @@ const headers: ProjectHeader[] = [
   }
 ]
 
+const menuItems: MenuItem[] = [
+  {
+    title: 'Create Project',
+    icon: 'mdi-pencil',
+    action: () => {
+      emits('create-project')
+    }
+  }
+]
+
 const options = defineModel<TableOptions>('options')
 const search = defineModel<string>('search')
 
@@ -60,12 +75,28 @@ defineProps<{
 <template>
   <BaseTable
     v-model:options="options"
-    v-model:search="search"
     :headers="headers"
     :items="projects"
-    :items-length="totalCount"
-    append-icon="mdi-magnify"
-    use-search>
+    :items-length="totalCount">
+    <template #top>
+      <v-row>
+        <v-col>
+          <v-text-field
+            v-model="search"
+            label="Search"
+            append-inner-icon="mdi-magnify"
+            clearable
+            hide-details
+            class="mx-4" />
+        </v-col>
+        <v-col
+          cols="auto"
+          align-self="center"
+          justify="end">
+          <BaseMenu :items="menuItems"/>
+        </v-col>
+      </v-row>
+    </template>
     <template #item="{ item }">
       <ProjectTableRow
         :project="item" />

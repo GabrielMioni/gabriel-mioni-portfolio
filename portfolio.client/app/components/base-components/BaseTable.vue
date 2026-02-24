@@ -13,22 +13,14 @@ const options = defineModel<TableOptions>('options', {
 
 withDefaults(
   defineProps<{
-    appendIcon?: string | undefined
     headers?: Header[] | undefined
     items: T[]
     itemsLength: number
-    searchLabel?: string
-    useSearch?: boolean
   }>(),
   {
-    appendIcon: undefined,
-    headers: undefined,
-    searchLabel: 'Search',
-    useSearch: false
+    headers: undefined
   }
 )
-
-const search = defineModel<string>('search')
 
 </script>
 
@@ -39,15 +31,9 @@ const search = defineModel<string>('search')
     :items="items"
     :items-length="itemsLength">
     <template
-      v-if="useSearch"
+      v-if="$slots.top"
       #top>
-      <v-text-field
-        v-model="search"
-        :label="searchLabel"
-        :append-inner-icon="appendIcon"
-        clearable
-        hide-details
-        class="mx-4" />
+      <slot name="top" />
     </template>
     <template #item="{ item }">
       <slot

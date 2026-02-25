@@ -70,11 +70,14 @@ defineProps<{
   totalCount: number
 }>()
 
+const expanded = ref<string[]>([])
+
 </script>
 
 <template>
   <BaseTable
     v-model:options="options"
+    v-model:expanded="expanded"
     :headers="headers"
     :items="projects"
     :items-length="totalCount">
@@ -97,9 +100,18 @@ defineProps<{
         </v-col>
       </v-row>
     </template>
-    <template #item="{ item }">
+    <template #item="{ item, toggleExpand, isExpanded }">
       <ProjectTableRow
-        :project="item" />
+        :project="item"
+        :toggle-expand="toggleExpand"
+        :is-expanded="isExpanded" />
+    </template>
+    <template #expanded-row="{ item }">
+      <tr>
+        <td :colspan="headers.length">
+          {{ item.body }}
+        </td>
+      </tr>
     </template>
   </BaseTable>
 </template>

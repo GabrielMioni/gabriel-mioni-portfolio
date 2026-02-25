@@ -34,12 +34,17 @@ const view = computed(() => ({
           @click.stop="props.toggleExpand?.()">
           {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
         </v-icon>
-        <span v-text="view.title" />
+        <div>
+          <div
+            class="font-weight-bold"
+            v-text="view.title" />
+          <div class="text-grey-darken-1">
+            Created: <span v-text="view.createdAt" />
+          </div>
+        </div>
       </div>
     </td>
     <td v-text="view.summary" />
-    <td v-text="view.body" />
-    <td v-text="view.createdAt" />
     <td>
       <ProjectStatus :project="project" />
     </td>
@@ -52,5 +57,7 @@ const view = computed(() => ({
 <style scoped>
 tr.expanded td {
   border-bottom: none !important;
+  background: rgb(var(#f0f0f0 / 0.5));
+  padding: 16px 24px;
 }
 </style>

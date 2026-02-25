@@ -27,18 +27,6 @@ const headers: ProjectHeader[] = [
     key: 'summary'
   },
   {
-    title: 'Body',
-    align: 'start',
-    sortable: true,
-    key: 'body'
-  },
-  {
-    title: 'Created',
-    align: 'start',
-    sortable: true,
-    key: 'createdAt'
-  },
-  {
     title: 'Status',
     align: 'start',
     sortable: false,
@@ -78,6 +66,7 @@ const expanded = ref<string[]>([])
   <BaseTable
     v-model:options="options"
     v-model:expanded="expanded"
+    :density="'comfortable'"
     :headers="headers"
     :items="projects"
     :items-length="totalCount">
@@ -115,3 +104,7 @@ const expanded = ref<string[]>([])
     </template>
   </BaseTable>
 </template>
+
+<style>
+
+</style>

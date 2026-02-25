@@ -17,11 +17,13 @@ const expanded = defineModel<string[]>('expanded', {
 
 withDefaults(defineProps<{
   headers?: Header[] | undefined
+  density?: 'default' | 'comfortable' | 'compact' | null
   items: T[]
   itemsLength: number
   itemValue?: string
 }>(), {
   headers: undefined,
+  density: 'default',
   itemValue: 'id'
 })
 </script>
@@ -30,6 +32,7 @@ withDefaults(defineProps<{
   <v-data-table-server
     v-model:options="options"
     v-model:expanded="expanded"
+    :density="density"
     :headers="headers"
     :items="items"
     :items-length="itemsLength"
@@ -53,3 +56,9 @@ withDefaults(defineProps<{
     </template>
   </v-data-table-server>
 </template>
+
+<style>
+tr:hover {
+  background: rgba(0,0,0,0.03);
+}
+</style>

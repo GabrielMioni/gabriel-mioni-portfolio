@@ -4,6 +4,8 @@ import { formatDate, formatTextWithEllipsis } from '~/utils/formatters'
 
 const props = defineProps<{
   project: Project
+  toggleExpand?: () => void
+  isExpanded?: boolean
 }>()
 
 const dash = '-'
@@ -23,8 +25,18 @@ const view = computed(() => ({
 </script>
 
 <template>
-  <tr>
-    <td v-text="view.title" />
+  <tr :class="isExpanded ? 'expanded' : undefined">
+    <td>
+      <div class="d-flex align-center">
+        <v-icon
+          size="small"
+          class="mr-2"
+          @click.stop="props.toggleExpand?.()">
+          {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
+        </v-icon>
+        <span v-text="view.title" />
+      </div>
+    </td>
     <td v-text="view.summary" />
     <td v-text="view.body" />
     <td v-text="view.createdAt" />
@@ -38,5 +50,7 @@ const view = computed(() => ({
 </template>
 
 <style scoped>
-
+tr.expanded td {
+  border-bottom: none !important;
+}
 </style>

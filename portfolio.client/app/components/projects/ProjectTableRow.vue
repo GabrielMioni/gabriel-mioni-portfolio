@@ -31,14 +31,15 @@ const view = computed(() => ({
         <v-icon
           size="small"
           class="mr-2"
-          @click.stop="props.toggleExpand?.()">
+          @click.stop="props.toggleExpand?.()"
+          @keydown.enter.stop="props.toggleExpand?.()">
           {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
         </v-icon>
         <div>
           <div
             class="font-weight-bold"
             v-text="view.title" />
-          <div class="text-grey-darken-1">
+          <div class="text-grey-darken-1 fs-12">
             Created: <span v-text="view.createdAt" />
           </div>
         </div>
@@ -56,8 +57,6 @@ const view = computed(() => ({
 
 <style scoped>
 tr.expanded td {
-  border-bottom: none !important;
-  background: rgb(var(#f0f0f0 / 0.5));
   padding: 16px 24px;
 }
 </style>

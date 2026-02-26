@@ -1,0 +1,16 @@
+@use '../abstracts/font-sizes' as fs;
+
+.fs-10 { font-size: fs.$fs-10; }
+.fs-12 { font-size: fs.$fs-12; }
+.fs-14 { font-size: fs.$fs-14; }
+.fs-16 { font-size: fs.$fs-16; }
+.fs-18 { font-size: fs.$fs-18; }
+.fs-20 { font-size: fs.$fs-20; }
+.fs-24 { font-size: fs.$fs-24; }
+.fs-28 { font-size: fs.$fs-28; }
+.fs-32 { font-size: fs.$fs-32; }
+.fs-36 { font-size: fs.$fs-36; }
+.fs-40 { font-size: fs.$fs-40; }
+.fs-48 { font-size: fs.$fs-48; }
+.fs-56 { font-size: fs.$fs-56; }
+.fs-64 { font-size: fs.$fs-64; }

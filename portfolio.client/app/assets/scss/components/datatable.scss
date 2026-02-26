@@ -1,0 +1,31 @@
+@use '../abstracts/colors' as c;
+
+.base-table.v-table {
+  .v-table__wrapper > table > tbody {
+    > tr {
+      &:hover,
+      &:focus-within {
+        background: c.$color-hover;
+      }
+    }
+
+    > tr.expanded {
+      // Parent hovered/focused -> highlight expand row
+      &:hover + tr.expand-row,
+      &:focus-within + tr.expand-row {
+        background: c.$color-hover;
+      }
+
+      // Expand row hovered/focused -> highlight parent
+      &:has(+ tr.expand-row:hover),
+      &:has(+ tr.expand-row:focus-within) {
+        background: c.$color-hover;
+      }
+
+      // Remove border between .expanded and .expand-row
+      &:has(+ tr.expand-row) > td {
+        border-bottom-color: transparent;
+      }
+    }
+  }
+}

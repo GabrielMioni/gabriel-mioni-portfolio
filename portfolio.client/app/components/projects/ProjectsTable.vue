@@ -96,7 +96,7 @@ const expanded = ref<string[]>([])
         :is-expanded="isExpanded" />
     </template>
     <template #expanded-row="{ item }">
-      <tr>
+      <tr class="expand-row">
         <td :colspan="headers.length">
           {{ item.body }}
         </td>

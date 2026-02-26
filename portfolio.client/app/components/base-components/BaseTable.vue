@@ -36,7 +36,8 @@ withDefaults(defineProps<{
     :headers="headers"
     :items="items"
     :items-length="itemsLength"
-    :item-value="itemValue">
+    :item-value="itemValue"
+    class="base-table">
     <template
       v-if="$slots.top"
       #top>
@@ -57,8 +58,6 @@ withDefaults(defineProps<{
   </v-data-table-server>
 </template>
 
-<style>
-tr:hover {
-  background: rgba(0,0,0,0.03);
-}
+<style lang="scss">
+@use '~/assets/scss/components/datatable.scss';
 </style>

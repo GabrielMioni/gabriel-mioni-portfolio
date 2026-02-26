@@ -26,32 +26,40 @@ const props = defineProps<{
 
 const meta = computed(() => statusMeta[getUiStatus(props.project)])
 
-const createdDate = computed(() => props.project.createdAt ? formatDate(props.project.createdAt) : 'Unknown')
-const publishedDate = computed(() => props.project.publishedAt ? formatDate(props.project.publishedAt) : 'Not published')
-const updatedDate = computed(() => props.project.updatedAt ? formatDate(props.project.updatedAt) : 'Unknown')
+const view = computed(() => ({
+  createdAt: props.project.createdAt ? formatDate(props.project.createdAt) : null,
+  publishedAt: props.project.publishedAt ? formatDate(props.project.publishedAt) : null,
+  updatedAt: props.project.updatedAt ? formatDate(props.project.updatedAt) : null
+}))
 
 const updatedDifferent = computed(() => {
-  return createdDate.value !== updatedDate.value
+  return view.value.createdAt !== view.value.updatedAt
+})
+
+const disableToolTip = computed(() => {
+  return !view.value.publishedAt && !updatedDifferent.value
 })
 
 </script>
 
 <template>
-  <v-tooltip>
+  <v-tooltip
+    :disabled="disableToolTip">
     <template #activator="{ props: activatorProps }">
-      <v-icon
-        v-bind="activatorProps"
+      <v-chip
         :color="meta.color"
-        :icon="meta.icon" />
+        v-bind="activatorProps"
+        :prepend-icon="meta.icon">
+        {{ meta.label }}
+      </v-chip>
     </template>
-    <div>
-      <div v-text="meta.label" />
+    <div class="fs-10">
       <div
-        v-if="project.publishedAt"
-        v-text="publishedDate" />
+        v-if="view.publishedAt"
+        v-text="`Published: ${view.publishedAt}`" />
       <div
         v-if="updatedDifferent"
-        v-text="updatedDate" />
+        v-text="`Updated: ${view.updatedAt}`" />
     </div>
   </v-tooltip>
 </template>

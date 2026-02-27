@@ -3,6 +3,9 @@
 $hover: c.$color-hover;
 
 .base-table.v-table {
+  thead {
+    background-color: c.$header;
+  }
   .v-table__wrapper > table > tbody {
     > tr:hover {
       background: $hover;

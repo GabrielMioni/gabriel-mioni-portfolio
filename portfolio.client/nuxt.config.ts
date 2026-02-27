@@ -29,5 +29,8 @@ export default defineNuxtConfig({
         proxy: 'http://localhost:5217/graphql'
       }
     }
+  },
+  vuetify: {
+    vuetifyOptions: './vuetify.config.ts'
   }
 })

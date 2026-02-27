@@ -1,31 +1,38 @@
 @use '../abstracts/colors' as c;
 
+$hover: c.$color-hover;
+
 .base-table.v-table {
   .v-table__wrapper > table > tbody {
-    > tr {
-      &:hover,
-      &:focus-within {
-        background: c.$color-hover;
-      }
+    > tr:hover {
+      background: $hover;
     }
 
-    > tr.expanded {
-      // Parent hovered/focused -> highlight expand row
-      &:hover + tr.expand-row,
-      &:focus-within + tr.expand-row {
-        background: c.$color-hover;
-      }
+    /* Parent hovered -> expand-row highlighted */
+    > tr.expanded:hover + tr.expand-row {
+      background: $hover;
+    }
 
-      // Expand row hovered/focused -> highlight parent
-      &:has(+ tr.expand-row:hover),
-      &:has(+ tr.expand-row:focus-within) {
-        background: c.$color-hover;
-      }
+    /* Expand-row hovered -> parent highlighted */
+    > tr.expanded:has(+ tr.expand-row:hover) {
+      background: $hover;
+    }
 
-      // Remove border between .expanded and .expand-row
-      &:has(+ tr.expand-row) > td {
-        border-bottom-color: transparent;
-      }
+    /* keyboard: focus-visible highlights row
+       (:focus-visible instead of :focus prevents sticky highlight on button click) */
+    > tr:has(:focus-visible) {
+      background: $hover;
+    }
+
+    /* Expand-row has focus-visible -> parent highlighted
+      (in case elements are added in .expand-row) */
+    > tr.expanded:has(+ tr.expand-row:has(:focus-visible)) {
+      background: $hover;
+    }
+
+/* Remove border between parent + expand row */
+    > tr.expanded:has(+ tr.expand-row) > td {
+      border-bottom-color: transparent;
     }
   }
 }

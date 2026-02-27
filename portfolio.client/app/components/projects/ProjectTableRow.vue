@@ -28,13 +28,13 @@ const view = computed(() => ({
   <tr :class="isExpanded ? 'expanded' : undefined">
     <td>
       <div class="d-flex align-center">
-        <v-icon
-          size="small"
+        <v-btn
+          variant="flat"
+          size="x-small"
           class="mr-2"
+          :icon="isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'"
           @click.stop="props.toggleExpand?.()"
-          @keydown.enter.stop="props.toggleExpand?.()">
-          {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
-        </v-icon>
+          @keydown.enter.stop="props.toggleExpand?.()" />
         <div>
           <div
             class="font-weight-bold"

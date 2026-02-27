@@ -71,23 +71,26 @@ const expanded = ref<string[]>([])
     :items="projects"
     :items-length="totalCount">
     <template #top>
-      <v-row>
-        <v-col>
-          <v-text-field
-            v-model="search"
-            label="Search"
-            append-inner-icon="mdi-magnify"
-            clearable
-            hide-details
-            class="mx-4" />
-        </v-col>
-        <v-col
-          cols="auto"
-          align-self="center"
-          justify="end">
-          <BaseMenu :items="menuItems"/>
-        </v-col>
-      </v-row>
+      <v-container
+        fluid
+        class="px-0">
+        <v-row>
+          <v-col>
+            <v-text-field
+              v-model="search"
+              label="Search"
+              append-inner-icon="mdi-magnify"
+              clearable
+              hide-details />
+          </v-col>
+          <v-col
+            cols="auto"
+            align-self="center"
+            justify="end">
+            <BaseMenu :items="menuItems"/>
+          </v-col>
+        </v-row>
+      </v-container>
     </template>
     <template #item="{ item, toggleExpand, isExpanded }">
       <ProjectTableRow

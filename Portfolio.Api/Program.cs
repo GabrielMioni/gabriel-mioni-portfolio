@@ -79,7 +79,7 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
     return new AmazonS3Client(creds, config);
 });
 
-builder.Services.AddSingleton<IR2Storage, R2Storage>();
+builder.Services.AddSingleton<IObjectStorage, ObjectStorage>();
 
 var app = builder.Build();
 

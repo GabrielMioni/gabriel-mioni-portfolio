@@ -4,12 +4,12 @@ using Microsoft.Extensions.Options;
 using Portfolio.Api.Infrastructure.Storage;
 
 namespace Portfolio.Api.Services.Storage;
-public sealed class R2Storage : IR2Storage
+public sealed class ObjectStorage : IObjectStorage
 {
     private readonly IAmazonS3 _s3;
     private readonly R2Options _opts;
 
-    public R2Storage(IAmazonS3 s3, IOptions<R2Options> opts)
+    public ObjectStorage(IAmazonS3 s3, IOptions<R2Options> opts)
     {
         _s3 = s3;
         _opts = opts.Value;

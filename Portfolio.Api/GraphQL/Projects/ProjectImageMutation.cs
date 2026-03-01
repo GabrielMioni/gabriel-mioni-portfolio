@@ -7,7 +7,7 @@ namespace Portfolio.Api.GraphQL.Projects;
 [ExtendObjectType(typeof(ProjectMutation))]
 public class ProjectImageMutation
 {
-    public RequestUploadPayload RequestTestUpload(RequestUploadInput input, [Service] IR2Storage storage)
+    public RequestUploadPayload RequestTestUpload(RequestUploadInput input, [Service] IObjectStorage storage)
     {
         var ext = input.ContentType switch
         {

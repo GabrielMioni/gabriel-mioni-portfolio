@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
+using Portfolio.Api.Infrastructure.Storage;
 using Portfolio.Api.GraphQL.Projects;
 using Portfolio.Api.GraphQL.Projects.Types;
 using Portfolio.Api.Services;
@@ -52,6 +53,12 @@ builder.Services
     });
 
 builder.Services.AddScoped<ProjectService>();
+
+builder.Services.AddOptions<R2Options>()
+  .Bind(builder.Configuration.GetSection("R2"))
+  .Validate(o => !string.IsNullOrEmpty(o.AccessKey), "R2 AccessKey missing")
+  .Validate(o => !string.IsNullOrEmpty(o.SecretKey), "R2 SecretKey missing")
+  .ValidateOnStart();
 
 var app = builder.Build();
 

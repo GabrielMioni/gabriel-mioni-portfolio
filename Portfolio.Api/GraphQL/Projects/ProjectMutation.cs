@@ -26,23 +26,6 @@ namespace Portfolio.Api.GraphQL.Projects
         public Task<Project?> ArchiveProject(Guid id, [Service] ProjectService projects, CancellationToken ct = default)
         {
             return projects.ArchiveAsync(id, ct);
-        }
-
-        public RequestUploadPayload RequestTestUpload(RequestUploadInput input, [Service] IR2Storage storage)
-        {
-            var key = $"test/{Guid.NewGuid():N}.webp";
-
-            var uploadUrl = storage.CreatePresignedPutUrl(
-                key,
-                input.ContentType,
-                TimeSpan.FromMinutes(5));
-
-            var publicUrl = storage.GetPublicUrl(key);
-
-            return new RequestUploadPayload(
-                key,
-                uploadUrl,
-                publicUrl);
-        }
+        }       
     }
 }

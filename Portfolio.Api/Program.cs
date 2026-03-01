@@ -45,6 +45,7 @@ builder.Services
     .AddGraphQLServer()
     .AddQueryType<ProjectQuery>()
     .AddMutationType<ProjectMutation>()
+    .AddTypeExtension<ProjectImageMutation>()
     .AddType<ProjectType>()
     .AddProjections()
     .AddFiltering()

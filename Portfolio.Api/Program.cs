@@ -58,6 +58,7 @@ builder.Services
     });
 
 builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<ProjectImageService>();
 
 builder.Services.AddOptions<R2Options>()
   .Bind(builder.Configuration.GetSection("R2"))

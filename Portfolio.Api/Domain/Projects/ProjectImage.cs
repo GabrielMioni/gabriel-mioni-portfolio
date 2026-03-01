@@ -14,13 +14,25 @@ public class ProjectImage
 
     public DateTime CreatedAt { get; private set; }
 
+    public string ContentType { get; private set; } = default!;
+
+    public long SizeBytes { get; private set; }
+
+    public int Height { get; private set; }
+
+    public int Width { get; private set; }
+
     private ProjectImage() { } // EF
 
     public ProjectImage(
       Guid projectId,
       string fullKey,
       string thumbKey,
-      int sortOrder)
+      int sortOrder,
+      string contentType,
+      long sizeBytes,
+      int height,
+      int width)
     {
         Id = Guid.NewGuid();
         ProjectId = projectId;
@@ -28,5 +40,9 @@ public class ProjectImage
         ThumbKey = thumbKey;
         SortOrder = sortOrder;
         CreatedAt = DateTime.UtcNow;
+        ContentType = contentType;
+        SizeBytes = sizeBytes;
+        Height = height;
+        Width = width;
     }
 }

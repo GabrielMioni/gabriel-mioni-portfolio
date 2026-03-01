@@ -10,5 +10,6 @@
         public DateTimeOffset? PublishedAt { get; set; }
         public DateTimeOffset? UpdatedAt { get; set; }
         public ProjectStatus? Status { get; set; }
+        public ICollection<ProjectImage> Images { get; private set; } = new List<ProjectImage>();
     }
 }

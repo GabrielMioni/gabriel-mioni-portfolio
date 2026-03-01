@@ -19,6 +19,20 @@ namespace Portfolio.Api.Data
             {
                 p.Property(p => p.Title).HasMaxLength(300);
             });
+
+            modelBuilder.Entity<ProjectImage>(pi =>
+            {
+                pi.HasOne(x => x.Project)
+                  .WithMany(x => x.Images)
+                  .HasForeignKey(x => x.ProjectId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+                pi.Property(x => x.FullKey).IsRequired().HasMaxLength(512);
+                pi.Property(x => x.ThumbKey).IsRequired().HasMaxLength(512);
+
+                pi.HasIndex(x => x.ProjectId);
+                pi.HasIndex(x => new { x.ProjectId, x.SortOrder });
+            });
         }
     }
 }

@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Security.Claims;
+using Amazon.Runtime;
+using Amazon.S3;
 using Portfolio.Api.Data;
 using Portfolio.Api.Infrastructure.Storage;
 using Portfolio.Api.GraphQL.Projects;
 using Portfolio.Api.GraphQL.Projects.Types;
 using Portfolio.Api.Services;
-using System.Security.Claims;
+using Portfolio.Api.Services.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +63,22 @@ builder.Services.AddOptions<R2Options>()
   .Validate(o => !string.IsNullOrEmpty(o.AccessKey), "R2 AccessKey missing")
   .Validate(o => !string.IsNullOrEmpty(o.SecretKey), "R2 SecretKey missing")
   .ValidateOnStart();
+
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var opts = sp.GetRequiredService<IOptions<R2Options>>().Value;
+
+    var config = new AmazonS3Config
+    {
+        ServiceURL = opts.Endpoint,
+        ForcePathStyle = true,
+    };
+
+    var creds = new BasicAWSCredentials(opts.AccessKey, opts.SecretKey);
+    return new AmazonS3Client(creds, config);
+});
+
+builder.Services.AddSingleton<IR2Storage, R2Storage>();
 
 var app = builder.Build();
 

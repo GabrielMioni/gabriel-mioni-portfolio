@@ -7,8 +7,21 @@ namespace Portfolio.Api.GraphQL.Projects;
 [ExtendObjectType(typeof(ProjectMutation))]
 public class ProjectImageMutation
 {
-    public RequestUploadPayload RequestTestUpload(RequestUploadInput input, [Service] ProjectImageService service)
+    //public RequestUploadPayload RequestTestUpload(RequestUploadInput input, [Service] ProjectImageService service)
+    //{
+    //    return service.GetPresignedUrl(input);
+    //}
+
+    public async Task<RequestProjectImageUploadsPayload> RequestProjectImageUploads(
+        RequestProjectImageUploadsInput input,
+        [Service] ProjectImageService images,
+        CancellationToken ct)
     {
-        return service.GetPresignedUrl(input);
+        var instructions = await images.RequestUploadsAsync(
+            input.ProjectId,
+            input.Items,
+            ct);
+
+        return new RequestProjectImageUploadsPayload(instructions);
     }
 }

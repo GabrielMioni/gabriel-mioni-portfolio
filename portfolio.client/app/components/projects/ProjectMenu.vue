@@ -12,11 +12,16 @@ if (!actions) throw new Error('projectActions not provided')
 
 const menuItems = [
   {
-    title: 'Edit',
+    title: 'Quick Edit',
     icon: 'mdi-pencil',
     action: () => {
       actions.edit(props.projectId)
     }
+  },
+  {
+    title: 'Open Editor',
+    icon: 'mdi-open-in-app',
+    route: `/projects/${props.projectId}/`
   },
   {
     title: 'Delete',

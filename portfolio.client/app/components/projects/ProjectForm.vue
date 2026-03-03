@@ -3,7 +3,7 @@ import type { ProjectBaseForm } from '~/types/ui/form'
 import { required } from '~/utils/rules'
 
 const form = defineModel<ProjectBaseForm>('form', { required: true })
-const isValid = defineModel<boolean>('isValid', { required: true })
+const isValid = defineModel<boolean>('is-valid', { default: false })
 
 </script>
 

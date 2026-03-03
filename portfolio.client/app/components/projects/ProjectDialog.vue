@@ -35,6 +35,8 @@ const createInput = computed<CreateProjectInput>(() => ({
   status: form.status
 }))
 
+const title = computed(() => props.project ? 'Edit Project' : 'New Draft')
+
 const updateInput = computed<EditProjectInput>(() => ({
   id: form.id,
   title: form.title,
@@ -91,7 +93,7 @@ const submit = async () => {
   <BaseDialog
     v-model="dialog"
     divider
-    title="Edit Project"
+    :title="title"
     :persistent="editing">
     <v-form>
       <v-container

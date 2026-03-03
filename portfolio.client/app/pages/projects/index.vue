@@ -42,14 +42,14 @@ watchDebounced(
 
 const editDialogId = ref<string | null>(null)
 const deleteDialogId = ref<string | null>(null)
-const createDialog = ref(false)
+const newDraft = ref(false)
 
 const editDialog = computed({
-  get: () => !!editDialogId.value || createDialog.value,
+  get: () => !!editDialogId.value || newDraft.value,
   set: (val) => {
     if (!val) {
       editDialogId.value = null
-      createDialog.value = false
+      newDraft.value = false
     }
   }
 })
@@ -91,7 +91,7 @@ const {
           :projects="projects"
           :total-count="totalCount"
           :page-info="pageInfo"
-          @create-project="createDialog = true"/>
+          @new-draft="newDraft = true"/>
       </v-col>
     </v-row>
     <ProjectDialog

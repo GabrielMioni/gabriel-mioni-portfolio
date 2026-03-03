@@ -10,7 +10,7 @@ type ColumnKey = ProjectKey | ActionKey
 type ProjectHeader = Header<ColumnKey>
 
 const emits = defineEmits<{
-  (e: 'create-project'): void
+  (e: 'new-draft'): void
 }>()
 
 const headers: ProjectHeader[] = [
@@ -42,10 +42,10 @@ const headers: ProjectHeader[] = [
 
 const menuItems: MenuItem[] = [
   {
-    title: 'Create Project',
+    title: 'New Draft',
     icon: 'mdi-pencil',
     action: () => {
-      emits('create-project')
+      emits('new-draft')
     }
   }
 ]

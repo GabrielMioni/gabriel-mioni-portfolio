@@ -1,9 +1,12 @@
 import type { ProjectStatus } from '~/generated/graphql'
 
-export type ProjectForm = {
-  id: string
+export type ProjectBaseForm = {
   title: string
   summary: string
   body: string
   status: ProjectStatus
+}
+
+export type ProjectForm = ProjectBaseForm & {
+  id: string
 }

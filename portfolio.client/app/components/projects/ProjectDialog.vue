@@ -16,6 +16,7 @@ const {
 
 const dialog = defineModel<boolean>()
 
+const isValid = ref(false)
 const form = reactive<ProjectForm>({
   id: '',
   title: '',
@@ -35,7 +36,7 @@ const createInput = computed<CreateProjectInput>(() => ({
   status: form.status
 }))
 
-const title = computed(() => props.project ? 'Edit Project' : 'New Draft')
+const title = computed(() => form.id ? 'Edit Project' : 'New Draft')
 
 const updateInput = computed<EditProjectInput>(() => ({
   id: form.id,
@@ -94,37 +95,10 @@ const submit = async () => {
     v-model="dialog"
     divider
     :title="title"
-    :persistent="editing">
-    <v-form>
-      <v-container
-        class="pa-0"
-        fluid>
-        <v-row no-gutters>
-          <v-col>
-            <v-text-field
-              v-model="form.title"
-              variant="filled"
-              label="Title" />
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col>
-            <v-text-field
-              v-model="form.summary"
-              variant="filled"
-              label="Summary" />
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-textarea
-            v-model="form.body"
-            max-height="300"
-            label="Body"
-            auto-grow
-            persistent-hint />
-        </v-row>
-      </v-container>
-    </v-form>
+    :persistent="editing || creating">
+    <ProjectForm
+      v-model:form="form"
+      v-model:is-valid="isValid" />
     <template #actions>
       <v-spacer />
       <v-btn
@@ -135,6 +109,7 @@ const submit = async () => {
       <v-btn
         variant="flat"
         color="primary"
+        :disabled="!isValid || creating || editing"
         :loading="creating || editing"
         @click="submit">
         Save

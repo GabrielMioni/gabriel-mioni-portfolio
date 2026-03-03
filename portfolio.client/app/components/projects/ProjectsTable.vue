@@ -47,6 +47,11 @@ const menuItems: MenuItem[] = [
     action: () => {
       emits('new-draft')
     }
+  },
+  {
+    title: 'Create Project',
+    icon: 'mdi-plus',
+    route: '/projects/create'
   }
 ]
 

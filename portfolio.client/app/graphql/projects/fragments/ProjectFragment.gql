@@ -1,0 +1,10 @@
+fragment ProjectFragment on Project {
+    id
+    title
+    body
+    publishedAt
+    createdAt
+    updatedAt
+    summary
+    status
+}

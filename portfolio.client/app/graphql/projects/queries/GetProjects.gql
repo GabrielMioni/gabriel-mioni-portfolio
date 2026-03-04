@@ -13,14 +13,7 @@ query GetProjects(
         order: $order
     ) {
         items {
-            id
-            title
-            body
-            publishedAt
-            createdAt
-            updatedAt
-            summary
-            status
+            ...ProjectFragment
         }
         totalCount
         pageInfo { hasNextPage hasPreviousPage }

@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
-import { ProjectStatus, GetProjectByIdDocument } from '~/generated/graphql'
+import {
+  ProjectStatus,
+  GetProjectByIdDocument,
+  ProjectFragmentDoc
+} from '~/generated/graphql'
+import { useFragment } from '~/generated'
 
 const isValid = ref(false)
 const form = reactive({
@@ -27,8 +32,10 @@ const {
 watch(
   data,
   (data) => {
-    const project = data?.projectById
-    if (!project) return
+    const projectRaw = data?.projectById
+    if (!projectRaw) return
+
+    const project = useFragment(ProjectFragmentDoc, projectRaw)
 
     form.title = project.title ?? ''
     form.summary = project.summary ?? ''

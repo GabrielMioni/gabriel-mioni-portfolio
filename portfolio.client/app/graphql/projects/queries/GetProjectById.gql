@@ -2,5 +2,10 @@ query GetProjectById($id: UUID!) {
   projectById(id: $id) {
     id
     title
+    summary
+    body
+    status
+    createdAt
+    updatedAt
   }
 }

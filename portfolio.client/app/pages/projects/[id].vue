@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ProjectStatus } from '~/generated/graphql'
-
+import { useQuery } from '@urql/vue'
+import { ProjectStatus, GetProjectByIdDocument } from '~/generated/graphql'
 
 const isValid = ref(false)
 const form = reactive({
@@ -10,11 +10,46 @@ const form = reactive({
   status: ProjectStatus.Draft
 })
 
+const route = useRoute()
+const id = route.params?.id ? route.params.id as string : ''
+
+const {
+  data,
+  fetching,
+  error
+} = useQuery({
+  query: GetProjectByIdDocument,
+  variables: {
+    id
+  }
+})
+
+watch(
+  data,
+  (data) => {
+    const project = data?.projectById
+    if (!project) return
+
+    form.title = project.title ?? ''
+    form.summary = project.summary ?? ''
+    form.body = project.body ?? ''
+    form.status = project.status ?? ProjectStatus.Draft
+  },
+  { immediate: true }
+)
+
 </script>
 
 <template>
   <v-container>
-    <v-col>
+    <v-col
+      v-if="fetching"
+      class="d-flex justify-center">
+      <v-progress-circular
+        size="60"
+        indeterminate />
+    </v-col>
+    <v-col v-else>
       <ProjectForm
         v-model:form="form"
         v-model:is-valid="isValid" />

@@ -29,13 +29,15 @@ const {
   }
 })
 
-watch(
-  data,
-  (data) => {
-    const projectRaw = data?.projectById
-    if (!projectRaw) return
+const project = computed(() => {
+  const ref = data.value?.projectById
+  return ref ? useFragment(ProjectFragmentDoc, ref) : null
+})
 
-    const project = useFragment(ProjectFragmentDoc, projectRaw)
+watch(
+  project,
+  (project) => {
+    if (!project) return
 
     form.title = project.title ?? ''
     form.summary = project.summary ?? ''

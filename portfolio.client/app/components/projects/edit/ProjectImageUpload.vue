@@ -50,12 +50,6 @@ const onFileInputChange = (event: Event) => {
     class="pa-0 project-image-upload">
     <v-row>
       <v-col>
-        images
-      </v-col>
-    </v-row>
-    <v-divider class="my-6" />
-    <v-row>
-      <v-col>
         <v-sheet
           class="drag-drop-area d-flex align-center justify-center hover-surface"
           :class="{ 'is-dragging': isDragging }"
@@ -66,6 +60,12 @@ const onFileInputChange = (event: Event) => {
           @drop.prevent="onDrop">
           Drag and drop your images here, or click to select files
         </v-sheet>
+      </v-col>
+    </v-row>
+    <v-divider class="my-6" />
+    <v-row>
+      <v-col>
+        images
       </v-col>
     </v-row>
     <input

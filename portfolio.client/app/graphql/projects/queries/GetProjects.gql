@@ -13,7 +13,7 @@ query GetProjects(
         order: $order
     ) {
         items {
-            ...ProjectFragment
+            ...Project
         }
         totalCount
         pageInfo { hasNextPage hasPreviousPage }

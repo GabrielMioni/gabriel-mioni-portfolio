@@ -1,2 +1,2 @@
-$color-hover: rgba(var(--v-theme-on-surface), 0.03);
+$color-hover: rgba(var(--v-theme-on-surface), var(--v-hover-opacity));
 $header: rgb(var(--v-theme-header));

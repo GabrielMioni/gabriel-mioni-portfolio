@@ -6,6 +6,7 @@ import {
   ProjectFragmentDoc
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
+import ProjectImageUpload from '~/components/projects/edit/ProjectImageUpload.vue'
 
 const tabValues = {
   details: 'details',
@@ -78,9 +79,7 @@ watch(
               v-model:is-valid="isValid" />
           </v-tabs-window-item>
           <v-tabs-window-item :value="tabValues.images">
-            <v-sheet class="pa-5">
-              Images?
-            </v-sheet>
+            <ProjectImageUpload />
           </v-tabs-window-item>
         </div>
       </v-tabs-window>

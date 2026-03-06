@@ -1,0 +1,9 @@
+@use './abstracts/colors' as c;
+$hover: c.$color-hover;
+
+.hover-surface {
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: $hover;
+  }
+}

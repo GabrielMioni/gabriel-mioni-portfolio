@@ -21,8 +21,6 @@ public class ProjectImageService
   {
     "image/jpeg",
     "image/png",
-    // If you ever want to allow it for full-size:
-    // "image/webp"
   };
 
     private static string ExtFor(string contentType) => contentType.ToLowerInvariant() switch

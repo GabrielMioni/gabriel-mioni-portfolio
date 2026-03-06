@@ -7,6 +7,12 @@ import {
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 
+const tabValues = {
+  details: 'details',
+  images: 'images'
+}
+
+const tab = ref(tabValues.details)
 const isValid = ref(false)
 const form = reactive({
   title: '',
@@ -51,18 +57,34 @@ watch(
 
 <template>
   <v-container>
-    <v-col
+    <div
       v-if="fetching"
       class="d-flex justify-center">
       <v-progress-circular
         size="60"
         indeterminate />
-    </v-col>
-    <v-col v-else>
-      <ProjectForm
-        v-model:form="form"
-        v-model:is-valid="isValid" />
-    </v-col>
+    </div>
+    <div v-else>
+      <v-tabs v-model="tab">
+        <v-tab :value="tabValues.details">Details</v-tab>
+        <v-tab :value="tabValues.images">Images</v-tab>
+      </v-tabs>
+
+      <v-tabs-window v-model="tab">
+        <div class="mt-3">
+          <v-tabs-window-item :value="tabValues.details">
+            <ProjectForm
+              v-model:form="form"
+              v-model:is-valid="isValid" />
+          </v-tabs-window-item>
+          <v-tabs-window-item :value="tabValues.images">
+            <v-sheet class="pa-5">
+              Images?
+            </v-sheet>
+          </v-tabs-window-item>
+        </div>
+      </v-tabs-window>
+    </div>
   </v-container>
 </template>
 

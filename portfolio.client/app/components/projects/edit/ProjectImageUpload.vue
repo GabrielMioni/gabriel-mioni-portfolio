@@ -1,7 +1,48 @@
 <script setup lang="ts">
+import { getOutputMimeType, resizeImageTo } from '~/utils/images'
 import ProjectImageDropzone from '~/components/projects/edit/ProjectImageDropzone.vue'
 
+type ImageUploadItem = {
+  clientId: string,
+  contentType: string,
+  sizeThumb: number,
+  sizeFull: number,
+  altText: string,
+  thumbFile: Blob | null,
+  fullFile: Blob | null
+}
+
 const filesList = ref<File[]>([])
+const imageUploadItems = ref<ImageUploadItem[]>([])
+
+
+const updateImageUploadItems = async (files: File[]) => {
+  imageUploadItems.value = await Promise.all(files.map(async file => {
+
+    const mimeType = getOutputMimeType(file)
+
+    const thumbFile = await resizeImageTo(file, 200, 200, mimeType)
+    const fullFile = await resizeImageTo(file, 200, 200, mimeType)
+
+    return {
+      clientId: crypto.randomUUID(),
+      contentType: file.type,
+      sizeThumb: thumbFile.size,
+      sizeFull: fullFile.size,
+      altText: file.name,
+      thumbFile,
+      fullFile
+    }
+  }))
+}
+
+watch(
+  filesList,
+  (files) => {
+    updateImageUploadItems(files)
+  },
+  { deep: true }
+)
 
 </script>
 

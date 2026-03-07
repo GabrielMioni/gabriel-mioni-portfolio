@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "pica": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/pica": "^9.0.5"
+  }
+}

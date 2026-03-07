@@ -27,8 +27,9 @@ const id = route.params?.id ? route.params.id as string : ''
 
 const {
   data,
-  fetching,
-  error
+  fetching
+  // #TODO: handle error
+  // error
 } = useQuery({
   query: GetProjectByIdDocument,
   variables: {

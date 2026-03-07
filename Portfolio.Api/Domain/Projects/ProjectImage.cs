@@ -14,35 +14,43 @@ public class ProjectImage
 
     public DateTime CreatedAt { get; private set; }
 
-    public string ContentType { get; private set; } = default!;
+    public string? ContentType { get; private set; }
+    public long? SizeBytes { get; private set; }
 
-    public long SizeBytes { get; private set; }
+    public int? Height { get; private set; }
+    public int? Width { get; private set; }
 
-    public int Height { get; private set; }
-
-    public int Width { get; private set; }
-
+    public bool IsUploaded { get; private set; }
     private ProjectImage() { } // EF
 
-    public ProjectImage(
-      Guid projectId,
-      string fullKey,
-      string thumbKey,
-      int sortOrder,
-      string contentType,
-      long sizeBytes,
-      int height,
-      int width)
+    public static ProjectImage CreatePending(
+        Guid projectId,
+        string fullKey,
+        string thumbKey,
+        int sortOrder)
     {
-        Id = Guid.NewGuid();
-        ProjectId = projectId;
-        FullKey = fullKey;
-        ThumbKey = thumbKey;
-        SortOrder = sortOrder;
-        CreatedAt = DateTime.UtcNow;
+        return new ProjectImage
+        {
+            Id = Guid.NewGuid(),
+            ProjectId = projectId,
+            FullKey = fullKey,
+            ThumbKey = thumbKey,
+            SortOrder = sortOrder,
+            CreatedAt = DateTime.UtcNow,
+            IsUploaded = false
+        };
+    }
+
+    public void FinalizeUpload(
+        string contentType,
+        long sizeBytes,
+        int width,
+        int height)
+    {
         ContentType = contentType;
         SizeBytes = sizeBytes;
-        Height = height;
         Width = width;
+        Height = height;
+        IsUploaded = true;
     }
 }

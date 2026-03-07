@@ -3,6 +3,7 @@
 using Portfolio.Api.GraphQL.Projects.Inputs;
 
 public record ProjectImageUploadInstruction(
+    Guid ProjectId,
     string ImageClientId,
     ProjectImageUploadVariant Variant,
     string Key,

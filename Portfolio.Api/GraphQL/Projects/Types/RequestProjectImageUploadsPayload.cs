@@ -2,6 +2,7 @@
 
 public record ProjectImageUploadInstruction(
     string ClientId,
+    Guid ProjectImageId,
     ProjectImageUploadTarget Full,
     ProjectImageUploadTarget Thumb
 );

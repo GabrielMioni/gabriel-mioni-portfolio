@@ -63,6 +63,8 @@ public class ProjectImageService
 
             db.Set<ProjectImage>().Add(projectImage);
 
+            var projectImageId = projectImage.Id;
+
             var thumbProjectImageUploadTarget = new ProjectImageUploadTarget(
                 thumbKey,
                 _storage.CreatePresignedPutUrl(thumbKey, item.ThumbContentType, TimeSpan.FromMinutes(5)),
@@ -79,6 +81,7 @@ public class ProjectImageService
 
             instructions.Add(new ProjectImageUploadInstruction(
                 item.ClientId,
+                projectImageId,
                 fullProjectImageUploadTarget,
                 thumbProjectImageUploadTarget
             ));

@@ -3,6 +3,7 @@ mutation prepareProjectImageUploads($input: RequestProjectImageUploadsInput!) {
         projectId
         items {
             clientId
+            projectImageId
             full {
                 contentType
                 key

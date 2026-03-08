@@ -1,16 +1,7 @@
 <script setup lang="ts">
 import { getOutputMimeType, resizeImageTo } from '~/utils/images'
 import ProjectImageDropzone from '~/components/projects/edit/ProjectImageDropzone.vue'
-
-type ImageUploadItem = {
-  clientId: string,
-  contentType: string,
-  sizeThumb: number,
-  sizeFull: number,
-  altText: string,
-  thumbFile: Blob | null,
-  fullFile: Blob | null
-}
+import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
 
 const filesList = ref<File[]>([])
 const imageUploadItems = ref<ImageUploadItem[]>([])

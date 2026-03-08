@@ -1,14 +1,16 @@
 ﻿namespace Portfolio.Api.GraphQL.Projects.Types;
 
-using Portfolio.Api.GraphQL.Projects.Inputs;
-
 public record ProjectImageUploadInstruction(
-    Guid ProjectId,
-    string ImageClientId,
-    ProjectImageUploadVariant Variant,
+    string ClientId,
+    ProjectImageUploadTarget Full,
+    ProjectImageUploadTarget Thumb
+);
+
+public record ProjectImageUploadTarget(
     string Key,
     string UploadUrl,
-    string PublicUrl
+    string PublicUrl,
+    string ContentType
 );
 
 public record RequestProjectImageUploadsPayload(

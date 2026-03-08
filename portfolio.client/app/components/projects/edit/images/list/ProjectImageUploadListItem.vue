@@ -12,6 +12,10 @@ const imageUrl = computed(() => {
   return URL.createObjectURL(item.value.thumbFile)
 })
 
+const imageFileName = computed(() => {
+  return item.value?.fileName ?? 'Unnamed Image'
+})
+
 </script>
 
 <template>
@@ -28,6 +32,13 @@ const imageUrl = computed(() => {
           :src="imageUrl"
           width="50"/>
       </v-col>
+      <v-col cols="auto">
+        <div class="image-details fs-12">
+          <div>{{ imageFileName }}</div>
+          <div>{{ item.contentType }}</div>
+          <div>{{ (item.sizeFull / 1024).toFixed(2) }} KB</div>
+        </div>
+      </v-col>
       <v-col class="d-flex align-center">
         <v-text-field
           v-model="item.altText"
@@ -40,6 +51,7 @@ const imageUrl = computed(() => {
         class="d-flex align-center">
         <v-btn
           icon="mdi-close"
+          class="ma-2"
           variant="text"
           color="error"
           @click="$emit('remove', item.clientId)" />
@@ -49,5 +61,8 @@ const imageUrl = computed(() => {
 </template>
 
 <style scoped>
-
+.image-details {
+  width: 10rem;
+  overflow-wrap: break-word;
+}
 </style>

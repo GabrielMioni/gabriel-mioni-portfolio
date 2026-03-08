@@ -14,12 +14,27 @@ const imageUrl = computed(() => {
   <v-container
     class="pa-0 project-image-upload-list-item"
     fluid>
-    <v-row no-gutters>
-      <v-col>
+    <v-row>
+      <v-col cols="auto">
         <v-img
           v-if="imageUrl"
           :src="imageUrl"
           width="100"/>
+      </v-col>
+      <v-col class="d-flex align-center">
+        <v-text-field
+          v-model="item.altText"
+          variant="filled"
+          label="Alt Text"
+          hide-details />
+      </v-col>
+      <v-col
+        cols="auto"
+        class="d-flex align-center">
+        <v-btn
+          icon="mdi-close"
+          variant="text"
+          color="error" />
       </v-col>
     </v-row>
   </v-container>

@@ -19,6 +19,7 @@ const updateImageUploadItems = async (files: File[]) => {
     return {
       clientId: crypto.randomUUID(),
       contentType: file.type,
+      fileName: file.name,
       sizeThumb: thumbFile.size,
       sizeFull: fullFile.size,
       altText: file.name,

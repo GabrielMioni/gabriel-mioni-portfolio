@@ -49,7 +49,7 @@ watch(
     <v-divider class="my-6" />
     <v-row>
       <v-col>
-        images
+        <ProjectImageUploadList :items="imageUploadItems" />
       </v-col>
     </v-row>
   </v-container>

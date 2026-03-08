@@ -16,12 +16,15 @@ const imageUrl = computed(() => {
 
 <template>
   <v-container
-    class="pa-0 project-image-upload-list-item"
+    class="pa-0 project-image-upload-list-item hover-surface"
     fluid>
     <v-row>
-      <v-col cols="auto">
+      <v-col
+        cols="auto"
+        class="d-flex align-center justify-center">
         <v-img
           v-if="imageUrl"
+          class="ma-2"
           :src="imageUrl"
           width="100"/>
       </v-col>

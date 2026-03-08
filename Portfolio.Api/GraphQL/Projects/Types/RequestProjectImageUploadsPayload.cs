@@ -14,5 +14,6 @@ public record ProjectImageUploadTarget(
 );
 
 public record RequestProjectImageUploadsPayload(
+    Guid ProjectId,
     IReadOnlyList<ProjectImageUploadInstruction> Items
 );

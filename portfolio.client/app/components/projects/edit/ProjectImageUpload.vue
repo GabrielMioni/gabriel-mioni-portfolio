@@ -15,9 +15,8 @@ type ImageUploadItem = {
 const filesList = ref<File[]>([])
 const imageUploadItems = ref<ImageUploadItem[]>([])
 
-
 const updateImageUploadItems = async (files: File[]) => {
-  imageUploadItems.value = await Promise.all(files.map(async file => {
+  const items = await Promise.all(files.map(async file => {
 
     const mimeType = getOutputMimeType(file)
 
@@ -34,6 +33,8 @@ const updateImageUploadItems = async (files: File[]) => {
       fullFile
     }
   }))
+
+  imageUploadItems.value.push(...items)
 }
 
 watch(

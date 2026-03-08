@@ -1,0 +1,20 @@
+mutation prepareProjectImageUploads($input: RequestProjectImageUploadsInput!) {
+    prepareProjectImageUploads(input: $input) {
+        projectId
+        items {
+            clientId
+            full {
+                contentType
+                key
+                publicUrl
+                uploadUrl
+            }
+            thumb {
+                contentType
+                key
+                publicUrl
+                uploadUrl
+            }
+        }
+    }
+}

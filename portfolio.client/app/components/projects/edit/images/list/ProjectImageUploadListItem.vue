@@ -26,7 +26,7 @@ const imageUrl = computed(() => {
           v-if="imageUrl"
           class="ma-2"
           :src="imageUrl"
-          width="100"/>
+          width="50"/>
       </v-col>
       <v-col class="d-flex align-center">
         <v-text-field

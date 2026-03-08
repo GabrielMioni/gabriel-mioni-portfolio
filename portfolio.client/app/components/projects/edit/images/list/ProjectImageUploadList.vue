@@ -19,11 +19,16 @@ const removeItem = (clientId: string) => {
 
 <template>
   <div class="project-image-upload-list">
-    <ProjectImageUploadListItem
-      v-for="item in items"
-      :key="item.clientId"
-      :item="item"
-      @remove="removeItem"/>
+    <template
+      v-for="(item, index) in items"
+      :key="item.clientId">
+      <ProjectImageUploadListItem
+        :item="item"
+        @remove="removeItem"/>
+      <v-divider
+        v-if="index !== items.length - 1"
+        class="my-3"/>
+    </template>
   </div>
 </template>
 

@@ -3,6 +3,10 @@ import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
 
 const item = defineModel<ImageUploadItem>('item', { required: true })
 
+defineEmits<{
+  (e: 'remove', clientId: string): void
+}>()
+
 const imageUrl = computed(() => {
   if (!item.value.thumbFile) return null
   return URL.createObjectURL(item.value.thumbFile)
@@ -34,7 +38,8 @@ const imageUrl = computed(() => {
         <v-btn
           icon="mdi-close"
           variant="text"
-          color="error" />
+          color="error"
+          @click="$emit('remove', item.clientId)" />
       </v-col>
     </v-row>
   </v-container>

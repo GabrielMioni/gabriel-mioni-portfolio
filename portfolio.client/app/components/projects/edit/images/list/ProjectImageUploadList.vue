@@ -4,6 +4,17 @@ import ProjectImageUploadListItem from '~/components/projects/edit/images/list/P
 
 const items = defineModel<ImageUploadItem[]>('items', { required: true })
 
+defineEmits<{
+  (e: 'remove', clientId: string): void
+}>()
+
+const removeItem = (clientId: string) => {
+  const index = items.value.findIndex(item => item.clientId === clientId)
+  if (index !== -1) {
+    items.value.splice(index, 1)
+  }
+}
+
 </script>
 
 <template>
@@ -11,7 +22,8 @@ const items = defineModel<ImageUploadItem[]>('items', { required: true })
     <ProjectImageUploadListItem
       v-for="item in items"
       :key="item.clientId"
-      :item="item" />
+      :item="item"
+      @remove="removeItem"/>
   </div>
 </template>
 

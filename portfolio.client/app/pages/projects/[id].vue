@@ -6,7 +6,7 @@ import {
   ProjectFragmentDoc
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
-import ProjectImageUpload from '~/components/projects/edit/ProjectImageUpload.vue'
+import ProjectImageUpload from '~/components/projects/edit/images/ProjectImageUpload.vue'
 
 const tabValues = {
   details: 'details',

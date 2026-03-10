@@ -35,7 +35,7 @@ const imageFileName = computed(() => {
       <v-col
         class="order-2"
         sm="2">
-        <div class="image-details fs-12">
+        <div class="image-details text-break fs-12">
           <div>{{ imageFileName }}</div>
           <div>{{ item.contentType }}</div>
           <div>{{ (item.sizeFull / 1024).toFixed(2) }} KB</div>
@@ -66,7 +66,5 @@ const imageFileName = computed(() => {
 </template>
 
 <style scoped>
-.image-details {
-  overflow-wrap: break-word;
-}
+
 </style>

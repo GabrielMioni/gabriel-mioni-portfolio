@@ -34,7 +34,7 @@ const imageFileName = computed(() => {
       </v-col>
       <v-col
         class="order-2"
-        md="2">
+        sm="2">
         <div class="image-details fs-12">
           <div>{{ imageFileName }}</div>
           <div>{{ item.contentType }}</div>

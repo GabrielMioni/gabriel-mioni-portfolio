@@ -7,6 +7,7 @@ import {
   ProjectFragmentDoc
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
+import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
 import ProjectImageUpload from '~/components/projects/edit/images/ProjectImageUpload.vue'
 
 const {
@@ -27,6 +28,7 @@ const form = reactive({
   body: '',
   status: ProjectStatus.Draft
 })
+const imageUploadItems = ref<ImageUploadItem[]>([])
 
 const route = useRoute()
 const id = route.params?.id ? route.params.id as string : ''
@@ -118,7 +120,8 @@ watch(
               v-model:is-valid="isValid" />
           </v-tabs-window-item>
           <v-tabs-window-item :value="tabValues.images">
-            <ProjectImageUpload />
+            <ProjectImageUpload
+              v-model="imageUploadItems"/>
           </v-tabs-window-item>
         </div>
       </v-tabs-window>

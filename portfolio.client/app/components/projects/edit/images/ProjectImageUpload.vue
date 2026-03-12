@@ -2,8 +2,9 @@
 import { getOutputMimeType, resizeImageTo } from '~/utils/images'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
 
+const imageUploadItems = defineModel<ImageUploadItem[]>('modelValue', { required: true })
+
 const filesList = ref<File[]>([])
-const imageUploadItems = ref<ImageUploadItem[]>([])
 
 const updateImageUploadItems = async (files: File[]) => {
   if (files.length === 0) {

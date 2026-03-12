@@ -2,8 +2,10 @@ import { useMutation } from '@urql/vue'
 import {
   type CreateProjectInput,
   type EditProjectInput,
+  type RequestProjectImageUploadsInput,
   CreateProjectDocument,
-  EditProjectDocument
+  EditProjectDocument,
+  PrepareProjectImageUploadsDocument
 } from '~/generated/graphql'
 
 export const useProjectMutations = () => {
@@ -16,6 +18,11 @@ export const useProjectMutations = () => {
     executeMutation: executeEditProject,
     fetching: editing
   } = useMutation(EditProjectDocument)
+
+  const {
+    executeMutation: prepareImagesUploadMutation,
+    fetching: preparingImages
+  } = useMutation(PrepareProjectImageUploadsDocument)
 
   const createProject = async (input: CreateProjectInput) => {
     const response = await executeCreateProject({ input })
@@ -33,10 +40,20 @@ export const useProjectMutations = () => {
     return response.data?.editProject
   }
 
+  const prepareImages = async (input: RequestProjectImageUploadsInput) => {
+    const response = await prepareImagesUploadMutation({ input })
+
+    if (response.error) throw response.error
+
+    return response.data?.prepareProjectImageUploads
+  }
+
   return {
     createProject,
     creating,
     editProject,
-    editing
+    editing,
+    prepareImages,
+    preparingImages
   }
 }

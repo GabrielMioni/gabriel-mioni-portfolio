@@ -2,9 +2,9 @@
 import { useQuery } from '@urql/vue'
 import {
   type EditProjectInput,
-  ProjectStatus,
   GetProjectByIdDocument,
-  ProjectFragmentDoc
+  ProjectFragmentDoc,
+  ProjectStatus
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
@@ -12,7 +12,8 @@ import ProjectImageUpload from '~/components/projects/edit/images/ProjectImageUp
 
 const {
   editing,
-  editProject
+  editProject,
+  uploadImages
 } = useProjectMutations()
 
 const tabValues = {
@@ -61,6 +62,9 @@ const updateInput = computed<EditProjectInput>(() => ({
 const submitEditProject = async () => {
   try {
     await editProject(updateInput.value)
+    if (imageUploadItems.value.length > 0) {
+      await uploadImages({ uploadItems: imageUploadItems.value, projectId: id })
+    }
   } catch (error) {
     console.error('Failed to save project', error)
   }

@@ -1,21 +1,25 @@
+fragment ProjectImageUploadInstruction on ProjectImageUploadInstruction {
+    clientId
+    projectImageId
+    full {
+        contentType
+        key
+        publicUrl
+        uploadUrl
+    }
+    thumb {
+        contentType
+        key
+        publicUrl
+        uploadUrl
+    }
+}
+
 mutation prepareProjectImageUploads($input: RequestProjectImageUploadsInput!) {
     prepareProjectImageUploads(input: $input) {
         projectId
         items {
-            clientId
-            projectImageId
-            full {
-                contentType
-                key
-                publicUrl
-                uploadUrl
-            }
-            thumb {
-                contentType
-                key
-                publicUrl
-                uploadUrl
-            }
+            ...ProjectImageUploadInstruction
         }
     }
 }

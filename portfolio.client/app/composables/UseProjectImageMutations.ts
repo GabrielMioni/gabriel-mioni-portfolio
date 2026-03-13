@@ -1,8 +1,15 @@
 import { useMutation } from '@urql/vue'
 import type { RequestProjectImageUploadsInput } from '~/generated/graphql'
-import { PrepareProjectImageUploadsDocument } from '~/generated/graphql'
+import {
+  PrepareProjectImageUploadsDocument,
+  ProjectImageUploadInstructionFragmentDoc
+} from '~/generated/graphql'
+import { useFragment } from '~/generated'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
-import { toUploadRequestItems, uploadFileToTarget } from '~/utils/imageUpload'
+import {
+  toUploadRequestItems,
+  uploadImagesToStorage
+} from '~/utils/imageUpload'
 
 export const useProjectImageMutations = () => {
   const {
@@ -21,7 +28,7 @@ export const useProjectImageMutations = () => {
       throw new Error('No upload instructions returned')
     }
 
-    return items
+    return useFragment(ProjectImageUploadInstructionFragmentDoc, items)
   }
 
   const uploadImages = async ({
@@ -31,42 +38,27 @@ export const useProjectImageMutations = () => {
     uploadItems: ImageUploadItem[]
     projectId: string
   }) => {
-    const items = toUploadRequestItems(uploadItems)
+    const validUploadItems = uploadItems.filter(
+      (
+        item
+      ): item is ImageUploadItem =>
+        !!item.fullFile && !!item.thumbFile
+    )
+
+    const items = toUploadRequestItems(validUploadItems)
 
     if (items.length === 0) return
 
-    const instructions = await prepareImageUploads({ projectId, items })
+    const instructions = await prepareImageUploads({
+      projectId,
+      items
+    })
 
     if (instructions.length !== items.length) {
       throw new Error('Upload instruction count did not match upload item count')
     }
 
-    const uploadItemByClientId = new Map(
-      uploadItems.map(item => [item.clientId, item])
-    )
-
-    const uploads = instructions.map(async (instruction) => {
-      const matchingItem = uploadItemByClientId.get(instruction.clientId)
-
-      if (!matchingItem?.fullFile || !matchingItem.thumbFile) {
-        throw new Error(`Missing files for clientId ${instruction.clientId}`)
-      }
-
-      await Promise.all([
-        uploadFileToTarget({
-          file: matchingItem.fullFile,
-          uploadUrl: instruction.full.uploadUrl,
-          contentType: instruction.full.contentType
-        }),
-        uploadFileToTarget({
-          file: matchingItem.thumbFile,
-          uploadUrl: instruction.thumb.uploadUrl,
-          contentType: instruction.thumb.contentType
-        })
-      ])
-    })
-
-    await Promise.all(uploads)
+    await uploadImagesToStorage(instructions, validUploadItems)
   }
 
   return {

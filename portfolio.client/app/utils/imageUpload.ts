@@ -1,4 +1,7 @@
-import type { ProjectImageUploadRequestInput } from '~/generated/graphql'
+import type {
+  ProjectImageUploadRequestInput,
+  ProjectImageUploadInstructionFragment
+} from '~/generated/graphql'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
 
 export const toUploadRequestItems = (
@@ -23,7 +26,7 @@ export const toUploadRequestItems = (
     .filter((item): item is ProjectImageUploadRequestInput => item !== null)
 }
 
-export const uploadFileToTarget = async ({
+const uploadFileToTarget = async ({
   file,
   uploadUrl,
   contentType
@@ -43,4 +46,36 @@ export const uploadFileToTarget = async ({
   if (!response.ok) {
     throw new Error(`Upload failed with status ${response.status}`)
   }
+}
+
+export const uploadImagesToStorage = async (
+  instructions: ProjectImageUploadInstructionFragment[],
+  uploadItems: ImageUploadItem[]
+) => {
+  const uploadItemByClientId = new Map(
+    uploadItems.map(item => [item.clientId, item])
+  )
+
+  const uploads = instructions.map(async (instruction) => {
+    const matchingItem = uploadItemByClientId.get(instruction.clientId)
+
+    if (!matchingItem?.fullFile || !matchingItem.thumbFile) {
+      throw new Error(`Missing files for clientId ${instruction.clientId}`)
+    }
+
+    await Promise.all([
+      uploadFileToTarget({
+        file: matchingItem.fullFile,
+        uploadUrl: instruction.full.uploadUrl,
+        contentType: instruction.full.contentType
+      }),
+      uploadFileToTarget({
+        file: matchingItem.thumbFile,
+        uploadUrl: instruction.thumb.uploadUrl,
+        contentType: instruction.thumb.contentType
+      })
+    ])
+  })
+
+  await Promise.all(uploads)
 }

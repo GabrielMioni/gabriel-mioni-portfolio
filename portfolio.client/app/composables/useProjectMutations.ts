@@ -2,12 +2,13 @@ import { useMutation } from '@urql/vue'
 import {
   type CreateProjectInput,
   type EditProjectInput,
-  type ProjectImageUploadRequestInput,
+  type RequestProjectImageUploadsInput,
   CreateProjectDocument,
   EditProjectDocument,
   PrepareProjectImageUploadsDocument
 } from '~/generated/graphql'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
+import { toUploadRequestItems, uploadFileToTarget } from '~/utils/imageUpload'
 
 export const useProjectMutations = () => {
   const {
@@ -41,62 +42,58 @@ export const useProjectMutations = () => {
     return response.data?.editProject
   }
 
-  const uploadImages = async ({ uploadItems, projectId }: {
-    uploadItems: ImageUploadItem[],
-    projectId: string
-  }) => {
-    const items = uploadItems
-      .map((item): ProjectImageUploadRequestInput | null => {
-        const fullFile = item.fullFile
-        const thumbFile = item.thumbFile
-
-        if (!fullFile || !thumbFile) return null
-
-        return {
-          altText: item.altText,
-          clientId: item.clientId,
-          fullContentType: fullFile.type,
-          fullSizeBytes: fullFile.size,
-          thumbContentType: thumbFile.type,
-          thumbSizeBytes: thumbFile.size
-        }
-      })
-      .filter((item): item is ProjectImageUploadRequestInput => item !== null)
-
-    const response = await prepareImagesUploadMutation({
-      input: {
-        projectId,
-        items
-      }
-    })
+  const prepareImageUploads = async (input: RequestProjectImageUploadsInput) => {
+    const response = await prepareImagesUploadMutation({ input })
 
     if (response.error) throw response.error
 
-    const instructions = response.data?.prepareProjectImageUploads.items
+    const items = response.data?.prepareProjectImageUploads.items
 
-    if (!instructions || instructions.length <= 0) throw new Error('No instructions available')
+    if (!items?.length) {
+      throw new Error('No upload instructions returned')
+    }
+
+    return items
+  }
+
+  const uploadImages = async ({
+    uploadItems,
+    projectId
+  }: {
+    uploadItems: ImageUploadItem[]
+    projectId: string
+  }) => {
+    const items = toUploadRequestItems(uploadItems)
+
+    if (items.length === 0) return
+
+    const instructions = await prepareImageUploads({ projectId, items })
+
+    if (instructions.length !== items.length) {
+      throw new Error('Upload instruction count did not match upload item count')
+    }
+
+    const uploadItemByClientId = new Map(
+      uploadItems.map(item => [item.clientId, item])
+    )
 
     const uploads = instructions.map(async (instruction) => {
-      const matchingItem = uploadItems.find(item => item.clientId === instruction.clientId)
+      const matchingItem = uploadItemByClientId.get(instruction.clientId)
 
       if (!matchingItem?.fullFile || !matchingItem.thumbFile) {
         throw new Error(`Missing files for clientId ${instruction.clientId}`)
       }
 
       await Promise.all([
-        fetch(instruction.full.uploadUrl, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': matchingItem.fullFile.type
-          },
-          body: matchingItem.fullFile
+        uploadFileToTarget({
+          file: matchingItem.fullFile,
+          uploadUrl: instruction.full.uploadUrl,
+          contentType: instruction.full.contentType
         }),
-        fetch(instruction.thumb.uploadUrl, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': matchingItem.thumbFile.type
-          },
-          body: matchingItem.thumbFile
+        uploadFileToTarget({
+          file: matchingItem.thumbFile,
+          uploadUrl: instruction.thumb.uploadUrl,
+          contentType: instruction.thumb.contentType
         })
       ])
     })

@@ -8,13 +8,15 @@ import {
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
-import ProjectImageUpload from '~/components/projects/edit/images/ProjectImageUpload.vue'
 
 const {
   editing,
-  editProject,
-  uploadImages
+  editProject
 } = useProjectMutations()
+
+const {
+  uploadImages
+} = useProjectImageMutations()
 
 const tabValues = {
   details: 'details',

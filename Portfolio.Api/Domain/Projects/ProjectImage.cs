@@ -7,6 +7,8 @@ public class ProjectImage
     public Guid ProjectId { get; private set; }
     public Project Project { get; private set; } = default!;
 
+    public string? AltText { get; private set; }
+
     public string FullKey { get; private set; } = default!;
     public string ThumbKey { get; private set; } = default!;
 

@@ -1,5 +1,5 @@
 import { useMutation } from '@urql/vue'
-import type { RequestProjectImageUploadsInput } from '~/generated/graphql'
+import type { PrepareProjectImageUploadsInput } from '~/generated/graphql'
 import {
   PrepareProjectImageUploadsDocument,
   ProjectImageUploadInstructionFragmentDoc
@@ -7,7 +7,7 @@ import {
 import { useFragment } from '~/generated'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
 import {
-  toUploadRequestItems,
+  toProjectImagePrepareItem,
   uploadImagesToStorage
 } from '~/utils/imageUpload'
 
@@ -17,7 +17,7 @@ export const useProjectImageMutations = () => {
     fetching: preparingImages
   } = useMutation(PrepareProjectImageUploadsDocument)
 
-  const prepareImageUploads = async (input: RequestProjectImageUploadsInput) => {
+  const prepareImageUploads = async (input: PrepareProjectImageUploadsInput) => {
     const response = await prepareImagesUploadMutation({ input })
 
     if (response.error) throw response.error
@@ -45,7 +45,7 @@ export const useProjectImageMutations = () => {
         !!item.fullFile && !!item.thumbFile
     )
 
-    const items = toUploadRequestItems(validUploadItems)
+    const items = toProjectImagePrepareItem(validUploadItems)
 
     if (items.length === 0) return
 

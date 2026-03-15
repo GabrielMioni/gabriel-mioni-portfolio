@@ -1,10 +1,12 @@
 export type ImageUploadItem = {
-  clientId: string,
-  contentType: string,
-  fileName: string,
-  sizeThumb: number,
-  sizeFull: number,
-  altText: string,
-  thumbFile: Blob | null,
+  clientId: string
+  contentType: string
+  fileName: string
+  sizeThumb: number
+  sizeFull: number
+  altText: string
+  thumbFile: Blob | null
   fullFile: Blob | null
+  height: number
+  width: number
 }

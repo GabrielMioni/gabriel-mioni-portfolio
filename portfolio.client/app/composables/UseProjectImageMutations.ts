@@ -1,6 +1,12 @@
 import { useMutation } from '@urql/vue'
-import type { PrepareProjectImageUploadsInput } from '~/generated/graphql'
+import type {
+  DeleteProjectImagesInput,
+  FinalizeProjectImageUploadsInput,
+  PrepareProjectImageUploadsInput
+} from '~/generated/graphql'
 import {
+  DeleteProjectImagesDocument,
+  FinalizeProjectImageUploadsDocument,
   PrepareProjectImageUploadsDocument,
   ProjectImageUploadInstructionFragmentDoc
 } from '~/generated/graphql'
@@ -17,6 +23,22 @@ export const useProjectImageMutations = () => {
     fetching: preparingImages
   } = useMutation(PrepareProjectImageUploadsDocument)
 
+  const {
+    executeMutation: finalizeImagesUploadMutation,
+    fetching: finalizingImages
+  } = useMutation(FinalizeProjectImageUploadsDocument)
+
+  const {
+    executeMutation: deleteImagesUploadMutation,
+    fetching: deletingImages
+  } = useMutation(DeleteProjectImagesDocument)
+
+  const isProcessingImages = computed(() =>
+    preparingImages.value ||
+    finalizingImages.value ||
+    deletingImages.value
+  )
+
   const prepareImageUploads = async (input: PrepareProjectImageUploadsInput) => {
     const response = await prepareImagesUploadMutation({ input })
 
@@ -31,6 +53,22 @@ export const useProjectImageMutations = () => {
     return useFragment(ProjectImageUploadInstructionFragmentDoc, items)
   }
 
+  const finalizeImageUploads = async (input: FinalizeProjectImageUploadsInput) => {
+    const response = await finalizeImagesUploadMutation({ input })
+
+    if (response.error) throw response.error
+
+    return response.data?.finalizeProjectImageUploads.project ?? null
+  }
+
+  const deleteImageUploads = async (input: DeleteProjectImagesInput) => {
+    const response = await deleteImagesUploadMutation({ input })
+
+    if (response.error) throw response.error
+
+    return response.data?.deleteProjectImages.project ?? null
+  }
+
   const uploadImages = async ({
     uploadItems,
     projectId
@@ -39,15 +77,19 @@ export const useProjectImageMutations = () => {
     projectId: string
   }) => {
     const validUploadItems = uploadItems.filter(
-      (
-        item
-      ): item is ImageUploadItem =>
+      (item): item is ImageUploadItem =>
         !!item.fullFile && !!item.thumbFile
     )
 
     const items = toProjectImagePrepareItem(validUploadItems)
 
-    if (items.length === 0) return
+    if (items.length === 0) {
+      return {
+        project: null,
+        succeededProjectImageIds: [],
+        failedProjectImageIds: []
+      }
+    }
 
     const instructions = await prepareImageUploads({
       projectId,
@@ -58,11 +100,36 @@ export const useProjectImageMutations = () => {
       throw new Error('Upload instruction count did not match upload item count')
     }
 
-    await uploadImagesToStorage(instructions, validUploadItems)
+    const {
+      succeededProjectImageIds,
+      failedProjectImageIds
+    } = await uploadImagesToStorage(instructions, validUploadItems)
+
+    let project = null
+
+    if (succeededProjectImageIds.length > 0) {
+      project = await finalizeImageUploads({
+        projectId,
+        projectImageIds: succeededProjectImageIds
+      })
+    }
+
+    if (failedProjectImageIds.length > 0) {
+      project = await deleteImageUploads({
+        projectId,
+        projectImageIds: failedProjectImageIds
+      })
+    }
+
+    return {
+      project,
+      succeededProjectImageIds,
+      failedProjectImageIds
+    }
   }
 
   return {
-    preparingImages,
+    isProcessingImages,
     uploadImages
   }
 }

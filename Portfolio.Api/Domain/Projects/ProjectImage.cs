@@ -27,6 +27,7 @@ public class ProjectImage
 
     public static ProjectImage CreatePending(
         Guid projectId,
+        string altText,
         string fullKey,
         string thumbKey,
         int sortOrder)
@@ -35,6 +36,7 @@ public class ProjectImage
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
+            AltText = altText,
             FullKey = fullKey,
             ThumbKey = thumbKey,
             SortOrder = sortOrder,

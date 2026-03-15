@@ -14,7 +14,7 @@ public record ProjectImageUploadTarget(
     string ContentType
 );
 
-public record RequestProjectImageUploadsPayload(
+public record PrepareProjectImageUploadsPayload(
     Guid ProjectId,
     IReadOnlyList<ProjectImageUploadInstruction> Items
 );

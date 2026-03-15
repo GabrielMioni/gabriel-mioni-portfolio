@@ -1,0 +1,16 @@
+mutation FinalizeProjectImageUploads($input: FinalizeProjectImageUploadsInput!) {
+    finalizeProjectImageUploads(input: $input) {
+        project {
+            id
+            images {
+                altText
+                contentType
+                createdAt
+                sizeBytes
+                thumbKey
+                fullKey
+                isUploaded
+            }
+        }
+    }
+}

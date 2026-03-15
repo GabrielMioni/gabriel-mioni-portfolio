@@ -1,14 +1,14 @@
 import type {
-  ProjectImageUploadRequestInput,
+  ProjectImagePrepareItemInput,
   ProjectImageUploadInstructionFragment
 } from '~/generated/graphql'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
 
-export const toUploadRequestItems = (
+export const toProjectImagePrepareItem = (
   uploadItems: ImageUploadItem[]
-): ProjectImageUploadRequestInput[] => {
+): ProjectImagePrepareItemInput[] => {
   return uploadItems
-    .map((item): ProjectImageUploadRequestInput | null => {
+    .map((item): ProjectImagePrepareItemInput | null => {
       const fullFile = item.fullFile
       const thumbFile = item.thumbFile
 
@@ -23,7 +23,7 @@ export const toUploadRequestItems = (
         thumbSizeBytes: thumbFile.size
       }
     })
-    .filter((item): item is ProjectImageUploadRequestInput => item !== null)
+    .filter((item): item is ProjectImagePrepareItemInput => item !== null)
 }
 
 const uploadFileToTarget = async ({

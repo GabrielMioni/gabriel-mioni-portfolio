@@ -1,0 +1,10 @@
+mutation DeleteProjectImages($input: DeleteProjectImagesInput!) {
+    deleteProjectImages(input: $input) {
+        project {
+            id
+            images {
+                id
+            }
+        }
+    }
+}

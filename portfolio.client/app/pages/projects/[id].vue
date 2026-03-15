@@ -15,8 +15,11 @@ const {
 } = useProjectMutations()
 
 const {
+  isProcessingImages,
   uploadImages
 } = useProjectImageMutations()
+
+const isSavingProject = computed(() => editing.value || isProcessingImages.value)
 
 const tabValues = {
   details: 'details',
@@ -113,7 +116,7 @@ watch(
         </v-btn>
         <v-btn
           class="bg-primary"
-          :loading="editing"
+          :loading="isSavingProject"
           @click="submitEditProject">
           Save
         </v-btn>

@@ -115,7 +115,7 @@ public class ProjectImageService
     }
 
     public async Task<Project> DeleteProjectImagesAsync(
-    FinalizeProjectImageUploadsInput input,
+    DeleteProjectImagesInput input,
     CancellationToken ct)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);

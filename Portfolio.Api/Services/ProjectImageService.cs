@@ -28,8 +28,8 @@ public class ProjectImageService
 
     public async Task<IReadOnlyList<ProjectImageUploadInstruction>> PrepareImageUploadAsync(
         PrepareProjectImageUploadsInput input,
-        CancellationToken ct
-    ) {
+        CancellationToken ct)
+    {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
         var projectId = input.ProjectId;
@@ -93,5 +93,34 @@ public class ProjectImageService
         await db.SaveChangesAsync(ct);
 
         return instructions;
+    }
+
+    public async Task<Project> FinalizeImageUploadAsync(
+        FinalizeProjectImageUploadsInput input,
+        CancellationToken ct)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+        var projectId = input.ProjectId;
+
+        var project = await db.Projects
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
+
+        if (project == null)
+            throw new InvalidOperationException("Project not found");
+
+        var targetIds = input.ProjectImageIds.ToHashSet();
+
+        foreach (var image in project.Images)
+        {
+            if (targetIds.Contains(image.Id))
+            {
+                image.MarkUploaded();
+            }
+        }
+        await db.SaveChangesAsync(ct);
+
+        return project;
     }
 }

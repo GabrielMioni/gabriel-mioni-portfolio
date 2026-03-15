@@ -1,4 +1,5 @@
 import Pica from 'pica'
+import type { ResizedImage } from '~/types/images/resizedImage'
 
 export type ImageOutputMimeType =
   | 'image/webp'
@@ -24,13 +25,14 @@ export const getOutputMimeType = (file: File | Blob): ImageOutputMimeType => {
   }
 }
 
-export async function resizeImageTo (
+export const resizeImageTo = async (
   file: File | Blob,
   maxWidth: number,
   maxHeight: number,
   mimeType: ImageOutputMimeType = 'image/webp',
   quality = 0.9
-): Promise<Blob> {
+): Promise<ResizedImage> => {
+
   const bitmap = await createImageBitmap(file)
 
   try {
@@ -52,9 +54,14 @@ export async function resizeImageTo (
 
     await pica.resize(bitmap, canvas)
 
-    const blob = await (pica.toBlob(canvas, mimeType, quality) as Promise<Blob>)
+    const blob = await pica.toBlob(canvas, mimeType, quality)
 
-    return blob
+    return {
+      blob,
+      width: targetWidth,
+      height: targetHeight
+    }
+
   } finally {
     bitmap.close()
   }

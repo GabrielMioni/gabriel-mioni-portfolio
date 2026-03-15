@@ -14,18 +14,20 @@ const updateImageUploadItems = async (files: File[]) => {
 
     const mimeType = getOutputMimeType(file)
 
-    const thumbFile = await resizeImageTo(file, 200, 200, mimeType)
-    const fullFile = await resizeImageTo(file, 200, 200, mimeType)
+    const resizedThumb = await resizeImageTo(file, 200, 200, mimeType)
+    const resizedFull = await resizeImageTo(file, 1600, 1600, mimeType)
 
     return {
       clientId: crypto.randomUUID(),
       contentType: file.type,
       fileName: file.name,
-      sizeThumb: thumbFile.size,
-      sizeFull: fullFile.size,
+      sizeThumb: resizedThumb.blob.size,
+      sizeFull: resizedFull.blob.size,
       altText: file.name,
-      thumbFile,
-      fullFile
+      thumbFile: resizedThumb.blob,
+      fullFile: resizedFull.blob,
+      height: resizedFull.height,
+      width: resizedFull.width
     }
   }))
 

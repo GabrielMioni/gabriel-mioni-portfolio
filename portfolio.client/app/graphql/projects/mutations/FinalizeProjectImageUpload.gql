@@ -3,6 +3,8 @@ mutation FinalizeProjectImageUploads($input: FinalizeProjectImageUploadsInput!) 
         project {
             id
             images {
+                id
+                projectId
                 altText
                 contentType
                 createdAt

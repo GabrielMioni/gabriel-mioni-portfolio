@@ -3,6 +3,7 @@ import type {
   ProjectImageUploadInstructionFragment
 } from '~/generated/graphql'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
+import type { UploadProjectImageResults } from '~/types/images/UploadToImageResults'
 
 export const toProjectImagePrepareItem = (
   uploadItems: ImageUploadItem[]
@@ -19,6 +20,8 @@ export const toProjectImagePrepareItem = (
         clientId: item.clientId,
         fullContentType: fullFile.type,
         fullSizeBytes: fullFile.size,
+        height: item.height,
+        width: item.width,
         thumbContentType: thumbFile.type,
         thumbSizeBytes: thumbFile.size
       }
@@ -51,31 +54,56 @@ const uploadFileToTarget = async ({
 export const uploadImagesToStorage = async (
   instructions: ProjectImageUploadInstructionFragment[],
   uploadItems: ImageUploadItem[]
-) => {
+): Promise<UploadProjectImageResults> => {
   const uploadItemByClientId = new Map(
     uploadItems.map(item => [item.clientId, item])
   )
 
-  const uploads = instructions.map(async (instruction) => {
-    const matchingItem = uploadItemByClientId.get(instruction.clientId)
+  const results = await Promise.all(
+    instructions.map(async (instruction) => {
+      const matchingItem = uploadItemByClientId.get(instruction.clientId)
 
-    if (!matchingItem?.fullFile || !matchingItem.thumbFile) {
-      throw new Error(`Missing files for clientId ${instruction.clientId}`)
-    }
+      if (!matchingItem?.fullFile || !matchingItem.thumbFile) {
+        return {
+          ok: false as const,
+          projectImageId: instruction.projectImageId
+        }
+      }
 
-    await Promise.all([
-      uploadFileToTarget({
-        file: matchingItem.fullFile,
-        uploadUrl: instruction.full.uploadUrl,
-        contentType: instruction.full.contentType
-      }),
-      uploadFileToTarget({
-        file: matchingItem.thumbFile,
-        uploadUrl: instruction.thumb.uploadUrl,
-        contentType: instruction.thumb.contentType
-      })
-    ])
-  })
+      try {
+        await Promise.all([
+          uploadFileToTarget({
+            file: matchingItem.fullFile,
+            uploadUrl: instruction.full.uploadUrl,
+            contentType: instruction.full.contentType
+          }),
+          uploadFileToTarget({
+            file: matchingItem.thumbFile,
+            uploadUrl: instruction.thumb.uploadUrl,
+            contentType: instruction.thumb.contentType
+          })
+        ])
 
-  await Promise.all(uploads)
+        return {
+          ok: true as const,
+          projectImageId: instruction.projectImageId
+        }
+      } catch {
+        return {
+          ok: false as const,
+          projectImageId: instruction.projectImageId
+        }
+      }
+    })
+  )
+
+  return {
+    succeededProjectImageIds: results
+      .filter(result => result.ok)
+      .map(result => result.projectImageId),
+
+    failedProjectImageIds: results
+      .filter(result => !result.ok)
+      .map(result => result.projectImageId)
+  }
 }

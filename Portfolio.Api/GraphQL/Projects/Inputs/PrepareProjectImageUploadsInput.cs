@@ -6,7 +6,9 @@ public sealed record ProjectImagePrepareItem(
     string FullContentType,
     int FullSizeBytes,
     string ThumbContentType,
-    int ThumbSizeBytes
+    int ThumbSizeBytes,
+    int Height,
+    int Width
 );
 
 public record PrepareProjectImageUploadsInput(

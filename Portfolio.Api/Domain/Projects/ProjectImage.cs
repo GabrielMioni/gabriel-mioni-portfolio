@@ -27,9 +27,13 @@ public class ProjectImage
 
     public static ProjectImage CreatePending(
         Guid projectId,
-        string altText,
+        string? altText,
         string fullKey,
         string thumbKey,
+        string contentType,
+        long sizeBytes,
+        int width,
+        int height,
         int sortOrder)
     {
         return new ProjectImage
@@ -39,6 +43,10 @@ public class ProjectImage
             AltText = altText,
             FullKey = fullKey,
             ThumbKey = thumbKey,
+            ContentType = contentType,
+            SizeBytes = sizeBytes,
+            Width = width,
+            Height = height,
             SortOrder = sortOrder,
             CreatedAt = DateTime.UtcNow,
             IsUploaded = false

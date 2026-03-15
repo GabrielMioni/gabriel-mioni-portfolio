@@ -49,43 +49,44 @@ public class ProjectImageService
 
         foreach (var item in input.Items)
         {
-            var imageGuid = Guid.NewGuid();
-            var altText = item.AltText;
+            var imageId = Guid.NewGuid();
 
-            var fullKey = $"projects/{projectId}/{imageGuid:N}_full.{ExtFor(item.FullContentType)}";
-            var thumbKey = $"projects/{projectId}/{imageGuid:N}_thumb.{ExtFor(item.ThumbContentType)}";
+            var fullKey = $"projects/{projectId}/{imageId:N}_full.{ExtFor(item.FullContentType)}";
+            var thumbKey = $"projects/{projectId}/{imageId:N}_thumb.{ExtFor(item.ThumbContentType)}";
 
             var projectImage = ProjectImage.CreatePending(
                 projectId,
-                altText,
+                item.AltText,
                 fullKey,
                 thumbKey,
+                item.FullContentType,
+                item.FullSizeBytes,
+                item.Width,
+                item.Height,
                 nextSortOrder++
             );
 
             db.Set<ProjectImage>().Add(projectImage);
 
-            var projectImageId = projectImage.Id;
-
-            var thumbProjectImageUploadTarget = new ProjectImageUploadTarget(
-                thumbKey,
-                _storage.CreatePresignedPutUrl(thumbKey, item.ThumbContentType, TimeSpan.FromMinutes(5)),
-                _storage.GetPublicUrl(thumbKey),
-                item.ThumbContentType
-            );
-
-            var fullProjectImageUploadTarget = new ProjectImageUploadTarget(
+            var fullTarget = new ProjectImageUploadTarget(
                 fullKey,
                 _storage.CreatePresignedPutUrl(fullKey, item.FullContentType, TimeSpan.FromMinutes(5)),
                 _storage.GetPublicUrl(fullKey),
                 item.FullContentType
             );
 
+            var thumbTarget = new ProjectImageUploadTarget(
+                thumbKey,
+                _storage.CreatePresignedPutUrl(thumbKey, item.ThumbContentType, TimeSpan.FromMinutes(5)),
+                _storage.GetPublicUrl(thumbKey),
+                item.ThumbContentType
+            );
+
             instructions.Add(new ProjectImageUploadInstruction(
                 item.ClientId,
-                projectImageId,
-                fullProjectImageUploadTarget,
-                thumbProjectImageUploadTarget
+                projectImage.Id,
+                fullTarget,
+                thumbTarget
             ));
         }
 

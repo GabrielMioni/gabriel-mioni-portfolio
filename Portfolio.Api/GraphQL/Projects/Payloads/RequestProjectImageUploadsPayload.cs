@@ -1,4 +1,4 @@
-﻿namespace Portfolio.Api.GraphQL.Projects.Types;
+﻿namespace Portfolio.Api.GraphQL.Projects.Payloads;
 
 public record ProjectImageUploadInstruction(
     string ClientId,

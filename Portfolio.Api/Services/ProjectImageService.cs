@@ -2,7 +2,7 @@
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Inputs;
-using Portfolio.Api.GraphQL.Projects.Types;
+using Portfolio.Api.GraphQL.Projects.Payloads;
 using Portfolio.Api.Services.Storage;
 
 namespace Portfolio.Api.Services;

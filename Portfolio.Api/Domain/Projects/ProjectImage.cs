@@ -53,16 +53,8 @@ public class ProjectImage
         };
     }
 
-    public void FinalizeUpload(
-        string contentType,
-        long sizeBytes,
-        int width,
-        int height)
+    public void MarkUploaded()
     {
-        ContentType = contentType;
-        SizeBytes = sizeBytes;
-        Width = width;
-        Height = height;
         IsUploaded = true;
     }
 }

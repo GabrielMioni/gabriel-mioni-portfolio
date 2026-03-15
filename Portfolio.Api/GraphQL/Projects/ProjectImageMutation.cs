@@ -16,4 +16,14 @@ public class ProjectImageMutation
 
         return new RequestProjectImageUploadsPayload(input.ProjectId, instructions);
     }
+
+    public async Task<FinalizeProjectImageUploadsPayload> FinalizeProjectImageUploads(
+        FinalizeProjectImageUploadsInput input,
+        [Service] ProjectImageService images,
+        CancellationToken ct)
+    {
+        var project = await images.FinalizeImageUploadAsync(input, ct);
+
+        return new FinalizeProjectImageUploadsPayload(project);
+    }
 }

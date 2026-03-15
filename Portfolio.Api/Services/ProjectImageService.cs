@@ -34,12 +34,7 @@ public class ProjectImageService
 
         var projectId = input.ProjectId;
 
-        var project = await db.Projects
-            .Include(p => p.Images)
-            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
-
-        if (project == null)
-            throw new InvalidOperationException("Project not found");
+        var project = await GetProjectAsync(db, projectId, ct);
 
         var instructions = new List<ProjectImageUploadInstruction>(input.Items.Count);
 
@@ -103,12 +98,7 @@ public class ProjectImageService
 
         var projectId = input.ProjectId;
 
-        var project = await db.Projects
-            .Include(p => p.Images)
-            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
-
-        if (project == null)
-            throw new InvalidOperationException("Project not found");
+        var project = await GetProjectAsync(db, projectId, ct);
 
         var targetIds = input.ProjectImageIds.ToHashSet();
 
@@ -120,6 +110,45 @@ public class ProjectImageService
             }
         }
         await db.SaveChangesAsync(ct);
+
+        return project;
+    }
+
+    public async Task<Project> DeleteProjectImagesAsync(
+    FinalizeProjectImageUploadsInput input,
+    CancellationToken ct)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+        var project = await GetProjectAsync(db, input.ProjectId, ct);
+
+        var targetIds = input.ProjectImageIds.ToHashSet();
+
+        var imagesToDelete = project.Images
+            .Where(i => targetIds.Contains(i.Id))
+            .ToList();
+
+        foreach (var image in imagesToDelete)
+        {
+            project.Images.Remove(image);
+        }
+
+        await db.SaveChangesAsync(ct);
+
+        return project;
+    }
+
+    private static async Task<Project> GetProjectAsync(
+        AppDbContext db,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        var project = await db.Projects
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
+
+        if (project == null)
+            throw new InvalidOperationException("Project not found");
 
         return project;
     }

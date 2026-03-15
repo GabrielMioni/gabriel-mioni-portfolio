@@ -15,7 +15,7 @@ fragment ProjectImageUploadInstruction on ProjectImageUploadInstruction {
     }
 }
 
-mutation prepareProjectImageUploads($input: RequestProjectImageUploadsInput!) {
+mutation prepareProjectImageUploads($input: PrepareProjectImageUploadsInput!) {
     prepareProjectImageUploads(input: $input) {
         projectId
         items {

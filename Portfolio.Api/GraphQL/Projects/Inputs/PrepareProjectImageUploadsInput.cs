@@ -1,6 +1,6 @@
 ﻿namespace Portfolio.Api.GraphQL.Projects.Inputs;
 
-public sealed record ProjectImageUploadRequestInput(
+public sealed record ProjectImagePrepareItem(
     string ClientId,
     string AltText,
     string FullContentType,
@@ -9,7 +9,7 @@ public sealed record ProjectImageUploadRequestInput(
     int ThumbSizeBytes
 );
 
-public record RequestProjectImageUploadsInput(
+public record PrepareProjectImageUploadsInput(
     Guid ProjectId,
-    IReadOnlyList<ProjectImageUploadRequestInput> Items
+    IReadOnlyList<ProjectImagePrepareItem> Items
 );

@@ -27,7 +27,7 @@ public class ProjectImageService
     };
 
     public async Task<IReadOnlyList<ProjectImageUploadInstruction>> PrepareImageUploadAsync(
-        RequestProjectImageUploadsInput input,
+        PrepareProjectImageUploadsInput input,
         CancellationToken ct
     ) {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);

@@ -8,7 +8,7 @@ namespace Portfolio.Api.GraphQL.Projects;
 public class ProjectImageMutation
 {
     public async Task<RequestProjectImageUploadsPayload> PrepareProjectImageUploads(
-        RequestProjectImageUploadsInput input,
+        PrepareProjectImageUploadsInput input,
         [Service] ProjectImageService images,
         CancellationToken ct)
     {

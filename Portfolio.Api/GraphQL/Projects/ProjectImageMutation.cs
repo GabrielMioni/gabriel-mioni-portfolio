@@ -26,4 +26,14 @@ public class ProjectImageMutation
 
         return new FinalizeProjectImageUploadsPayload(project);
     }
+
+    public async Task<FinalizeProjectImageUploadsPayload> DeleteProjectImages(
+        FinalizeProjectImageUploadsInput input,
+        [Service] ProjectImageService images,
+        CancellationToken ct)
+    {
+        var project = await images.DeleteProjectImagesAsync(input, ct);
+
+        return new FinalizeProjectImageUploadsPayload(project);
+    }
 }

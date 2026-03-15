@@ -50,12 +50,14 @@ public class ProjectImageService
         foreach (var item in input.Items)
         {
             var imageGuid = Guid.NewGuid();
+            var altText = item.AltText;
 
             var fullKey = $"projects/{projectId}/{imageGuid:N}_full.{ExtFor(item.FullContentType)}";
             var thumbKey = $"projects/{projectId}/{imageGuid:N}_thumb.{ExtFor(item.ThumbContentType)}";
 
             var projectImage = ProjectImage.CreatePending(
                 projectId,
+                altText,
                 fullKey,
                 thumbKey,
                 nextSortOrder++

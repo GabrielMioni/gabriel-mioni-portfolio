@@ -8,6 +8,6 @@ fragment Project on Project {
     summary
     status
     images {
-        ...image
+        ...projectImage
     }
 }

@@ -4,9 +4,11 @@ import {
   type EditProjectInput,
   GetProjectByIdDocument,
   ProjectFragmentDoc,
+  ProjectImageFragmentDoc,
   ProjectStatus
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
+import { imageFragmentToEditorItem } from '~/utils/imageUpload'
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
 
 const {
@@ -34,7 +36,7 @@ const form = reactive({
   body: '',
   status: ProjectStatus.Draft
 })
-const imageUploadItems = ref<ImageUploadItem[]>([])
+const imageItems = ref<ImageUploadItem[]>([])
 
 const route = useRoute()
 const id = route.params?.id ? route.params.id as string : ''
@@ -67,8 +69,8 @@ const updateInput = computed<EditProjectInput>(() => ({
 const submitEditProject = async () => {
   try {
     await editProject(updateInput.value)
-    if (imageUploadItems.value.length > 0) {
-      await uploadImages({ uploadItems: imageUploadItems.value, projectId: id })
+    if (imageItems.value.length > 0) {
+      await uploadImages({ uploadItems: imageItems.value, projectId: id })
     }
   } catch (error) {
     console.error('Failed to save project', error)
@@ -84,6 +86,13 @@ watch(
     form.summary = project.summary ?? ''
     form.body = project.body ?? ''
     form.status = project.status ?? ProjectStatus.Draft
+    const projectImageFragments = useFragment(ProjectImageFragmentDoc, project.images)
+
+    imageItems.value = projectImageFragments
+      .map(projectImageFragment => imageFragmentToEditorItem(projectImageFragment))
+      .filter(
+        (item): item is ImageUploadItem => item !== null
+      )
   },
   { immediate: true }
 )
@@ -130,7 +139,7 @@ watch(
           </v-tabs-window-item>
           <v-tabs-window-item :value="tabValues.images">
             <ProjectImageUpload
-              v-model="imageUploadItems"/>
+              v-model="imageItems"/>
           </v-tabs-window-item>
         </div>
       </v-tabs-window>

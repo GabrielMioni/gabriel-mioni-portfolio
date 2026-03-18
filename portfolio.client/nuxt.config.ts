@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   css: ['~/assets/scss/main.scss'],
@@ -16,8 +15,9 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      apiBase: '/api',
-      graphQlBase: '/graphql'
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
+      graphQlBase: process.env.NUXT_PUBLIC_GRAPHQL_BASE || '/graphql',
+      storageBase: process.env.NUXT_PUBLIC_STORAGE_BASE || ''
     }
   },
   nitro: {

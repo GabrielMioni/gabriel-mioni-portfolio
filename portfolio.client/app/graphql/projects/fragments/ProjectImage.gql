@@ -1,4 +1,4 @@
-fragment image on ProjectImage {
+fragment projectImage on ProjectImage {
     id
     altText
     fullKey

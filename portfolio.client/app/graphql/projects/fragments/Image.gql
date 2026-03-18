@@ -1,0 +1,12 @@
+fragment image on ProjectImage {
+    id
+    altText
+    fullKey
+    thumbKey
+    sortOrder
+    isUploaded
+    contentType
+    createdAt
+    height
+    width
+}

@@ -17,7 +17,9 @@ namespace Portfolio.Api.Services
         public async Task<Project?> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
             await using var db = await _dbFactory.CreateDbContextAsync(ct);
-            return await db.Projects.FirstOrDefaultAsync(p => p.Id == id);
+            return await db.Projects
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Project> CreateAsync(CreateProjectInput input, CancellationToken ct = default)

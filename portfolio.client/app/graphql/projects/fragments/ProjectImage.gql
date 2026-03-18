@@ -9,4 +9,5 @@ fragment projectImage on ProjectImage {
     createdAt
     height
     width
+    sizeBytes
 }

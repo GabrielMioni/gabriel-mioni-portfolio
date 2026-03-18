@@ -21,30 +21,36 @@ const {
   uploadImages
 } = useProjectImageMutations()
 
-const isSavingProject = computed(() => editing.value || isProcessingImages.value)
+const isSavingProject = computed(() =>
+  editing.value || isProcessingImages.value
+)
 
 const tabValues = {
   details: 'details',
   images: 'images'
-}
+} as const
 
 const tab = ref(tabValues.details)
 const isValid = ref(false)
+
 const form = reactive({
   title: '',
   summary: '',
   body: '',
   status: ProjectStatus.Draft
 })
+
 const imageItems = ref<ImageEditorItem[]>([])
+const hasInitialized = ref(false)
 
 const route = useRoute()
 const id = route.params?.id ? route.params.id as string : ''
 
 const {
   data,
-  fetching
-  // #TODO: handle error
+  fetching,
+  executeQuery
+  // TODO: handle error
   // error
 } = useQuery({
   query: GetProjectByIdDocument,
@@ -59,19 +65,60 @@ const project = computed(() => {
 })
 
 const updateInput = computed<EditProjectInput>(() => ({
-  id: id,
+  id,
   title: form.title,
   summary: form.summary,
   body: form.body,
   status: form.status
 }))
 
+const isInitialLoading = computed(() => fetching.value && !project.value)
+
+const uploadItems = computed(() =>
+  imageItems.value.filter((image): image is ImageEditorItem => !image.id)
+)
+
+const syncFromProject = (
+  currentProject: NonNullable<typeof project.value>
+) => {
+  form.title = currentProject.title ?? ''
+  form.summary = currentProject.summary ?? ''
+  form.body = currentProject.body ?? ''
+  form.status = currentProject.status ?? ProjectStatus.Draft
+
+  const projectImageFragments = useFragment(
+    ProjectImageFragmentDoc,
+    currentProject.images
+  )
+
+  imageItems.value = projectImageFragments.map(imageFragmentToEditorItem)
+}
+
+const refreshProject = async () => {
+  const result = await executeQuery({
+    requestPolicy: 'network-only'
+  })
+
+  const refreshedProjectRef = result.data?.value?.projectById
+
+  if (!refreshedProjectRef) return
+
+  const refreshedProject = useFragment(ProjectFragmentDoc, refreshedProjectRef)
+  syncFromProject(refreshedProject)
+}
+
 const submitEditProject = async () => {
   try {
     await editProject(updateInput.value)
-    if (imageItems.value.length > 0) {
-      await uploadImages({ uploadItems: imageItems.value, projectId: id })
+
+    if (uploadItems.value.length > 0) {
+      await uploadImages({
+        uploadItems: uploadItems.value,
+        projectId: id
+      })
     }
+
+    await refreshProject()
   } catch (error) {
     console.error('Failed to save project', error)
   }
@@ -79,30 +126,20 @@ const submitEditProject = async () => {
 
 watch(
   project,
-  (project) => {
-    if (!project) return
+  (currentProject) => {
+    if (!currentProject || hasInitialized.value) return
 
-    form.title = project.title ?? ''
-    form.summary = project.summary ?? ''
-    form.body = project.body ?? ''
-    form.status = project.status ?? ProjectStatus.Draft
-    const projectImageFragments = useFragment(ProjectImageFragmentDoc, project.images)
-
-    imageItems.value = projectImageFragments
-      .map(projectImageFragment => imageFragmentToEditorItem(projectImageFragment))
-      .filter(
-        (item): item is ImageEditorItem => item !== null
-      )
+    syncFromProject(currentProject)
+    hasInitialized.value = true
   },
   { immediate: true }
 )
-
 </script>
 
 <template>
   <v-container>
     <div
-      v-if="fetching"
+      v-if="isInitialLoading"
       class="d-flex justify-center">
       <v-progress-circular
         size="60"
@@ -138,8 +175,7 @@ watch(
               v-model:is-valid="isValid" />
           </v-tabs-window-item>
           <v-tabs-window-item :value="tabValues.images">
-            <ProjectImageUpload
-              v-model="imageItems"/>
+            <ProjectImageUpload v-model="imageItems" />
           </v-tabs-window-item>
         </div>
       </v-tabs-window>

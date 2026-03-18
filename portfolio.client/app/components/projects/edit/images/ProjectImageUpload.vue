@@ -10,6 +10,8 @@ const updateImageUploadItems = async (files: File[]) => {
   if (files.length === 0) {
     return
   }
+
+  let sort = imageUploadItems.value.length ?? 0
   const items = await Promise.all(files.map(async file => {
 
     const mimeType = getOutputMimeType(file)
@@ -18,6 +20,7 @@ const updateImageUploadItems = async (files: File[]) => {
     const resizedFull = await resizeImageTo(file, 1600, 1600, mimeType)
 
     return {
+      id: null,
       clientId: crypto.randomUUID(),
       contentType: file.type,
       fileName: file.name,
@@ -27,7 +30,8 @@ const updateImageUploadItems = async (files: File[]) => {
       thumbFile: resizedThumb.blob,
       fullFile: resizedFull.blob,
       height: resizedFull.height,
-      width: resizedFull.width
+      width: resizedFull.width,
+      sort: ++sort
     }
   }))
 

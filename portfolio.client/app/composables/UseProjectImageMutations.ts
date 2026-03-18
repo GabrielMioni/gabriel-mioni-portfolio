@@ -2,13 +2,15 @@ import { useMutation } from '@urql/vue'
 import type {
   DeleteProjectImagesInput,
   FinalizeProjectImageUploadsInput,
-  PrepareProjectImageUploadsInput
+  PrepareProjectImageUploadsInput,
+  ProjectFragment
 } from '~/generated/graphql'
 import {
   DeleteProjectImagesDocument,
   FinalizeProjectImageUploadsDocument,
   PrepareProjectImageUploadsDocument,
-  ProjectImageUploadInstructionFragmentDoc
+  ProjectImageUploadInstructionFragmentDoc,
+  ProjectFragmentDoc
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
@@ -58,7 +60,8 @@ export const useProjectImageMutations = () => {
 
     if (response.error) throw response.error
 
-    return response.data?.finalizeProjectImageUploads.project ?? null
+    const project = response.data?.finalizeProjectImageUploads.project ?? null
+    return project ? useFragment(ProjectFragmentDoc, project) : null
   }
 
   const deleteImageUploads = async (input: DeleteProjectImagesInput) => {
@@ -66,7 +69,8 @@ export const useProjectImageMutations = () => {
 
     if (response.error) throw response.error
 
-    return response.data?.deleteProjectImages.project ?? null
+    const project = response.data?.deleteProjectImages.project ?? null
+    return project ? useFragment(ProjectFragmentDoc, project) : null
   }
 
   const uploadImages = async ({
@@ -105,7 +109,7 @@ export const useProjectImageMutations = () => {
       failedProjectImageIds
     } = await uploadImagesToStorage(instructions, validUploadItems)
 
-    let project = null
+    let project: ProjectFragment | null = null
 
     if (succeededProjectImageIds.length > 0) {
       project = await finalizeImageUploads({

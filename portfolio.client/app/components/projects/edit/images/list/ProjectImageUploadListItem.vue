@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
 
+const config = useRuntimeConfig()
+
 const item = defineModel<ImageUploadItem>('item', { required: true })
 
 defineEmits<{
@@ -8,8 +10,21 @@ defineEmits<{
 }>()
 
 const imageUrl = computed(() => {
-  if (!item.value.thumbFile) return null
-  return URL.createObjectURL(item.value.thumbFile)
+  const current = item.value
+
+  // New (not yet persisted) image
+  if (!current.id) {
+    if (!current.thumbFile) return null
+    return URL.createObjectURL(current.thumbFile)
+  }
+
+  // Existing image
+  const base = config.public.storageBase
+  const key = current.thumbKey
+
+  if (!base || !key) return null
+
+  return `${base}/${key}`
 })
 
 const imageFileName = computed(() => {

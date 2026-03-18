@@ -1,4 +1,5 @@
 import type {
+  ProjectImageFragment,
   ProjectImagePrepareItemInput,
   ProjectImageUploadInstructionFragment
 } from '~/generated/graphql'
@@ -105,5 +106,22 @@ export const uploadImagesToStorage = async (
     failedProjectImageIds: results
       .filter(result => !result.ok)
       .map(result => result.projectImageId)
+  }
+}
+
+export const imageFragmentToEditorItem = (imageFragment: ProjectImageFragment): ImageUploadItem => {
+  return {
+    id: imageFragment.id,
+    altText: imageFragment.altText ?? '',
+    clientId: crypto.randomUUID(),
+    contentType: imageFragment.contentType ?? 'unknown',
+    height: imageFragment.height ?? -1,
+    width: imageFragment.width ?? -1,
+    fileName: null,
+    fullKey: imageFragment.fullKey,
+    thumbKey: imageFragment.thumbKey,
+    sizeThumb: 0,
+    sizeFull: imageFragment.sizeBytes ? parseInt(imageFragment.sizeBytes) : -1,
+    sort: imageFragment.sortOrder
   }
 }

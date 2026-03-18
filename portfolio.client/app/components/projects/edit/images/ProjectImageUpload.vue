@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { getOutputMimeType, resizeImageTo } from '~/utils/images'
-import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
+import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
-const imageUploadItems = defineModel<ImageUploadItem[]>('modelValue', { required: true })
+const imageUploadItems = defineModel<ImageEditorItem[]>('modelValue', { required: true })
 
 const filesList = ref<File[]>([])
 

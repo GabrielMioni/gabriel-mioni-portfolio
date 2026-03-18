@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
+import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import ProjectImageUploadListItem from '~/components/projects/edit/images/list/ProjectImageUploadListItem.vue'
 
-const items = defineModel<ImageUploadItem[]>('items', { required: true })
+const items = defineModel<ImageEditorItem[]>('items', { required: true })
 
 defineEmits<{
   (e: 'remove', clientId: string): void

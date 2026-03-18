@@ -3,11 +3,11 @@ import type {
   ProjectImagePrepareItemInput,
   ProjectImageUploadInstructionFragment
 } from '~/generated/graphql'
-import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
+import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import type { UploadProjectImageResults } from '~/types/images/UploadToImageResults'
 
 export const toProjectImagePrepareItem = (
-  uploadItems: ImageUploadItem[]
+  uploadItems: ImageEditorItem[]
 ): ProjectImagePrepareItemInput[] => {
   return uploadItems
     .map((item): ProjectImagePrepareItemInput | null => {
@@ -54,7 +54,7 @@ const uploadFileToTarget = async ({
 
 export const uploadImagesToStorage = async (
   instructions: ProjectImageUploadInstructionFragment[],
-  uploadItems: ImageUploadItem[]
+  uploadItems: ImageEditorItem[]
 ): Promise<UploadProjectImageResults> => {
   const uploadItemByClientId = new Map(
     uploadItems.map(item => [item.clientId, item])
@@ -109,7 +109,7 @@ export const uploadImagesToStorage = async (
   }
 }
 
-export const imageFragmentToEditorItem = (imageFragment: ProjectImageFragment): ImageUploadItem => {
+export const imageFragmentToEditorItem = (imageFragment: ProjectImageFragment): ImageEditorItem => {
   return {
     id: imageFragment.id,
     altText: imageFragment.altText ?? '',

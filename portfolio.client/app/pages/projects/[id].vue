@@ -9,7 +9,7 @@ import {
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import { imageFragmentToEditorItem } from '~/utils/imageUpload'
-import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
+import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
 const {
   editing,
@@ -36,7 +36,7 @@ const form = reactive({
   body: '',
   status: ProjectStatus.Draft
 })
-const imageItems = ref<ImageUploadItem[]>([])
+const imageItems = ref<ImageEditorItem[]>([])
 
 const route = useRoute()
 const id = route.params?.id ? route.params.id as string : ''
@@ -91,7 +91,7 @@ watch(
     imageItems.value = projectImageFragments
       .map(projectImageFragment => imageFragmentToEditorItem(projectImageFragment))
       .filter(
-        (item): item is ImageUploadItem => item !== null
+        (item): item is ImageEditorItem => item !== null
       )
   },
   { immediate: true }

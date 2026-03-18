@@ -11,7 +11,7 @@ import {
   ProjectImageUploadInstructionFragmentDoc
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
-import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
+import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import {
   toProjectImagePrepareItem,
   uploadImagesToStorage
@@ -73,11 +73,11 @@ export const useProjectImageMutations = () => {
     uploadItems,
     projectId
   }: {
-    uploadItems: ImageUploadItem[]
+    uploadItems: ImageEditorItem[]
     projectId: string
   }) => {
     const validUploadItems = uploadItems.filter(
-      (item): item is ImageUploadItem =>
+      (item): item is ImageEditorItem =>
         !!item.fullFile && !!item.thumbFile
     )
 

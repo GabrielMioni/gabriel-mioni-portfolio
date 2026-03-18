@@ -1,4 +1,4 @@
-export type ImageUploadItem = {
+export type ImageEditorItem = {
   id?: string | null
   clientId: string
   contentType: string

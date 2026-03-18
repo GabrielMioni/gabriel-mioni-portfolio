@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ImageUploadItem } from '~/types/images/ImageUploadItem'
+import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
 const config = useRuntimeConfig()
 
-const item = defineModel<ImageUploadItem>('item', { required: true })
+const item = defineModel<ImageEditorItem>('item', { required: true })
 
 defineEmits<{
   (e: 'remove', clientId: string): void

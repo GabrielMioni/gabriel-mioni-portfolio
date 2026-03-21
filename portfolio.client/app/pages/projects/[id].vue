@@ -2,6 +2,7 @@
 import { useQuery } from '@urql/vue'
 import {
   type EditProjectInput,
+  type EditProjectImageInput,
   GetProjectByIdDocument,
   ProjectFragmentDoc,
   ProjectImageFragmentDoc,
@@ -69,7 +70,13 @@ const updateInput = computed<EditProjectInput>(() => ({
   title: form.title,
   summary: form.summary,
   body: form.body,
-  status: form.status
+  status: form.status,
+  images: imageItems.value
+    .map((i) => ({
+      projectImageId: i.id,
+      altText: i.altText
+    }))
+    .filter((image): image is EditProjectImageInput => image.projectImageId != null)
 }))
 
 const isInitialLoading = computed(() => fetching.value && !project.value)

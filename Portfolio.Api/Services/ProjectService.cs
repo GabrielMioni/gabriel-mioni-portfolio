@@ -48,6 +48,7 @@ namespace Portfolio.Api.Services
             await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
             var project = await db.Projects
+                .Include(p => p.Images)
                 .FirstOrDefaultAsync(p => p.Id == input.Id, ct);
 
             if (project is null) return null;
@@ -75,6 +76,23 @@ namespace Portfolio.Api.Services
             if (input.Status is not null && input.Status.Value != project.Status)
             {
                 project.Status = input.Status.Value;
+                changed = true;
+            }
+
+            var projectImageUpdates = input.Images ?? Array.Empty<EditProjectImageInput>();
+
+            foreach (var updateItem in projectImageUpdates)
+            {
+                var projectImage = project.Images.FirstOrDefault(pi => pi.Id == updateItem.ProjectImageId);
+
+                if (projectImage is null) continue;
+
+                var newAltText = updateItem.AltText.Trim();
+                var existingAltText = projectImage.AltText?.Trim();
+
+                if (existingAltText == newAltText) continue;
+
+                projectImage.UpdateAltText(newAltText);
                 changed = true;
             }
 

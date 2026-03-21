@@ -57,4 +57,16 @@ public class ProjectImage
     {
         IsUploaded = true;
     }
+
+    public void UpdateAltText(string? altText)
+    {
+        var normalizedAltText = string.IsNullOrWhiteSpace(altText)
+            ? null
+            : altText.Trim();
+
+        if (AltText == normalizedAltText)
+            return;
+
+        AltText = normalizedAltText;
+    }
 }

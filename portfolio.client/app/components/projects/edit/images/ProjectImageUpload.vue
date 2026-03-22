@@ -2,7 +2,7 @@
 import { getOutputMimeType, resizeImageTo } from '~/utils/images'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
-const imageUploadItems = defineModel<ImageEditorItem[]>('modelValue', { required: true })
+const imageUploadItems = defineModel<ImageEditorItem[]>('items', { required: true })
 
 const filesList = ref<File[]>([])
 
@@ -61,7 +61,9 @@ watch(
     <v-divider class="my-6" />
     <v-row>
       <v-col>
-        <ProjectImageUploadList v-model="imageUploadItems" />
+        <ProjectImageUploadList
+          :items="imageUploadItems"
+          @update:items="imageUploadItems = $event" />
       </v-col>
     </v-row>
   </v-container>

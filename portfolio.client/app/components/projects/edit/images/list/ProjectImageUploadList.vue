@@ -3,28 +3,44 @@ import draggable from 'vuedraggable'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import ProjectImageUploadListItem from '~/components/projects/edit/images/list/ProjectImageUploadListItem.vue'
 
-const items = defineModel<ImageEditorItem[]>({ required: true })
+const props = defineProps<{
+  items: ImageEditorItem[]
+}>()
 
-const removeItem = (clientId: string) => {
-  const index = items.value.findIndex(item => item.clientId === clientId)
-  if (index !== -1) {
-    items.value.splice(index, 1)
-    syncSortOrder()
+const emit = defineEmits<{
+  (e: 'update:items', value: ImageEditorItem[]): void
+}>()
+
+const itemsLocal = computed({
+  get: () => props.items,
+  set: (value: ImageEditorItem[]) => {
+    emit('update:items', value)
   }
-}
+})
 
-const syncSortOrder = () => {
-  items.value = items.value.map((item, index) => ({
+const normalizeSortOrder = (items: ImageEditorItem[]) =>
+  items.map((item, index) => ({
     ...item,
     sort: index
   }))
+
+const removeItem = (clientId: string) => {
+  emit(
+    'update:items',
+    normalizeSortOrder(
+      props.items.filter(item => item.clientId !== clientId)
+    )
+  )
 }
 
+const syncSortOrder = () => {
+  emit('update:items', normalizeSortOrder(props.items))
+}
 </script>
 
 <template>
   <draggable
-    v-model="items"
+    v-model="itemsLocal"
     item-key="clientId"
     handle=".drag-handle"
     @end="syncSortOrder">
@@ -34,13 +50,9 @@ const syncSortOrder = () => {
           :item="element"
           @remove="removeItem" />
         <v-divider
-          v-if="index !== items.length - 1"
+          v-if="index !== itemsLocal.length - 1"
           class="my-3" />
       </div>
     </template>
   </draggable>
 </template>
-
-<style scoped>
-
-</style>

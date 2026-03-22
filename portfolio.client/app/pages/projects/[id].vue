@@ -184,7 +184,7 @@ watch(
               v-model:is-valid="isValid" />
           </v-tabs-window-item>
           <v-tabs-window-item :value="tabValues.images">
-            <ProjectImageUpload v-model="imageItems" />
+            <ProjectImageUpload v-model:items="imageItems" />
           </v-tabs-window-item>
         </div>
       </v-tabs-window>

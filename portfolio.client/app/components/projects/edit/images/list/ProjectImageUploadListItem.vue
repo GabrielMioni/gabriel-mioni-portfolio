@@ -41,11 +41,16 @@ const imageFileName = computed(() => {
       <v-col
         cols="auto"
         class="d-flex align-center justify-center order-1">
-        <v-img
-          v-if="imageUrl"
-          class="ma-2"
-          :src="imageUrl"
-          width="50" />
+        <div class="d-flex align-center">
+          <v-icon
+            class="drag-handle cursor-grab"
+            icon="mdi-drag"/>
+          <v-img
+            v-if="imageUrl"
+            class="ma-2"
+            :src="imageUrl"
+            width="50" />
+        </div>
       </v-col>
       <v-col
         class="order-2"

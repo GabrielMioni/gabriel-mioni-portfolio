@@ -61,7 +61,7 @@ watch(
     <v-divider class="my-6" />
     <v-row>
       <v-col>
-        <ProjectImageUploadList :items="imageUploadItems" />
+        <ProjectImageUploadList v-model="imageUploadItems" />
       </v-col>
     </v-row>
   </v-container>

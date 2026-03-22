@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "pica": "^9.0.1",
-    "vuedraggable": "^4.1.0"
-  },
-  "devDependencies": {
-    "@types/pica": "^9.0.5"
-  }
-}

@@ -98,7 +98,9 @@ const syncFromProject = (
     currentProject.images
   )
 
-  imageItems.value = projectImageFragments.map(imageFragmentToEditorItem)
+  imageItems.value = projectImageFragments
+    .map(imageFragmentToEditorItem)
+    .sort((a, b) => a.sort - b.sort)
 }
 
 const refreshProject = async () => {

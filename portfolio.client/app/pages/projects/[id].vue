@@ -33,6 +33,7 @@ const tabValues = {
 
 const tab = ref(tabValues.details)
 const isValid = ref(false)
+const removedDialog = ref(false)
 
 const form = reactive({
   title: '',
@@ -134,6 +135,11 @@ const submitEditProject = async () => {
   }
 }
 
+const openRemoveImagesDialog = () => {
+  if (removedImageItems.value.length <= 0) return
+  removedDialog.value = true
+}
+
 watch(
   project,
   (currentProject) => {
@@ -167,6 +173,14 @@ watch(
         <v-btn
           text
           class="mr-3"
+          prepend-icon="mdi-trash-can-outline"
+          :disabled="removedImageItems.length <= 0"
+          @click="openRemoveImagesDialog">
+          Removed Images ({{ removedImageItems.length > 0 ? removedImageItems.length : 'Empty' }})
+        </v-btn>
+        <v-btn
+          text
+          class="mr-3"
           @click="$router.back()">
           Cancel
         </v-btn>
@@ -192,6 +206,9 @@ watch(
         </div>
       </v-tabs-window>
     </v-card>
+    <RemovedImagesDialog
+      v-model="removedDialog"
+      :removed-image-items="removedImageItems" />
   </v-container>
 </template>
 

@@ -2,7 +2,8 @@
 import { getOutputMimeType, resizeImageTo } from '~/utils/images'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
-const imageUploadItems = defineModel<ImageEditorItem[]>('items', { required: true })
+const activeUploadItems = defineModel<ImageEditorItem[]>('items', { required: true })
+const removedUploadItems = defineModel<ImageEditorItem[]>('removed', { required: true })
 
 const filesList = ref<File[]>([])
 
@@ -11,7 +12,7 @@ const updateImageUploadItems = async (files: File[]) => {
     return
   }
 
-  let sort = imageUploadItems.value.length ?? 0
+  let sort = activeUploadItems.value.length ?? 0
   const items = await Promise.all(files.map(async file => {
 
     const mimeType = getOutputMimeType(file)
@@ -35,7 +36,7 @@ const updateImageUploadItems = async (files: File[]) => {
     }
   }))
 
-  imageUploadItems.value.push(...items)
+  activeUploadItems.value.push(...items)
   filesList.value = []
 }
 
@@ -46,6 +47,19 @@ watch(
   },
   { deep: true }
 )
+
+const removeImage = (clientId: string) => {
+  const index = activeUploadItems.value.findIndex(
+    activeItem => activeItem.clientId === clientId
+  )
+  if (index === -1) return
+
+  const item = activeUploadItems.value[index]
+  if (!item) return
+  activeUploadItems.value.splice(index, 1)
+
+  removedUploadItems.value.push(item)
+}
 
 </script>
 
@@ -62,8 +76,9 @@ watch(
     <v-row>
       <v-col>
         <ProjectImageUploadList
-          :items="imageUploadItems"
-          @update:items="imageUploadItems = $event" />
+          :items="activeUploadItems"
+          @update:items="activeUploadItems = $event"
+          @update:remove="removeImage"/>
       </v-col>
     </v-row>
   </v-container>

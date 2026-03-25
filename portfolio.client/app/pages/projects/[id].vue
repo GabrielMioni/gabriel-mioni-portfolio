@@ -41,7 +41,8 @@ const form = reactive({
   status: ProjectStatus.Draft
 })
 
-const imageItems = ref<ImageEditorItem[]>([])
+const activeImageItems = ref<ImageEditorItem[]>([])
+const removedImageItems = ref<ImageEditorItem[]>([])
 const hasInitialized = ref(false)
 
 const route = useRoute()
@@ -71,7 +72,7 @@ const updateInput = computed<EditProjectInput>(() => ({
   summary: form.summary,
   body: form.body,
   status: form.status,
-  images: imageItems.value
+  images: activeImageItems.value
     .map((i) => ({
       projectImageId: i.id,
       altText: i.altText
@@ -82,7 +83,7 @@ const updateInput = computed<EditProjectInput>(() => ({
 const isInitialLoading = computed(() => fetching.value && !project.value)
 
 const uploadItems = computed(() =>
-  imageItems.value.filter((image): image is ImageEditorItem => !image.id)
+  activeImageItems.value.filter((image): image is ImageEditorItem => !image.id)
 )
 
 const syncFromProject = (
@@ -98,7 +99,7 @@ const syncFromProject = (
     currentProject.images
   )
 
-  imageItems.value = projectImageFragments
+  activeImageItems.value = projectImageFragments
     .map(imageFragmentToEditorItem)
     .sort((a, b) => a.sort - b.sort)
 }
@@ -160,7 +161,7 @@ watch(
       <v-toolbar color="transparent">
         <v-tabs v-model="tab">
           <v-tab :value="tabValues.details">Details</v-tab>
-          <v-tab :value="tabValues.images">Images</v-tab>
+          <v-tab :value="tabValues.images">Images ({{ activeImageItems.length }})</v-tab>
         </v-tabs>
         <v-spacer />
         <v-btn
@@ -184,7 +185,9 @@ watch(
               v-model:is-valid="isValid" />
           </v-tabs-window-item>
           <v-tabs-window-item :value="tabValues.images">
-            <ProjectImageUpload v-model:items="imageItems" />
+            <ProjectImageUpload
+              v-model:items="activeImageItems"
+              v-model:removed="removedImageItems" />
           </v-tabs-window-item>
         </div>
       </v-tabs-window>

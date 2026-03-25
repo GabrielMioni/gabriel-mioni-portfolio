@@ -8,8 +8,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:items', value: ImageEditorItem[]): void,
-  (e: 'update:remove', clientId: string): void
+  (e: 'update:items', value: ImageEditorItem[]): void
+  (e: 'remove', clientId: string): void
 }>()
 
 const itemsLocal = computed({
@@ -18,29 +18,18 @@ const itemsLocal = computed({
     emit('update:items', value)
   }
 })
-
-const normalizeSortOrder = (items: ImageEditorItem[]) =>
-  items.map((item, index) => ({
-    ...item,
-    sort: index
-  }))
-
-const syncSortOrder = () => {
-  emit('update:items', normalizeSortOrder(props.items))
-}
 </script>
 
 <template>
   <draggable
     v-model="itemsLocal"
     item-key="clientId"
-    handle=".drag-handle"
-    @end="syncSortOrder">
+    handle=".drag-handle">
     <template #item="{ element, index }">
       <div>
         <ProjectImageUploadListItem
           :item="element"
-          @remove="emit('update:remove', $event)" />
+          @remove="emit('remove', $event)" />
         <v-divider
           v-if="index !== itemsLocal.length - 1"
           class="my-3" />

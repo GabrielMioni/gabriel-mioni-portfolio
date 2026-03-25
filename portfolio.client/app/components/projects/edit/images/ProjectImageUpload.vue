@@ -7,6 +7,16 @@ const removedUploadItems = defineModel<ImageEditorItem[]>('removed', { required:
 
 const filesList = ref<File[]>([])
 
+const normalizeSortOrder = (items: ImageEditorItem[]) =>
+  items.map((item, index) => ({
+    ...item,
+    sort: index
+  }))
+
+const updateActiveUploadItems = (items: ImageEditorItem[]) => {
+  activeUploadItems.value = normalizeSortOrder(items)
+}
+
 const updateImageUploadItems = async (files: File[]) => {
   if (files.length === 0) {
     return
@@ -56,9 +66,12 @@ const removeImage = (clientId: string) => {
 
   const item = activeUploadItems.value[index]
   if (!item) return
-  activeUploadItems.value.splice(index, 1)
+
+  const nextActiveItems = [...activeUploadItems.value]
+  nextActiveItems.splice(index, 1)
 
   removedUploadItems.value.push(item)
+  updateActiveUploadItems(nextActiveItems)
 }
 
 </script>
@@ -77,8 +90,8 @@ const removeImage = (clientId: string) => {
       <v-col>
         <ProjectImageUploadList
           :items="activeUploadItems"
-          @update:items="activeUploadItems = $event"
-          @update:remove="removeImage"/>
+          @update:items="updateActiveUploadItems"
+          @remove="removeImage"/>
       </v-col>
     </v-row>
   </v-container>

@@ -8,7 +8,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:items', value: ImageEditorItem[]): void
+  (e: 'update:items', value: ImageEditorItem[]): void,
+  (e: 'update:remove', clientId: string): void
 }>()
 
 const itemsLocal = computed({
@@ -23,15 +24,6 @@ const normalizeSortOrder = (items: ImageEditorItem[]) =>
     ...item,
     sort: index
   }))
-
-const removeItem = (clientId: string) => {
-  emit(
-    'update:items',
-    normalizeSortOrder(
-      props.items.filter(item => item.clientId !== clientId)
-    )
-  )
-}
 
 const syncSortOrder = () => {
   emit('update:items', normalizeSortOrder(props.items))
@@ -48,7 +40,7 @@ const syncSortOrder = () => {
       <div>
         <ProjectImageUploadListItem
           :item="element"
-          @remove="removeItem" />
+          @remove="emit('update:remove', $event)" />
         <v-divider
           v-if="index !== itemsLocal.length - 1"
           class="my-3" />

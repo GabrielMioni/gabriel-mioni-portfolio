@@ -29,7 +29,7 @@ const itemsLocal = computed({
       <div>
         <ProjectImageUploadListItem
           :item="element"
-          @remove="emit('remove', $event)" />
+          @update="emit('remove', $event)" />
         <v-divider
           v-if="index !== itemsLocal.length - 1"
           class="my-3" />

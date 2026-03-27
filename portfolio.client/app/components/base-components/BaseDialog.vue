@@ -6,13 +6,15 @@ withDefaults(
     title?: string
     divider?: boolean
     persistent?: boolean
-    toolbarColor?: string,
+    toolbarColor?: string
+    hideToolbar?: boolean
     width?: string | number
   }>(),
   {
     title: undefined,
     divider: false,
     persistent: false,
+    hideToolbar: false,
     toolbarColor: 'primary',
     width: 600
   }
@@ -26,6 +28,7 @@ withDefaults(
     :width="width"
     :persistent="persistent">
     <v-toolbar
+      v-if="!hideToolbar"
       :color="toolbarColor"
       density="comfortable"
       flat>
@@ -39,6 +42,9 @@ withDefaults(
         @click="dialog = false" />
     </v-toolbar>
     <v-card>
+      <v-card-title v-if="$slots['card-title']">
+        <slot name="card-title" />
+      </v-card-title>
       <v-card-text v-if="$slots.default">
         <slot name="default" />
       </v-card-text>

@@ -140,6 +140,22 @@ const openRemoveImagesDialog = () => {
   removedDialog.value = true
 }
 
+const restoreImage = (clientId: string) => {
+  const index = removedImageItems.value.findIndex(
+    removedItem => removedItem.clientId === clientId
+  )
+  if (index === -1) return
+
+  const item = removedImageItems.value[index]
+  if (!item) return
+
+  const nextRemovedItems = [...removedImageItems.value]
+  nextRemovedItems.splice(index, 1)
+  removedImageItems.value = nextRemovedItems
+
+  activeImageItems.value.push( { ...item, sort: activeImageItems.value.length })
+}
+
 watch(
   project,
   (currentProject) => {
@@ -208,7 +224,8 @@ watch(
     </v-card>
     <RemovedImagesDialog
       v-model="removedDialog"
-      :removed-image-items="removedImageItems" />
+      :removed-image-items="removedImageItems"
+      @add="restoreImage"/>
   </v-container>
 </template>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getOutputMimeType, resizeImageTo } from '~/utils/images'
+import { findImageWithIndexByClientId, getOutputMimeType, resizeImageTo } from '~/utils/images'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
 const activeUploadItems = defineModel<ImageEditorItem[]>('items', { required: true })
@@ -59,13 +59,10 @@ watch(
 )
 
 const removeImage = (clientId: string) => {
-  const index = activeUploadItems.value.findIndex(
-    activeItem => activeItem.clientId === clientId
-  )
-  if (index === -1) return
+  const result = findImageWithIndexByClientId(clientId, activeUploadItems.value)
+  if (!result) return
 
-  const item = activeUploadItems.value[index]
-  if (!item) return
+  const { item, index } = result
 
   const nextActiveItems = [...activeUploadItems.value]
   nextActiveItems.splice(index, 1)

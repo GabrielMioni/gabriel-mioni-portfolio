@@ -10,6 +10,7 @@ import {
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import { imageFragmentToEditorItem } from '~/utils/imageUpload'
+import { findImageWithIndexByClientId } from '~/utils/images'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
 const {
@@ -141,19 +142,19 @@ const openRemoveImagesDialog = () => {
 }
 
 const restoreImage = (clientId: string) => {
-  const index = removedImageItems.value.findIndex(
-    removedItem => removedItem.clientId === clientId
-  )
-  if (index === -1) return
+  const result = findImageWithIndexByClientId(clientId, removedImageItems.value)
+  if (!result) return
 
-  const item = removedImageItems.value[index]
-  if (!item) return
+  const { item, index } = result
 
   const nextRemovedItems = [...removedImageItems.value]
   nextRemovedItems.splice(index, 1)
   removedImageItems.value = nextRemovedItems
 
-  activeImageItems.value.push( { ...item, sort: activeImageItems.value.length })
+  activeImageItems.value.push({
+    ...item,
+    sort: activeImageItems.value.length
+  })
 }
 
 watch(

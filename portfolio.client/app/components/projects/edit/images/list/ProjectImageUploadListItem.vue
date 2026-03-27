@@ -5,8 +5,17 @@ const config = useRuntimeConfig()
 
 const item = defineModel<ImageEditorItem>('item', { required: true })
 
+withDefaults(
+  defineProps<{
+    isRemoving?: boolean
+  }>(),
+  {
+    isRemoving: true
+  }
+)
+
 defineEmits<{
-  (e: 'remove', clientId: string): void
+  (e: 'update', clientId: string): void
 }>()
 
 const imageUrl = computed(() => {
@@ -43,6 +52,7 @@ const imageFileName = computed(() => {
         class="d-flex align-center justify-center order-1">
         <div class="d-flex align-center">
           <v-icon
+            v-if="isRemoving"
             class="drag-handle cursor-grab"
             icon="mdi-drag"/>
           <v-img
@@ -65,11 +75,11 @@ const imageFileName = computed(() => {
         cols="auto"
         class="d-flex align-center justify-end order-3 order-sm-4">
         <v-btn
-          icon="mdi-close"
+          :icon="isRemoving ? 'mdi-close' : 'mdi-plus'"
           class="ma-2"
           variant="text"
-          color="error"
-          @click="$emit('remove', item.clientId)"/>
+          :color="isRemoving ? 'error' : 'success'"
+          @click="$emit('update', item.clientId)"/>
       </v-col>
       <v-col
         cols="12"
@@ -77,6 +87,8 @@ const imageFileName = computed(() => {
         class="order-4 order-sm-3">
         <v-text-field
           v-model="item.altText"
+          :disabled="!isRemoving"
+          density="compact"
           variant="filled"
           label="Alt Text"
           hide-details />

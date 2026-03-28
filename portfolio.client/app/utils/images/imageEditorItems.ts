@@ -1,6 +1,6 @@
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
-export const findImageEditorItemIndexAndClientId = (
+export const findImageEditorItemAndIndexByClientId = (
   clientId: string,
   imageItems: ImageEditorItem[]
 ): { item: ImageEditorItem, index: number } | null => {

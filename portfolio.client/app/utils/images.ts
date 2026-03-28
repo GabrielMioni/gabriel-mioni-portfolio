@@ -68,7 +68,7 @@ export const resizeImageTo = async (
   }
 }
 
-export const findImageWithIndexByClientId = (
+export const findImageEditorItemIndexAndClientId = (
   clientId: string,
   imageItems: ImageEditorItem[]
 ): { item: ImageEditorItem, index: number } | null => {

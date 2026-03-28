@@ -134,6 +134,7 @@ export const useProjectImageMutations = () => {
 
   return {
     isProcessingImages,
+    deleteImageUploads,
     uploadImages
   }
 }

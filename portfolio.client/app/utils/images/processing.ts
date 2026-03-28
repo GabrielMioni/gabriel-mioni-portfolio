@@ -8,7 +8,9 @@ type ImageOutputMimeType =
 
 const pica = new Pica()
 
-export const getOutputMimeType = (file: File | Blob): ImageOutputMimeType => {
+export const getOutputMimeType = (
+  file: File | Blob
+): ImageOutputMimeType => {
   switch (file.type) {
   case 'image/jpeg':
   case 'image/jpg':

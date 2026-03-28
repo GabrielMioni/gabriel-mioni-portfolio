@@ -19,7 +19,9 @@ export const findImageEditorItemAndIndexByClientId = (
   }
 }
 
-export const imageFragmentToEditorItem = (imageFragment: ProjectImageFragment): ImageEditorItem => {
+export const imageFragmentToEditorItem = (
+  imageFragment: ProjectImageFragment
+): ImageEditorItem => {
   return {
     id: imageFragment.id,
     altText: imageFragment.altText ?? '',

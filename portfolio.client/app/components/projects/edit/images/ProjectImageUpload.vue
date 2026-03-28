@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getOutputMimeType, resizeImageTo } from '~/utils/images'
+import { getOutputMimeType, resizeImageTo } from '~/utils/images/'
 import { findImageEditorItemAndIndexByClientId } from '~/utils/images/imageEditorItems'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 

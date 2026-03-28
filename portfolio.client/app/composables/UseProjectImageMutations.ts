@@ -14,10 +14,8 @@ import {
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
-import {
-  toProjectImagePrepareItem,
-  uploadImagesToStorage
-} from '~/utils/imageUpload'
+import { uploadImagesToStorage } from '~/utils/imageUpload'
+import { toProjectImagePrepareItem } from '~/utils/images/imageEditorItems'
 
 export const useProjectImageMutations = () => {
   const {

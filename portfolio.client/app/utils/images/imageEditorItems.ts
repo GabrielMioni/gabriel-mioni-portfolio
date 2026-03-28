@@ -1,5 +1,5 @@
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
-import type { ProjectImageFragment } from '~/generated/graphql'
+import type { ProjectImageFragment, ProjectImagePrepareItemInput } from '~/generated/graphql'
 
 export const findImageEditorItemAndIndexByClientId = (
   clientId: string,
@@ -34,4 +34,28 @@ export const imageFragmentToEditorItem = (imageFragment: ProjectImageFragment): 
     sizeFull: imageFragment.sizeBytes ? parseInt(imageFragment.sizeBytes) : -1,
     sort: imageFragment.sortOrder
   }
+}
+
+export const toProjectImagePrepareItem = (
+  uploadItems: ImageEditorItem[]
+): ProjectImagePrepareItemInput[] => {
+  return uploadItems
+    .map((item): ProjectImagePrepareItemInput | null => {
+      const fullFile = item.fullFile
+      const thumbFile = item.thumbFile
+
+      if (!fullFile || !thumbFile) return null
+
+      return {
+        altText: item.altText,
+        clientId: item.clientId,
+        fullContentType: fullFile.type,
+        fullSizeBytes: fullFile.size,
+        height: item.height,
+        width: item.width,
+        thumbContentType: thumbFile.type,
+        thumbSizeBytes: thumbFile.size
+      }
+    })
+    .filter((item): item is ProjectImagePrepareItemInput => item !== null)
 }

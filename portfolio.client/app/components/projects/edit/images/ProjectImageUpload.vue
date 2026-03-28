@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { findImageEditorItemIndexAndClientId, getOutputMimeType, resizeImageTo } from '~/utils/images'
+import { getOutputMimeType, resizeImageTo } from '~/utils/images'
+import { findImageEditorItemIndexAndClientId } from '~/utils/images/imageEditorItems'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
 const activeUploadItems = defineModel<ImageEditorItem[]>('items', { required: true })

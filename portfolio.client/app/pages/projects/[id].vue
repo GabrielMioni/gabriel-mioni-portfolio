@@ -10,7 +10,7 @@ import {
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import { imageFragmentToEditorItem } from '~/utils/imageUpload'
-import { findImageEditorItemIndexAndClientId } from '~/utils/images'
+import { findImageEditorItemIndexAndClientId } from '~/utils/images/imageEditorItems'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
 const {

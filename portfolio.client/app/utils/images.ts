@@ -1,6 +1,5 @@
 import Pica from 'pica'
 import type { ResizedImage } from '~/types/images/resizedImage'
-import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
 export type ImageOutputMimeType =
   | 'image/webp'
@@ -68,20 +67,3 @@ export const resizeImageTo = async (
   }
 }
 
-export const findImageEditorItemIndexAndClientId = (
-  clientId: string,
-  imageItems: ImageEditorItem[]
-): { item: ImageEditorItem, index: number } | null => {
-  const index = imageItems.findIndex(
-    removedItem => removedItem.clientId === clientId
-  )
-  if (index === -1) return null
-
-  const item = imageItems[index]
-  if (!item) return null
-
-  return {
-    item,
-    index
-  }
-}

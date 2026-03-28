@@ -22,6 +22,7 @@ const {
 
 const {
   isProcessingImages,
+  deleteImageUploads,
   uploadImages
 } = useProjectImageMutations()
 
@@ -121,6 +122,19 @@ const refreshProject = async () => {
   syncFromProject(refreshedProject)
 }
 
+const deleteImageIds = computed(() => {
+  return removedImageItems.value
+    .map(item => item.id)
+    .filter((id): id is string => Boolean(id))
+})
+
+const handleDeleteItems = async () => {
+  await deleteImageUploads({
+    projectId: id,
+    projectImageIds: deleteImageIds.value
+  })
+}
+
 const submitEditProject = async () => {
   try {
     await editProject(updateInput.value)
@@ -130,6 +144,11 @@ const submitEditProject = async () => {
         uploadItems: uploadItems.value,
         projectId: id
       })
+    }
+
+    if (deleteImageIds.value.length > 0) {
+      await handleDeleteItems()
+      removedImageItems.value = []
     }
 
     await refreshProject()

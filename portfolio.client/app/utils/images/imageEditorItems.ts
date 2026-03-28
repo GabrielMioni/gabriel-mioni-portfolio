@@ -36,7 +36,7 @@ export const imageFragmentToEditorItem = (imageFragment: ProjectImageFragment): 
   }
 }
 
-export const toProjectImagePrepareItem = (
+export const imageEditorItemsToProjectImagePrepareItemInput = (
   uploadItems: ImageEditorItem[]
 ): ProjectImagePrepareItemInput[] => {
   return uploadItems

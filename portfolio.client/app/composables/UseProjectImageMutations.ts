@@ -15,7 +15,7 @@ import {
 import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import { uploadImagesToStorage } from '~/utils/imageUpload'
-import { toProjectImagePrepareItem } from '~/utils/images/imageEditorItems'
+import { imageEditorItemsToProjectImagePrepareItemInput } from '~/utils/images/imageEditorItems'
 
 export const useProjectImageMutations = () => {
   const {
@@ -83,7 +83,7 @@ export const useProjectImageMutations = () => {
         !!item.fullFile && !!item.thumbFile
     )
 
-    const items = toProjectImagePrepareItem(validUploadItems)
+    const items = imageEditorItemsToProjectImagePrepareItemInput(validUploadItems)
 
     if (items.length === 0) {
       return {

@@ -13,7 +13,7 @@ import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import {
   findImageEditorItemAndIndexByClientId,
   imageFragmentToEditorItem
-} from '~/utils/images/imageEditorItems'
+} from '~/utils/images/editorItems'
 
 const {
   editing,

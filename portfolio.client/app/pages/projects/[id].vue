@@ -9,9 +9,11 @@ import {
   ProjectStatus
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
-import { imageFragmentToEditorItem } from '~/utils/imageUpload'
-import { findImageEditorItemAndIndexByClientId } from '~/utils/images/imageEditorItems'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
+import {
+  findImageEditorItemAndIndexByClientId,
+  imageFragmentToEditorItem
+} from '~/utils/images/imageEditorItems'
 
 const {
   editing,

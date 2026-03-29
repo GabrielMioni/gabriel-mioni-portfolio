@@ -137,6 +137,15 @@ public class ProjectImageService
             deleteKeys.Add(image.ThumbKey);
         }
 
+        var orderedRemainingImages = project.Images
+            .OrderBy(i => i.SortOrder)
+            .ToList();
+
+        for (var i = 0; i < orderedRemainingImages.Count; i++)
+        {
+            orderedRemainingImages[i].UpdateSortOrder(i);
+        }
+
         await db.SaveChangesAsync(ct);
 
         await _storage.DeleteImagesAsync(deleteKeys, ct);

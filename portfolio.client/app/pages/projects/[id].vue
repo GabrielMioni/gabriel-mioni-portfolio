@@ -35,9 +35,10 @@ const tabValues = {
   images: 'images'
 } as const
 
-const tab = ref(tabValues.details)
 const isValid = ref(false)
+const originalProject = ref<typeof project.value>(null)
 const removedDialog = ref(false)
+const tab = ref(tabValues.details)
 
 const form = reactive({
   title: '',
@@ -94,6 +95,8 @@ const uploadItems = computed(() =>
 const syncFromProject = (
   currentProject: NonNullable<typeof project.value>
 ) => {
+  originalProject.value = currentProject
+
   form.title = currentProject.title ?? ''
   form.summary = currentProject.summary ?? ''
   form.body = currentProject.body ?? ''
@@ -122,6 +125,21 @@ const refreshProject = async () => {
   syncFromProject(refreshedProject)
 }
 
+const hasUpdates = computed(() => {
+  if (!project.value || !originalProject.value) return false
+
+  const hasFieldUpdates =
+    form.title !== originalProject.value.title ||
+    form.summary !== originalProject.value.summary ||
+    form.body !== originalProject.value.body ||
+    form.status !== originalProject.value.status
+
+  const hasImageDeletes = removedImageItems.value.length > 0
+  const hasImageUpdates = uploadItems.value.length > 0
+
+  return hasFieldUpdates || hasImageDeletes || hasImageUpdates
+})
+
 const deleteImageIds = computed(() => {
   return removedImageItems.value
     .map(item => item.id)
@@ -136,6 +154,7 @@ const handleDeleteItems = async () => {
 }
 
 const submitEditProject = async () => {
+  if (!hasUpdates.value) return
   try {
     await editProject(updateInput.value)
 
@@ -225,6 +244,7 @@ watch(
         </v-btn>
         <v-btn
           class="bg-primary"
+          :disabled="isSavingProject || !isValid || !hasUpdates"
           :loading="isSavingProject"
           @click="submitEditProject">
           Save

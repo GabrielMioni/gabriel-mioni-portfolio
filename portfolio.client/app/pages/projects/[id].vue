@@ -199,10 +199,11 @@ watch(
         size="60"
         indeterminate />
     </div>
-    <v-card
-      v-else
-      flat>
-      <v-toolbar color="transparent">
+    <template v-else>
+      <v-toolbar
+        color="background"
+        class="position-sticky top-0"
+        style="z-index: 999">
         <v-tabs v-model="tab">
           <v-tab :value="tabValues.details">Details</v-tab>
           <v-tab :value="tabValues.images">Images ({{ activeImageItems.length }})</v-tab>
@@ -229,21 +230,24 @@ watch(
           Save
         </v-btn>
       </v-toolbar>
-      <v-tabs-window v-model="tab">
-        <div class="mt-3">
-          <v-tabs-window-item :value="tabValues.details">
-            <ProjectForm
-              v-model:form="form"
-              v-model:is-valid="isValid" />
-          </v-tabs-window-item>
-          <v-tabs-window-item :value="tabValues.images">
-            <ProjectImageUpload
-              v-model:items="activeImageItems"
-              v-model:removed="removedImageItems" />
-          </v-tabs-window-item>
-        </div>
-      </v-tabs-window>
-    </v-card>
+      <v-card
+        flat>
+        <v-tabs-window v-model="tab">
+          <div class="mt-3">
+            <v-tabs-window-item :value="tabValues.details">
+              <ProjectForm
+                v-model:form="form"
+                v-model:is-valid="isValid" />
+            </v-tabs-window-item>
+            <v-tabs-window-item :value="tabValues.images">
+              <ProjectImageUpload
+                v-model:items="activeImageItems"
+                v-model:removed="removedImageItems" />
+            </v-tabs-window-item>
+          </div>
+        </v-tabs-window>
+      </v-card>
+    </template>
     <RemovedImagesDialog
       v-model="removedDialog"
       :removed-image-items="removedImageItems"

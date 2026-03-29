@@ -69,4 +69,9 @@ public class ProjectImage
 
         AltText = normalizedAltText;
     }
+
+    public void UpdateSortOrder(int sortOrder)
+    {
+        SortOrder = sortOrder;
+    }
 }

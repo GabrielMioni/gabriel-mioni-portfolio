@@ -90,10 +90,20 @@ namespace Portfolio.Api.Services
                 var newAltText = updateItem.AltText.Trim();
                 var existingAltText = projectImage.AltText?.Trim();
 
-                if (existingAltText == newAltText) continue;
+                if (existingAltText != newAltText)
+                {
+                    projectImage.UpdateAltText(newAltText);
+                    changed = true;
+                }
 
-                projectImage.UpdateAltText(newAltText);
-                changed = true;
+                var newSort = updateItem.SortOrder;
+                var existingSort = projectImage.SortOrder;
+
+                if (existingSort != newSort)
+                {
+                    projectImage.UpdateSortOrder(newSort);
+                    changed = true;
+                }
             }
 
             if (!changed)

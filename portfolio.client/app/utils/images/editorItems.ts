@@ -61,3 +61,9 @@ export const imageEditorItemsToProjectImagePrepareItemInput = (
     })
     .filter((item): item is ProjectImagePrepareItemInput => item !== null)
 }
+
+export const normalizeImageEditorItemSortOrder = (items: ImageEditorItem[]) =>
+  items.map((item, index) => ({
+    ...item,
+    sort: index
+  }))

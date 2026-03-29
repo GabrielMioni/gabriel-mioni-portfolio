@@ -12,7 +12,8 @@ import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import {
   findImageEditorItemAndIndexByClientId,
-  imageFragmentToEditorItem
+  imageFragmentToEditorItem,
+  normalizeImageEditorItemSortOrder
 } from '~/utils/images/editorItems'
 
 const {
@@ -37,6 +38,7 @@ const tabValues = {
 
 const isValid = ref(false)
 const originalProject = ref<typeof project.value>(null)
+const originalImageItems = ref<ImageEditorItem[]>([])
 const removedDialog = ref(false)
 const tab = ref(tabValues.details)
 
@@ -107,9 +109,14 @@ const syncFromProject = (
     currentProject.images
   )
 
-  activeImageItems.value = projectImageFragments
-    .map(imageFragmentToEditorItem)
-    .sort((a, b) => a.sort - b.sort)
+  const mappedImageItems = normalizeImageEditorItemSortOrder(
+    projectImageFragments
+      .map(imageFragmentToEditorItem)
+      .sort((a, b) => a.sort - b.sort)
+  )
+
+  activeImageItems.value = mappedImageItems
+  originalImageItems.value = mappedImageItems.map(item => ({ ...item }))
 }
 
 const refreshProject = async () => {
@@ -125,6 +132,42 @@ const refreshProject = async () => {
   syncFromProject(refreshedProject)
 }
 
+const hasExistingImageUpdates = computed(() => {
+  const currentExisting = activeImageItems.value
+    .filter((item): item is ImageEditorItem & { id: string } => Boolean(item.id))
+    .map(item => ({
+      id: item.id,
+      altText: item.altText,
+      sort: item.sort
+    }))
+    .sort((a, b) => a.sort - b.sort)
+
+  const originalExisting = originalImageItems.value
+    .filter((item): item is ImageEditorItem & { id: string } => Boolean(item.id))
+    .map(item => ({
+      id: item.id,
+      altText: item.altText,
+      sort: item.sort
+    }))
+    .sort((a, b) => a.sort - b.sort)
+
+  if (currentExisting.length !== originalExisting.length) {
+    return true
+  }
+  console.log('Comparing existing images', { currentExisting, originalExisting })
+
+  return currentExisting.some((item, index) => {
+    const original = originalExisting[index]
+    if (!original) return true
+
+    return (
+      item.id !== original.id ||
+        item.altText !== original.altText ||
+        item.sort !== original.sort
+    )
+  })
+})
+
 const hasUpdates = computed(() => {
   if (!project.value || !originalProject.value) return false
 
@@ -134,10 +177,10 @@ const hasUpdates = computed(() => {
     form.body !== originalProject.value.body ||
     form.status !== originalProject.value.status
 
-  const hasImageDeletes = removedImageItems.value.length > 0
-  const hasImageUpdates = uploadItems.value.length > 0
+  const hasImageUploads = uploadItems.value.length > 0
+  const hasDeleteItems = removedImageItems.value.length > 0
 
-  return hasFieldUpdates || hasImageDeletes || hasImageUpdates
+  return hasFieldUpdates || hasImageUploads || hasDeleteItems || hasExistingImageUpdates.value
 })
 
 const deleteImageIds = computed(() => {

@@ -83,7 +83,8 @@ const updateInput = computed<EditProjectInput>(() => ({
   images: activeImageItems.value
     .map((i) => ({
       projectImageId: i.id,
-      altText: i.altText
+      altText: i.altText,
+      sortOrder: i.sort
     }))
     .filter((image): image is EditProjectImageInput => image.projectImageId != null)
 }))

@@ -4,7 +4,8 @@ namespace Portfolio.Api.GraphQL.Projects.Inputs;
 
 public record EditProjectImageInput(
   Guid ProjectImageId,
-  string AltText
+  string AltText,
+  int SortOrder
 );
 
 public sealed record EditProjectInput(

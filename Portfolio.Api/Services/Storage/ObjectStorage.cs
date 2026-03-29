@@ -29,6 +29,29 @@ public sealed class ObjectStorage : IObjectStorage
         return _s3.GetPreSignedURL(req);
     }
 
+    public async Task DeleteImagesAsync(IEnumerable<string> keys, CancellationToken ct = default)
+    {
+        var keyList = keys
+            .Where(k => !string.IsNullOrWhiteSpace(k))
+            .Distinct()
+            .ToList();
+
+        if (keyList.Count == 0)
+        {
+            return;
+        }
+
+        var req = new DeleteObjectsRequest
+        {
+            BucketName = _opts.Bucket,
+            Objects = keyList
+                .Select(k => new KeyVersion { Key = k })
+                .ToList()
+        };
+
+        await _s3.DeleteObjectsAsync(req, ct);
+    }
+
     public string GetPublicUrl(string key)
         => $"{_opts.PublicBaseUrl.TrimEnd('/')}/{key}";
 }

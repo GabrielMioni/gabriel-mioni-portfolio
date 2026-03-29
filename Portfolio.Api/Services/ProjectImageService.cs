@@ -128,12 +128,18 @@ public class ProjectImageService
             .Where(i => targetIds.Contains(i.Id))
             .ToList();
 
+        var deleteKeys = new HashSet<string>();
+
         foreach (var image in imagesToDelete)
         {
             project.Images.Remove(image);
+            deleteKeys.Add(image.FullKey);
+            deleteKeys.Add(image.ThumbKey);
         }
 
         await db.SaveChangesAsync(ct);
+
+        await _storage.DeleteImagesAsync(deleteKeys, ct);
 
         return project;
     }

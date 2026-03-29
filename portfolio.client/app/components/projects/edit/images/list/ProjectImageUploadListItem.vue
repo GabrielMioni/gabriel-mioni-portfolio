@@ -88,7 +88,6 @@ const imageFileName = computed(() => {
         <v-text-field
           v-model="item.altText"
           :disabled="!isRemoving"
-          density="compact"
           variant="filled"
           label="Alt Text"
           hide-details />

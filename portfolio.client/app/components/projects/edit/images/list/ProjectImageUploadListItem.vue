@@ -40,6 +40,11 @@ const imageFileName = computed(() => {
   return item.value?.fileName ?? 'Unnamed Image'
 })
 
+const createdAtDate = computed(() => {
+  if (!item.value?.createdAt) return null
+  return new Date(item.value.createdAt).toLocaleDateString()
+})
+
 </script>
 
 <template>
@@ -66,7 +71,14 @@ const imageFileName = computed(() => {
         class="order-2"
         sm="2">
         <div class="image-details text-break fs-12">
-          <div>{{ imageFileName }}</div>
+          <div>
+            <template v-if="createdAtDate">
+              {{ createdAtDate }}
+            </template>
+            <span
+              v-else
+              class="font-italic text-grey">{{ imageFileName }} (pending)</span>
+          </div>
           <div>{{ item.contentType }}</div>
           <div>{{ (item.sizeFull / 1024).toFixed(2) }} KB</div>
         </div>

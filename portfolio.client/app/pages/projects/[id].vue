@@ -89,6 +89,12 @@ const updateInput = computed<EditProjectInput>(() => ({
     .filter((image): image is EditProjectImageInput => image.projectImageId != null)
 }))
 
+const imageCount = computed(() => activeImageItems.value.length)
+
+const pendingImagesLength = computed(() => {
+  return activeImageItems.value.filter(image => !image.id).length
+})
+
 const isInitialLoading = computed(() => fetching.value && !project.value)
 
 const uploadItems = computed(() =>
@@ -269,7 +275,15 @@ watch(
         style="z-index: 999">
         <v-tabs v-model="tab">
           <v-tab :value="tabValues.details">Details</v-tab>
-          <v-tab :value="tabValues.images">Images ({{ activeImageItems.length }})</v-tab>
+          <v-tab :value="tabValues.images">
+            <!-- Eliminate whitespace in parentheses -->
+            Images (
+            <span>{{ imageCount }}</span
+            ><template v-if="pendingImagesLength > 0"
+            ><span> • </span
+            ><span>{{ pendingImagesLength }} pending</span></template
+            >)
+          </v-tab>
         </v-tabs>
         <v-spacer />
         <v-btn

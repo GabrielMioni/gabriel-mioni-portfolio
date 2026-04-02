@@ -2,6 +2,7 @@ export type ImageEditorItem = {
   id?: string | null
   clientId: string
   contentType: string
+  createdAt?: string | null
   fileName?: string | null
   fullKey?: string | null
   thumbKey?: string | null

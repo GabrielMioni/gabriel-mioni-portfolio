@@ -27,6 +27,7 @@ export const imageFragmentToEditorItem = (
     altText: imageFragment.altText ?? '',
     clientId: crypto.randomUUID(),
     contentType: imageFragment.contentType ?? 'unknown',
+    createdAt: imageFragment.createdAt,
     height: imageFragment.height ?? -1,
     width: imageFragment.width ?? -1,
     fileName: null,

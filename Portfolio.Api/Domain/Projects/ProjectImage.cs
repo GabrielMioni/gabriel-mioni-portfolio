@@ -23,6 +23,7 @@ public class ProjectImage
     public int? Width { get; private set; }
 
     public bool IsUploaded { get; private set; }
+
     private ProjectImage() { } // EF
 
     public static ProjectImage CreatePending(
@@ -40,7 +41,7 @@ public class ProjectImage
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
-            AltText = altText,
+            AltText = string.IsNullOrWhiteSpace(altText) ? null : altText.Trim(),
             FullKey = fullKey,
             ThumbKey = thumbKey,
             ContentType = contentType,
@@ -58,20 +59,25 @@ public class ProjectImage
         IsUploaded = true;
     }
 
-    public void UpdateAltText(string? altText)
+    public bool UpdateAltText(string? altText)
     {
         var normalizedAltText = string.IsNullOrWhiteSpace(altText)
             ? null
             : altText.Trim();
 
         if (AltText == normalizedAltText)
-            return;
+            return false;
 
         AltText = normalizedAltText;
+        return true;
     }
 
-    public void UpdateSortOrder(int sortOrder)
+    public bool UpdateSortOrder(int sortOrder)
     {
+        if (SortOrder == sortOrder)
+            return false;
+
         SortOrder = sortOrder;
+        return true;
     }
 }

@@ -1,15 +1,124 @@
-﻿namespace Portfolio.Api.Domain.Projects
+﻿namespace Portfolio.Api.Domain.Projects;
+
+public class Project
 {
-    public class Project
+    public Guid Id { get; private set; }
+
+    public string Title { get; private set; } = default!;
+    public string? Summary { get; private set; }
+    public string? Body { get; private set; }
+
+    public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset? PublishedAt { get; private set; }
+    public DateTimeOffset? UpdatedAt { get; private set; }
+
+    public ProjectStatus Status { get; private set; }
+
+    public ICollection<ProjectImage> Images { get; private set; } = new List<ProjectImage>();
+
+    private Project() { } // EF
+
+    public static Project Create(
+        string title,
+        string? summary,
+        string? body,
+        ProjectStatus status = ProjectStatus.Draft)
     {
-        public Guid Id { get; set; }
-        public required string Title { get; set; }
-        public string? Summary { get; set; }
-        public string? Body { get; set; }
-        public DateTimeOffset? CreatedAt { get; set; }
-        public DateTimeOffset? PublishedAt { get; set; }
-        public DateTimeOffset? UpdatedAt { get; set; }
-        public ProjectStatus? Status { get; set; }
-        public ICollection<ProjectImage> Images { get; private set; } = new List<ProjectImage>();
+        var now = DateTimeOffset.UtcNow;
+
+        var project = new Project
+        {
+            Id = Guid.NewGuid(),
+            Title = NormalizeRequired(title, nameof(title)),
+            Summary = NormalizeOptional(summary),
+            Body = NormalizeOptional(body),
+            CreatedAt = now,
+            UpdatedAt = now,
+            Status = status
+        };
+
+        if (status == ProjectStatus.Published)
+        {
+            project.PublishedAt = now;
+        }
+
+        return project;
+    }
+
+    public bool UpdateDetails(
+        string title,
+        string? summary,
+        string? body)
+    {
+        var normalizedTitle = NormalizeRequired(title, nameof(title));
+        var normalizedSummary = NormalizeOptional(summary);
+        var normalizedBody = NormalizeOptional(body);
+
+        if (Title == normalizedTitle &&
+            Summary == normalizedSummary &&
+            Body == normalizedBody)
+        {
+            return false;
+        }
+
+        Title = normalizedTitle;
+        Summary = normalizedSummary;
+        Body = normalizedBody;
+        Touch();
+
+        return true;
+    }
+
+    public bool UpdateStatus(ProjectStatus status)
+    {
+        if (Status == status)
+            return false;
+
+        Status = status;
+
+        if (status == ProjectStatus.Published && PublishedAt is null)
+        {
+            PublishedAt = DateTimeOffset.UtcNow;
+        }
+
+        Touch();
+
+        return true;
+    }
+
+    public void AddImage(ProjectImage image)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+
+        Images.Add(image);
+        Touch();
+    }
+
+    public void RemoveImage(ProjectImage image)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+
+        Images.Remove(image);
+        Touch();
+    }
+
+    private void Touch()
+    {
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    private static string NormalizeRequired(string value, string paramName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Value is required.", paramName);
+
+        return value.Trim();
+    }
+
+    private static string? NormalizeOptional(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? null
+            : value.Trim();
     }
 }

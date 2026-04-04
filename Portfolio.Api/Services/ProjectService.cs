@@ -26,16 +26,11 @@ namespace Portfolio.Api.Services
         {
             await using var db = await _dbFactory.CreateDbContextAsync();
 
-            var newProject = new Project
-            {
-                Title = input.Title,
-                Body = input.Body,
-                Summary = input.Summary,
-                Status = ProjectStatus.Draft,
-                PublishedAt = null,
-                CreatedAt = DateTimeOffset.UtcNow,
-                UpdatedAt = DateTimeOffset.UtcNow
-            };
+            var newProject = Project.Create(
+                title: input.Title,
+                summary: input.Summary,
+                body: input.Body,
+                status: ProjectStatus.Draft);
 
             db.Projects.Add(newProject);
             await db.SaveChangesAsync(ct);
@@ -55,28 +50,14 @@ namespace Portfolio.Api.Services
 
             var changed = false;
 
-            if (input.Title is not null && input.Title != project.Title)
-            {
-                project.Title = input.Title;
-                changed = true;
-            }
+            changed |= project.UpdateDetails(
+                title: input.Title ?? project.Title,
+                summary: input.Summary ?? project.Summary,
+                body: input.Body ?? project.Body);
 
-            if (input.Body is not null && input.Body != project.Body)
+            if (input.Status is not null)
             {
-                project.Body = input.Body;
-                changed = true;
-            }
-
-            if (input.Summary is not null && input.Summary != project.Summary)
-            {
-                project.Summary = input.Summary;
-                changed = true;
-            }
-
-            if (input.Status is not null && input.Status.Value != project.Status)
-            {
-                project.Status = input.Status.Value;
-                changed = true;
+                changed |= project.UpdateStatus(input.Status.Value);
             }
 
             var projectImageUpdates = input.Images ?? Array.Empty<EditProjectImageInput>();
@@ -87,29 +68,12 @@ namespace Portfolio.Api.Services
 
                 if (projectImage is null) continue;
 
-                var newAltText = updateItem.AltText.Trim();
-                var existingAltText = projectImage.AltText?.Trim();
-
-                if (existingAltText != newAltText)
-                {
-                    projectImage.UpdateAltText(newAltText);
-                    changed = true;
-                }
-
-                var newSort = updateItem.SortOrder;
-                var existingSort = projectImage.SortOrder;
-
-                if (existingSort != newSort)
-                {
-                    projectImage.UpdateSortOrder(newSort);
-                    changed = true;
-                }
+                changed |= projectImage.UpdateAltText(updateItem.AltText);
+                changed |= projectImage.UpdateSortOrder(updateItem.SortOrder);
             }
 
             if (!changed)
                 return project;
-
-            project.UpdatedAt = DateTimeOffset.UtcNow;
 
             await db.SaveChangesAsync(ct);
             return project;
@@ -143,9 +107,7 @@ namespace Portfolio.Api.Services
 
             if (project == null) return null;
 
-            project.PublishedAt = DateTimeOffset.UtcNow;
-            project.UpdatedAt = DateTimeOffset.UtcNow;
-            project.Status = ProjectStatus.Published;
+            project.UpdateStatus(ProjectStatus.Published);
 
             await db.SaveChangesAsync(ct);
 
@@ -160,9 +122,7 @@ namespace Portfolio.Api.Services
 
             if (project == null) return null;
 
-            project.PublishedAt = null;
-            project.UpdatedAt = DateTimeOffset.UtcNow;
-            project.Status = ProjectStatus.Archived;
+            project.UpdateStatus(ProjectStatus.Archived);
 
             await db.SaveChangesAsync(ct);
 

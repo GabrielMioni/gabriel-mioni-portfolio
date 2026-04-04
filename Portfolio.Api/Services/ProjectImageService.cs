@@ -50,15 +50,15 @@ public class ProjectImageService
             var thumbKey = $"projects/{projectId}/{imageId:N}_thumb.{ExtFor(item.ThumbContentType)}";
 
             var projectImage = ProjectImage.CreatePending(
-                projectId,
-                item.AltText,
-                fullKey,
-                thumbKey,
-                item.FullContentType,
-                item.FullSizeBytes,
-                item.Width,
-                item.Height,
-                nextSortOrder++
+                projectId: projectId,
+                altText: item.AltText,
+                fullKey: fullKey,
+                thumbKey: thumbKey,
+                contentType: item.FullContentType,
+                sizeBytes: item.FullSizeBytes,
+                width: item.Width,
+                height: item.Height,
+                sortOrder: nextSortOrder++
             );
 
             project.AddImage(projectImage);

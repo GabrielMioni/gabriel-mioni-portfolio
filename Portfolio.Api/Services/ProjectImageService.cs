@@ -61,7 +61,7 @@ public class ProjectImageService
                 nextSortOrder++
             );
 
-            db.Set<ProjectImage>().Add(projectImage);
+            project.AddImage(projectImage);
 
             var fullTarget = new ProjectImageUploadTarget(
                 fullKey,
@@ -115,8 +115,8 @@ public class ProjectImageService
     }
 
     public async Task<Project> DeleteProjectImagesAsync(
-    DeleteProjectImagesInput input,
-    CancellationToken ct)
+        DeleteProjectImagesInput input,
+        CancellationToken ct)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
@@ -132,7 +132,7 @@ public class ProjectImageService
 
         foreach (var image in imagesToDelete)
         {
-            project.Images.Remove(image);
+            project.RemoveImage(image);
             deleteKeys.Add(image.FullKey);
             deleteKeys.Add(image.ThumbKey);
         }

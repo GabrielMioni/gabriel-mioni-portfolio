@@ -8,11 +8,21 @@ public record EditProjectImageInput(
   int SortOrder
 );
 
+public record EditProjectLinkInput(
+    Guid? Id,
+    string Link,
+    string LinkText,
+    ProjectLinkType LinkType,
+    int SortOrder
+);
+
 public sealed record EditProjectInput(
     Guid Id,
     string? Title,
     string? Summary,
     string? Body,
     ProjectStatus? Status,
-    IReadOnlyList<EditProjectImageInput>? Images
+    IReadOnlyList<EditProjectImageInput>? Images,
+    IReadOnlyList<EditProjectLinkInput>? Links,
+    IReadOnlyList<Guid>? RemovedLinkIds
 );

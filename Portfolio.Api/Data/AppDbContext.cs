@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Domain.Projects;
 
@@ -10,6 +10,8 @@ namespace Portfolio.Api.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Project> Projects => Set<Project>();
+        public DbSet<ProjectImage> ProjectImages => Set<ProjectImage>();
+        public DbSet<ProjectLink> ProjectLinks => Set<ProjectLink>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -17,7 +19,7 @@ namespace Portfolio.Api.Data
 
             modelBuilder.Entity<Project>(p =>
             {
-                p.Property(p => p.Title).HasMaxLength(300);
+                p.Property(x => x.Title).IsRequired().HasMaxLength(300);
             });
 
             modelBuilder.Entity<ProjectImage>(pi =>
@@ -32,6 +34,22 @@ namespace Portfolio.Api.Data
 
                 pi.HasIndex(x => x.ProjectId);
                 pi.HasIndex(x => new { x.ProjectId, x.SortOrder });
+            });
+
+            modelBuilder.Entity<ProjectLink>(pl =>
+            {
+                pl.HasOne(x => x.Project)
+                  .WithMany(x => x.Links)
+                  .HasForeignKey(x => x.ProjectId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+                pl.Property(x => x.Link).IsRequired().HasMaxLength(2048);
+                pl.Property(x => x.LinkText).IsRequired().HasMaxLength(300);
+                pl.Property(x => x.LinkType).IsRequired();
+                pl.Property(x => x.SortOrder).IsRequired();
+
+                pl.HasIndex(x => x.ProjectId);
+                pl.HasIndex(x => new { x.ProjectId, x.SortOrder });
             });
         }
     }

@@ -8,13 +8,15 @@ public class Project
     public string? Summary { get; private set; }
     public string? Body { get; private set; }
 
-    public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset? CreatedAt { get; private set; }
     public DateTimeOffset? PublishedAt { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
 
-    public ProjectStatus Status { get; private set; }
+    public ProjectStatus? Status { get; private set; }
 
     public ICollection<ProjectImage> Images { get; private set; } = new List<ProjectImage>();
+
+    public ICollection<ProjectLink> Links { get; private set; } = new List<ProjectLink>();
 
     private Project() { } // EF
 
@@ -99,6 +101,22 @@ public class Project
         ArgumentNullException.ThrowIfNull(image);
 
         Images.Remove(image);
+        Touch();
+    }
+
+    public void AddLink(ProjectLink link)
+    {
+        ArgumentNullException.ThrowIfNull(link);
+
+        Links.Add(link);
+        Touch();
+    }
+
+    public void RemoveLink(ProjectLink link)
+    {
+        ArgumentNullException.ThrowIfNull(link);
+
+        Links.Remove(link);
         Touch();
     }
 

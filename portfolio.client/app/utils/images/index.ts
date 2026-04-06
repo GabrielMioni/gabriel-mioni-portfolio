@@ -1,3 +1,3 @@
 export * from './processing'
-export * from './editorItems'
+export * from './imageEditorItems'
 export * from './upload'

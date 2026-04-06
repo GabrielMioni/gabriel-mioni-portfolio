@@ -10,11 +10,14 @@ import {
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
+import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import {
-  findImageEditorItemAndIndexByClientId,
   imageFragmentToEditorItem,
   normalizeImageEditorItemSortOrder
-} from '~/utils/images/editorItems'
+} from '~/utils/images/imageEditorItems'
+import {
+  findEditorItemAndIndexByClientId
+} from '~/utils/editorItems'
 
 const {
   editing,
@@ -51,6 +54,9 @@ const form = reactive({
 
 const activeImageItems = ref<ImageEditorItem[]>([])
 const removedImageItems = ref<ImageEditorItem[]>([])
+
+const projectLinks = ref<LinkEditorItem[]>([])
+
 const hasInitialized = ref(false)
 
 const route = useRoute()
@@ -232,7 +238,7 @@ const openRemoveImagesDialog = () => {
 }
 
 const restoreImage = (clientId: string) => {
-  const result = findImageEditorItemAndIndexByClientId(clientId, removedImageItems.value)
+  const result = findEditorItemAndIndexByClientId(clientId, removedImageItems.value)
   if (!result) return
 
   const { item, index } = result

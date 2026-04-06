@@ -171,7 +171,7 @@ namespace Portfolio.Api.Services
             var links = (inputLinks ?? Array.Empty<CreateProjectLinkInput>())
                 .Select(l => ProjectLink.Create(
                     projectId: project.Id,
-                    link: l.Link,
+                    url: l.Url,
                     linkText: l.LinkText,
                     linkType: l.LinkType,
                     sortOrder: linkSortOrder++))
@@ -197,7 +197,7 @@ namespace Portfolio.Api.Services
                         continue;
 
                     changed |= existingLink.Update(
-                        link: updateItem.Link,
+                        url: updateItem.Url,
                         linkText: updateItem.LinkText,
                         linkType: updateItem.LinkType);
 
@@ -208,7 +208,7 @@ namespace Portfolio.Api.Services
 
                 var newLink = ProjectLink.Create(
                     projectId: project.Id,
-                    link: updateItem.Link,
+                    url: updateItem.Url,
                     linkText: updateItem.LinkText,
                     linkType: updateItem.LinkType,
                     sortOrder: updateItem.SortOrder);

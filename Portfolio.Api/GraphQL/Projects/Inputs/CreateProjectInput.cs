@@ -3,7 +3,7 @@
 namespace Portfolio.Api.GraphQL.Projects.Inputs;
 
 public sealed record CreateProjectLinkInput(
-    string Link,
+    string Url,
     string LinkText,
     ProjectLinkType LinkType
 );

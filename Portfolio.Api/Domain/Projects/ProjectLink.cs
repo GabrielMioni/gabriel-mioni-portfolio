@@ -12,7 +12,7 @@ public class ProjectLink
     public Guid ProjectId { get; private set; }
     public Project Project { get; private set; } = default!;
 
-    public string Link { get; private set; } = default!;
+    public string Url { get; private set; } = default!;
     public string LinkText { get; private set; } = default!;
     public ProjectLinkType LinkType { get; private set; }
 
@@ -22,40 +22,40 @@ public class ProjectLink
 
     public static ProjectLink Create(
         Guid projectId,
-        string link,
+        string url,
         string linkText,
         ProjectLinkType linkType,
         int sortOrder)
     {
-        var normalized = NormalizeUrl(link);
+        var normalized = NormalizeUrl(url);
 
         if (!Uri.TryCreate(normalized, UriKind.Absolute, out _))
         {
-            throw new ArgumentException("Invalid URL", nameof(link));
+            throw new ArgumentException("Invalid URL", nameof(url));
         }
 
         return new ProjectLink
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
-            Link = normalized,
+            Url = normalized,
             LinkText = linkText.Trim(),
             LinkType = linkType,
             SortOrder = sortOrder
         };
     }
 
-    public bool Update(string link, string linkText, ProjectLinkType linkType)
+    public bool Update(string url, string linkText, ProjectLinkType linkType)
     {
-        var normalized = NormalizeUrl(link);
+        var normalized = NormalizeUrl(url);
         var newText = linkText.Trim();
 
-        if (Link == normalized && LinkText == newText && LinkType == linkType)
+        if (Url == normalized && LinkText == newText && LinkType == linkType)
         {
             return false;
         }
 
-        Link = normalized;
+        Url = normalized;
         LinkText = newText;
         LinkType = linkType;
 

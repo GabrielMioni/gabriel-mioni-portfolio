@@ -10,7 +10,7 @@ public record EditProjectImageInput(
 
 public record EditProjectLinkInput(
     Guid? Id,
-    string Link,
+    string Url,
     string LinkText,
     ProjectLinkType LinkType,
     int SortOrder

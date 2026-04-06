@@ -36,21 +36,7 @@ namespace Portfolio.Api.Services
 
             db.Projects.Add(newProject);
 
-            var linkSortOrder = 0;
-
-            var links = (input.Links ?? Array.Empty<CreateProjectLinkInput>())
-                .Select(l => ProjectLink.Create(
-                    projectId: newProject.Id,
-                    link: l.Link,
-                    linkText: l.LinkText,
-                    linkType: l.LinkType,
-                    sortOrder: linkSortOrder++))
-                .ToArray();
-
-            foreach (var link in links)
-            {
-                newProject.AddLink(link);
-            }
+            AddProjectLinks(newProject, input.Links);
 
             await db.SaveChangesAsync(ct);
 
@@ -76,6 +62,11 @@ namespace Portfolio.Api.Services
             changed |= UpdateProjectImages(project, input.Images);
             changed |= UpdateProjectLinks(project, input.Links);
             changed |= RemoveProjectLinks(project, input.RemovedLinkIds);
+
+            if (input.Links is not null || input.RemovedLinkIds is not null)
+            {
+                changed |= NormalizeLinkSortOrder(project);
+            }
 
             if (!changed)
                 return project;
@@ -173,6 +164,25 @@ namespace Portfolio.Api.Services
             return changed;
         }
 
+        private static void AddProjectLinks(Project project, IEnumerable<CreateProjectLinkInput>? inputLinks)
+        {
+            var linkSortOrder = 0;
+
+            var links = (inputLinks ?? Array.Empty<CreateProjectLinkInput>())
+                .Select(l => ProjectLink.Create(
+                    projectId: project.Id,
+                    link: l.Link,
+                    linkText: l.LinkText,
+                    linkType: l.LinkType,
+                    sortOrder: linkSortOrder++))
+                .ToArray();
+
+            foreach (var link in links)
+            {
+                project.AddLink(link);
+            }
+        }
+
         private static bool UpdateProjectLinks(Project project, IReadOnlyList<EditProjectLinkInput>? inputs)
         {
             var changed = false;
@@ -227,8 +237,6 @@ namespace Portfolio.Api.Services
                 project.RemoveLink(link);
                 changed = true;
             }
-
-            changed |= NormalizeLinkSortOrder(project);
 
             return changed;
         }

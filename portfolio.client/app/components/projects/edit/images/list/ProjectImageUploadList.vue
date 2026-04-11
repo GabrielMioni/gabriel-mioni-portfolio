@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import ProjectImageUploadListItem from '~/components/projects/edit/images/list/ProjectImageUploadListItem.vue'
+import { normalizeImageEditorItemSortOrder } from '~/utils/images/imageEditorItems'
 
-const items = defineModel<ImageEditorItem[]>('items', { required: true })
+const model = defineModel<ImageEditorItem[]>({ required: true })
 
 defineEmits<{
   (e: 'remove', clientId: string): void
 }>()
 
+const itemsLocal = computed({
+  get: () => model.value,
+  set: (value: ImageEditorItem[]) => {
+    model.value = normalizeImageEditorItemSortOrder(value)
+  }
+})
 </script>
 
 <template>
-  <DraggableList v-model="items">
+  <DraggableList v-model="itemsLocal">
     <template #default="{ element }">
       <ProjectImageUploadListItem
         :item="element"

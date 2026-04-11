@@ -82,9 +82,8 @@ const removeImage = (clientId: string) => {
     <v-row>
       <v-col>
         <ProjectImageUploadList
-          :items="activeUploadItems"
-          @update:items="updateActiveUploadItems"
-          @remove="removeImage"/>
+          v-model="activeUploadItems"
+          @remove="removeImage" />
       </v-col>
     </v-row>
   </v-container>

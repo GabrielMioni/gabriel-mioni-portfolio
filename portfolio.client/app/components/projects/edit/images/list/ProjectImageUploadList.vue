@@ -1,39 +1,21 @@
 <script setup lang="ts">
-import draggable from 'vuedraggable'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import ProjectImageUploadListItem from '~/components/projects/edit/images/list/ProjectImageUploadListItem.vue'
 
-const props = defineProps<{
-  items: ImageEditorItem[]
-}>()
+const items = defineModel<ImageEditorItem[]>('items', { required: true })
 
-const emit = defineEmits<{
-  (e: 'update:items', value: ImageEditorItem[]): void
+defineEmits<{
   (e: 'remove', clientId: string): void
 }>()
 
-const itemsLocal = computed({
-  get: () => props.items,
-  set: (value: ImageEditorItem[]) => {
-    emit('update:items', value)
-  }
-})
 </script>
 
 <template>
-  <draggable
-    v-model="itemsLocal"
-    item-key="clientId"
-    handle=".drag-handle">
-    <template #item="{ element, index }">
-      <div>
-        <ProjectImageUploadListItem
-          :item="element"
-          @update="emit('remove', $event)" />
-        <v-divider
-          v-if="index !== itemsLocal.length - 1"
-          class="my-3" />
-      </div>
+  <DraggableList v-model="items">
+    <template #default="{ element }">
+      <ProjectImageUploadListItem
+        :item="element"
+        @update="$emit('remove', $event)" />
     </template>
-  </draggable>
+  </DraggableList>
 </template>

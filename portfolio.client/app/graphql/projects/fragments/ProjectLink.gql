@@ -1,0 +1,7 @@
+fragment projectLink on ProjectLink {
+    id
+    url
+    linkText
+    linkType
+    sortOrder
+}

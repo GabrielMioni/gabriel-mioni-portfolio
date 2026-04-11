@@ -10,4 +10,7 @@ fragment Project on Project {
     images {
         ...projectImage
     }
+    links {
+        ...projectLink
+    }
 }

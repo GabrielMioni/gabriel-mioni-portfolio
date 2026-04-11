@@ -10,7 +10,7 @@ import {
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
-// import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
+import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import { imageFragmentToEditorItem } from '~/utils/images/imageEditorItems'
 import {
   findEditorItemAndIndexByClientId,
@@ -34,7 +34,8 @@ const isSavingProject = computed(() =>
 
 const tabValues = {
   details: 'details',
-  images: 'images'
+  images: 'images',
+  links: 'links'
 } as const
 
 const isValid = ref(false)
@@ -53,7 +54,8 @@ const form = reactive({
 const activeImageItems = ref<ImageEditorItem[]>([])
 const removedImageItems = ref<ImageEditorItem[]>([])
 
-// const projectLinks = ref<LinkEditorItem[]>([])
+const activeLinkItems = ref<LinkEditorItem[]>([])
+const removedLinkItems = ref<LinkEditorItem[]>([])
 
 const hasInitialized = ref(false)
 
@@ -288,6 +290,7 @@ watch(
             ><span>{{ pendingImagesLength }} pending</span></template
             >)
           </v-tab>
+          <v-tab :value="tabValues.links">Links</v-tab>
         </v-tabs>
         <v-spacer />
         <v-btn
@@ -325,6 +328,11 @@ watch(
               <ProjectImageUpload
                 v-model:items="activeImageItems"
                 v-model:removed="removedImageItems" />
+            </v-tabs-window-item>
+            <v-tabs-window-item :value="tabValues.links">
+              <ProjectLinksForm
+                v-model:items="activeLinkItems"
+                v-model:removed="removedLinkItems" />
             </v-tabs-window-item>
           </div>
         </v-tabs-window>

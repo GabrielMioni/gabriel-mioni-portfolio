@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import ProjectImageUploadListItem from '~/components/projects/edit/images/list/ProjectImageUploadListItem.vue'
-import { normalizeImageEditorItemSortOrder } from '~/utils/images/imageEditorItems'
+import { normalizeEditorItemsSortOrder } from '~/utils/editorItems'
 
 const model = defineModel<ImageEditorItem[]>({ required: true })
 
@@ -12,7 +12,7 @@ defineEmits<{
 const itemsLocal = computed({
   get: () => model.value,
   set: (value: ImageEditorItem[]) => {
-    model.value = normalizeImageEditorItemSortOrder(value)
+    model.value = normalizeEditorItemsSortOrder(value)
   }
 })
 </script>

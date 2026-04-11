@@ -15,3 +15,9 @@ export const findEditorItemAndIndexByClientId = <T extends HasClientId>(
     index
   }
 }
+
+export const normalizeEditorItemsSortOrder = <T extends { sort: number }>(items: T[]) =>
+  items.map((item, index) => ({
+    ...item,
+    sort: index
+  }))

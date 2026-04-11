@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { getOutputMimeType, resizeImageTo } from '~/utils/images/'
-import { normalizeImageEditorItemSortOrder } from '~/utils/images/imageEditorItems'
-import { findEditorItemAndIndexByClientId } from '~/utils/editorItems'
+import { findEditorItemAndIndexByClientId, normalizeEditorItemsSortOrder } from '~/utils/editorItems'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
 const activeUploadItems = defineModel<ImageEditorItem[]>('items', { required: true })
@@ -10,7 +9,7 @@ const removedUploadItems = defineModel<ImageEditorItem[]>('removed', { required:
 const filesList = ref<File[]>([])
 
 const updateActiveUploadItems = (items: ImageEditorItem[]) => {
-  activeUploadItems.value = normalizeImageEditorItemSortOrder(items)
+  activeUploadItems.value = normalizeEditorItemsSortOrder(items)
 }
 
 const updateImageUploadItems = async (files: File[]) => {

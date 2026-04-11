@@ -10,13 +10,11 @@ import {
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
-import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
+// import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
+import { imageFragmentToEditorItem } from '~/utils/images/imageEditorItems'
 import {
-  imageFragmentToEditorItem,
-  normalizeImageEditorItemSortOrder
-} from '~/utils/images/imageEditorItems'
-import {
-  findEditorItemAndIndexByClientId
+  findEditorItemAndIndexByClientId,
+  normalizeEditorItemsSortOrder
 } from '~/utils/editorItems'
 
 const {
@@ -55,7 +53,7 @@ const form = reactive({
 const activeImageItems = ref<ImageEditorItem[]>([])
 const removedImageItems = ref<ImageEditorItem[]>([])
 
-const projectLinks = ref<LinkEditorItem[]>([])
+// const projectLinks = ref<LinkEditorItem[]>([])
 
 const hasInitialized = ref(false)
 
@@ -122,7 +120,7 @@ const syncFromProject = (
     currentProject.images
   )
 
-  const mappedImageItems = normalizeImageEditorItemSortOrder(
+  const mappedImageItems = normalizeEditorItemsSortOrder(
     projectImageFragments
       .map(imageFragmentToEditorItem)
       .sort((a, b) => a.sort - b.sort)

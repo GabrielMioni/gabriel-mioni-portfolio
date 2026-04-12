@@ -32,21 +32,21 @@ const { mdAndUp, smAndDown } = useDisplay()
 </script>
 
 <template>
-  <v-form
-    v-model="isValid"
-    @keyup.enter="submit">
-    <v-container
-      fluid
-      class="pa-0">
-      <v-row class="align-start">
-        <v-col
-          cols="auto"
-          class="pt-6">
-          <LinkTypeIcon
-            :link-type="linkType"
-            size="x-large" />
-        </v-col>
-        <v-col>
+  <v-container
+    fluid
+    class="pa-0">
+    <v-row class="align-start">
+      <v-col
+        cols="auto"
+        class="pt-6">
+        <LinkTypeIcon
+          :link-type="linkType"
+          size="x-large" />
+      </v-col>
+      <v-col>
+        <v-form
+          v-model="isValid"
+          @keyup.enter="submit">
           <v-row dense>
             <v-col
               cols="12"
@@ -72,31 +72,31 @@ const { mdAndUp, smAndDown } = useDisplay()
               <ProjectLinkSelect v-model="linkType" />
             </v-col>
           </v-row>
-          <v-row v-if="smAndDown">
-            <v-col>
-              <v-btn
-                :disabled="!isValid"
-                block
-                class="bg-primary"
-                @click="submit">
-                Add Link
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col
-          v-if="mdAndUp"
-          cols="auto"
-          class="pt-6">
-          <v-btn
-            :disabled="!isValid"
-            density="comfortable"
-            icon="mdi-plus"
-            @click="submit" />
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-form>
+        </v-form>
+        <v-row v-if="smAndDown">
+          <v-col>
+            <v-btn
+              :disabled="!isValid"
+              block
+              class="bg-primary"
+              @click="submit">
+              Add Link
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-col>
+      <v-col
+        v-if="mdAndUp"
+        cols="auto"
+        class="pt-6">
+        <v-btn
+          :disabled="!isValid"
+          density="comfortable"
+          icon="mdi-plus"
+          @click="submit" />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ProjectLinkType } from '~/generated/graphql'
-import ProjectLinkSelect from '~/components/projects/edit/links/ProjectLinkSelect.vue'
+import { required, validateUrl } from '~/utils/rules'
 
 const isValid = ref<boolean>(false)
 
@@ -28,13 +28,14 @@ const linkText = ref<string>('')
             v-model="linkUrl"
             label="Url"
             variant="filled"
-            hide-details />
+            :rules="[required(), validateUrl()]"/>
         </v-col>
         <v-col>
           <v-text-field
             v-model="linkText"
             label="Link Text"
             variant="filled"
+            :rules="[required()]"
             hide-details />
         </v-col>
         <v-col>
@@ -45,6 +46,7 @@ const linkText = ref<string>('')
           cols="auto"
           class="d-flex justify-center align-center">
           <v-btn
+            :disabled="!isValid"
             density="comfortable"
             icon="mdi-plus" />
         </v-col>

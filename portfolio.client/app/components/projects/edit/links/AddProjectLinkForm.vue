@@ -2,6 +2,7 @@
 import { ProjectLinkType } from '~/generated/graphql'
 import { required, validateUrl } from '~/utils/rules'
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
+import { normalizeUrl } from '~/utils/links'
 
 const emit = defineEmits<{
   (e: 'add', item: LinkEditorItem): void
@@ -19,7 +20,7 @@ const submit = () => {
   const newLink: LinkEditorItem = {
     clientId: crypto.randomUUID(),
     type: linkType.value,
-    url: linkUrl.value,
+    url: normalizeUrl(linkUrl.value),
     text: linkText.value,
     sort: 0
   }
@@ -35,41 +36,39 @@ const submit = () => {
     <v-container
       fluid
       class="pa-0">
-      <v-row>
+      <v-row class="align-start">
         <v-col
           cols="auto"
-          class="d-flex justify-center align-center">
+          class="pt-6">
           <LinkTypeIcon
             :link-type="linkType"
             size="x-large" />
         </v-col>
-        <v-col class="d-flex justify-start align-center">
+        <v-col>
           <v-text-field
             v-model="linkUrl"
             label="Url"
             variant="filled"
-            :rules="[required(), validateUrl()]"/>
+            :rules="[required(), validateUrl()]" />
         </v-col>
         <v-col>
           <v-text-field
             v-model="linkText"
             label="Link Text"
             variant="filled"
-            :rules="[required()]"
-            hide-details />
+            :rules="[required()]" />
         </v-col>
         <v-col>
-          <ProjectLinkSelect
-            v-model="linkType"/>
+          <ProjectLinkSelect v-model="linkType" />
         </v-col>
         <v-col
           cols="auto"
-          class="d-flex justify-center align-center">
+          class="pt-6">
           <v-btn
             :disabled="!isValid"
             density="comfortable"
             icon="mdi-plus"
-            @click="submit()" />
+            @click="submit" />
         </v-col>
       </v-row>
     </v-container>

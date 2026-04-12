@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ProjectLinkType } from '~/generated/graphql'
+import LinkTypeIcon from '~/components/projects/edit/links/LinkTypeIcon.vue'
 
 const linkType = defineModel<ProjectLinkType>({ required: true })
 
-function formatTitle (linkType: ProjectLinkType): string {
+const formatTitle = (linkType: ProjectLinkType): string => {
   switch (linkType) {
   case ProjectLinkType.Demo:
     return 'Demo'
@@ -28,7 +29,20 @@ const selectItems = computed(() => {
     :items="selectItems"
     variant="filled"
     hide-details
-    density="compact" />
+    label="Link Type">
+    <template #item="{ props, item }">
+      <v-list-item
+        v-bind="props"
+        :title="undefined">
+        <template #prepend>
+          <LinkTypeIcon :link-type="item.value" />
+        </template>
+        <v-list-item-title>
+          {{ item.title }}
+        </v-list-item-title>
+      </v-list-item>
+    </template>
+  </v-select>
 </template>
 
 <style scoped>

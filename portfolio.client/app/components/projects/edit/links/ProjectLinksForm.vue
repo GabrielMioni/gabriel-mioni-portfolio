@@ -38,7 +38,9 @@ const addLink = (item: LinkEditorItem) => {
     class="pa-0">
     <v-row>
       <v-col xs12>
-        <AddProjectLink @add="addLink"/>
+        <AddProjectLink
+          :link-count="activeLinkItems.length"
+          @add="addLink" />
       </v-col>
     </v-row>
     <v-row>

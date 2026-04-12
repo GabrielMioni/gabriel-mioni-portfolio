@@ -331,7 +331,7 @@ watch(
                 v-model:removed="removedImageItems" />
             </v-tabs-window-item>
             <v-tabs-window-item :value="tabValues.links">
-              <ProjectLinksForm
+              <ProjectLinks
                 v-model:items="activeLinkItems"
                 v-model:removed="removedLinkItems" />
             </v-tabs-window-item>

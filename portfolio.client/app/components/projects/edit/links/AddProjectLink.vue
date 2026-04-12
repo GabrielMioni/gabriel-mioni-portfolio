@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ProjectLinkType } from '~/generated/graphql'
-import { required, validateUrl } from '~/utils/rules'
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
-import { normalizeUrl } from '~/utils/links'
+import { ProjectLinkType } from '~/generated/graphql'
+
+const props = defineProps<{
+  linkCount: number
+}>()
 
 const emit = defineEmits<{
   (e: 'add', item: LinkEditorItem): void
@@ -10,21 +12,35 @@ const emit = defineEmits<{
 
 const isValid = ref<boolean>(false)
 
-const linkType = ref<ProjectLinkType>(ProjectLinkType.Repository)
-const linkUrl = ref<string>('')
-const linkText = ref<string>('')
+const linkEditorItem = ref<LinkEditorItem>({
+  type: ProjectLinkType.Repository,
+  url: '',
+  text: '',
+  clientId: '',
+  sort: -1
+})
+
+const reset = () => {
+  linkEditorItem.value = {
+    type: ProjectLinkType.Repository,
+    url: '',
+    text: '',
+    clientId: '',
+    sort: -1
+  }
+}
 
 const submit = () => {
   if (!isValid.value) return
 
-  const newLink: LinkEditorItem = {
+  const out = {
+    ...linkEditorItem.value,
     clientId: crypto.randomUUID(),
-    type: linkType.value,
-    url: normalizeUrl(linkUrl.value),
-    text: linkText.value,
-    sort: 0
+    sort: props.linkCount + 1
   }
-  emit('add', newLink)
+
+  emit('add', out)
+  reset()
 }
 
 const { mdAndUp, smAndDown } = useDisplay()
@@ -40,39 +56,13 @@ const { mdAndUp, smAndDown } = useDisplay()
         cols="auto"
         class="pt-6">
         <LinkTypeIcon
-          :link-type="linkType"
+          :link-type="linkEditorItem.type"
           size="x-large" />
       </v-col>
       <v-col>
-        <v-form
-          v-model="isValid"
-          @keyup.enter="submit">
-          <v-row dense>
-            <v-col
-              cols="12"
-              md="4">
-              <v-text-field
-                v-model="linkUrl"
-                label="Url"
-                variant="filled"
-                :rules="[required(), validateUrl()]" />
-            </v-col>
-            <v-col
-              cols="12"
-              md="4">
-              <v-text-field
-                v-model="linkText"
-                label="Link Text"
-                variant="filled"
-                :rules="[required()]" />
-            </v-col>
-            <v-col
-              cols="12"
-              md="4">
-              <ProjectLinkSelect v-model="linkType" />
-            </v-col>
-          </v-row>
-        </v-form>
+        <ProjectLinkForm
+          v-model="linkEditorItem"
+          v-model:is-valid="isValid" />
         <v-row v-if="smAndDown">
           <v-col>
             <v-btn

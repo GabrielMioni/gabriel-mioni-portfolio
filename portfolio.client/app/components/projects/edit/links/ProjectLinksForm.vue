@@ -24,6 +24,12 @@ const removeLink = (clientId: string) => {
   updateActiveLinkItems(nextActiveItems)
 }
 
+const addLink = (item: LinkEditorItem) => {
+  const sort = activeLinkItems.value.length + 1
+  const nextActiveItems = [...activeLinkItems.value, { ...item, sort }]
+  updateActiveLinkItems(nextActiveItems)
+}
+
 </script>
 
 <template>
@@ -32,7 +38,8 @@ const removeLink = (clientId: string) => {
     class="pa-0">
     <v-row>
       <v-col xs12>
-        <AddProjectLinkForm />
+        <AddProjectLinkForm
+          @add="addLink"/>
       </v-col>
     </v-row>
     <v-row>

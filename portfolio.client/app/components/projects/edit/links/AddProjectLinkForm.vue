@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ProjectLinkType } from '~/generated/graphql'
 import { required, validateUrl } from '~/utils/rules'
+import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
+
+const emit = defineEmits<{
+  (e: 'add', item: LinkEditorItem): void
+}>()
 
 const isValid = ref<boolean>(false)
 
@@ -8,10 +13,25 @@ const linkType = ref<ProjectLinkType>(ProjectLinkType.Repository)
 const linkUrl = ref<string>('')
 const linkText = ref<string>('')
 
+const submit = () => {
+  if (!isValid.value) return
+
+  const newLink: LinkEditorItem = {
+    clientId: crypto.randomUUID(),
+    type: linkType.value,
+    url: linkUrl.value,
+    text: linkText.value,
+    sort: 0
+  }
+  emit('add', newLink)
+}
+
 </script>
 
 <template>
-  <v-form v-model="isValid">
+  <v-form
+    v-model="isValid"
+    @keyup.enter="submit">
     <v-container
       fluid
       class="pa-0">
@@ -48,7 +68,8 @@ const linkText = ref<string>('')
           <v-btn
             :disabled="!isValid"
             density="comfortable"
-            icon="mdi-plus" />
+            icon="mdi-plus"
+            @click="submit()" />
         </v-col>
       </v-row>
     </v-container>

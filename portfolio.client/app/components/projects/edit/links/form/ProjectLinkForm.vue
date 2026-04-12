@@ -2,9 +2,12 @@
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import { ProjectLinkType } from '~/generated/graphql'
 import { required, validateUrl } from '~/utils/rules'
+import { VForm } from 'vuetify/components'
 
 const model = defineModel<LinkEditorItem>({ required: true })
 const isValid = defineModel<boolean | null>('isValid', { required: true })
+
+const form = ref<InstanceType<typeof VForm> | null>(null)
 
 const linkType = computed({
   get: () => model.value.type ?? ProjectLinkType.Repository,
@@ -18,10 +21,20 @@ const linkText = computed({
   get: () => model.value.text ?? '',
   set: v => model.value.text = v
 })
+
+const resetValidation = () => {
+  form.value?.resetValidation()
+}
+
+defineExpose({
+  resetValidation
+})
 </script>
 
 <template>
-  <v-form v-model="isValid">
+  <v-form
+    ref="form"
+    v-model="isValid">
     <v-row dense>
       <v-col
         cols="12"
@@ -49,7 +62,3 @@ const linkText = computed({
     </v-row>
   </v-form>
 </template>
-
-<style scoped>
-
-</style>

@@ -38,8 +38,7 @@ const addLink = (item: LinkEditorItem) => {
     class="pa-0">
     <v-row>
       <v-col xs12>
-        <AddProjectLinkForm
-          @add="addLink"/>
+        <AddProjectLink @add="addLink"/>
       </v-col>
     </v-row>
     <v-row>

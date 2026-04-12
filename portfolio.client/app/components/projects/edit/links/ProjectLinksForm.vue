@@ -27,21 +27,27 @@ const removeLink = (clientId: string) => {
 </script>
 
 <template>
-  <v-form
-    v-model="isValid"
-    class="project-links-form">
-    <v-container
-      fluid
-      class="pa-0">
-      <v-row>
-        <v-col xs="12">
+  <v-container
+    fluid
+    class="pa-0">
+    <v-row>
+      <v-col xs12>
+        <AddProjectLinkForm />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col xs="12">
+        <v-form
+          v-model="isValid"
+          class="project-links-list-form"
+          autocomplete="off">
           <ProjectLinkList
             v-model="activeLinkItems"
             @remove="removeLink" />
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-form>
+        </v-form>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <style scoped>

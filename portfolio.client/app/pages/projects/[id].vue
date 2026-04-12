@@ -32,17 +32,17 @@ const isSavingProject = computed(() =>
   editing.value || isProcessingImages.value
 )
 
-const tabValues = {
-  details: 'details',
-  images: 'images',
-  links: 'links'
-} as const
+const enum tabValues {
+  details = 'details',
+  images = 'images',
+  links = 'links'
+}
 
 const isValid = ref(false)
 const originalProject = ref<typeof project.value>(null)
 const originalImageItems = ref<ImageEditorItem[]>([])
 const removedDialog = ref(false)
-const tab = ref(tabValues.details)
+const tab = ref<string>(tabValues.details)
 
 const form = reactive({
   title: '',
@@ -294,6 +294,7 @@ watch(
         </v-tabs>
         <v-spacer />
         <v-btn
+          v-if="tab === tabValues.images"
           text
           class="mr-3"
           prepend-icon="mdi-trash-can-outline"

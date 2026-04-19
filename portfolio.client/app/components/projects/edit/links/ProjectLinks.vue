@@ -3,9 +3,8 @@ import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import { findEditorItemAndIndexByClientId, normalizeEditorItemsSortOrder } from '~/utils/editorItems'
 import { ProjectLinkType } from '~/generated/graphql'
 
-const isValid = ref<boolean>(false)
-
 const activeLinkItems = defineModel<LinkEditorItem[]>('items', { required: true })
+const isValid = defineModel<boolean>('isValid', { required: true })
 const removedLinkItems = defineModel<LinkEditorItem[]>('removed', { required: true })
 
 const updateActiveLinkItems = (items: LinkEditorItem[]) => {

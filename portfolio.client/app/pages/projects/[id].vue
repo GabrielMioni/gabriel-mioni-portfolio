@@ -13,6 +13,7 @@ import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import { imageFragmentToEditorItem } from '~/utils/images/imageEditorItems'
 import {
+  checkIfEditorItemsUpdated,
   findEditorItemAndIndexByClientId,
   normalizeEditorItemsSortOrder
 } from '~/utils/editorItems'
@@ -41,6 +42,7 @@ const enum tabValues {
 const projectLinksIsValid = ref(false)
 const originalProject = ref<typeof project.value>(null)
 const originalImageItems = ref<ImageEditorItem[]>([])
+// const originalLinkItems = ref<LinkEditorItem[]>([])
 const removedDialog = ref(false)
 const tab = ref<string>(tabValues.details)
 
@@ -145,41 +147,17 @@ const refreshProject = async () => {
   syncFromProject(refreshedProject)
 }
 
-const hasExistingImageUpdates = computed(() => {
-  const currentExisting = activeImageItems.value
-    .filter((item): item is ImageEditorItem & { id: string } => Boolean(item.id))
-    .map(item => ({
-      id: item.id,
+const hasExistingImageUpdates = computed(() =>
+  checkIfEditorItemsUpdated(
+    originalImageItems.value,
+    activeImageItems.value,
+    item => ({
+      id: item.id!,
       altText: item.altText,
       sort: item.sort
-    }))
-    .sort((a, b) => a.sort - b.sort)
-
-  const originalExisting = originalImageItems.value
-    .filter((item): item is ImageEditorItem & { id: string } => Boolean(item.id))
-    .map(item => ({
-      id: item.id,
-      altText: item.altText,
-      sort: item.sort
-    }))
-    .sort((a, b) => a.sort - b.sort)
-
-  if (currentExisting.length !== originalExisting.length) {
-    return true
-  }
-  console.log('Comparing existing images', { currentExisting, originalExisting })
-
-  return currentExisting.some((item, index) => {
-    const original = originalExisting[index]
-    if (!original) return true
-
-    return (
-      item.id !== original.id ||
-        item.altText !== original.altText ||
-        item.sort !== original.sort
-    )
-  })
-})
+    })
+  )
+)
 
 const hasUpdates = computed(() => {
   if (!project.value || !originalProject.value) return false

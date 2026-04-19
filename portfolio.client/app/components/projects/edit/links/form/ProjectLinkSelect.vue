@@ -28,8 +28,7 @@ const selectItems = computed(() => {
     v-model="linkType"
     :items="selectItems"
     variant="filled"
-    hide-details
-    label="Link Type">
+    hide-details>
     <template #item="{ props, item }">
       <v-list-item
         v-bind="props"
@@ -41,6 +40,11 @@ const selectItems = computed(() => {
           {{ item.title }}
         </v-list-item-title>
       </v-list-item>
+    </template>
+    <template #prepend-inner>
+      <LinkTypeIcon
+        :link-type="linkType"
+        class="mr-3"/>
     </template>
   </v-select>
 </template>

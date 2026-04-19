@@ -38,7 +38,7 @@ const enum tabValues {
   links = 'links'
 }
 
-const isValid = ref(false)
+const projectLinksIsValid = ref(false)
 const originalProject = ref<typeof project.value>(null)
 const originalImageItems = ref<ImageEditorItem[]>([])
 const removedDialog = ref(false)
@@ -310,7 +310,7 @@ watch(
         </v-btn>
         <v-btn
           class="bg-primary"
-          :disabled="isSavingProject || !isValid || !hasUpdates"
+          :disabled="isSavingProject || !projectLinksIsValid || !hasUpdates"
           :loading="isSavingProject"
           @click="submitEditProject">
           Save
@@ -323,7 +323,7 @@ watch(
             <v-tabs-window-item :value="tabValues.details">
               <ProjectForm
                 v-model:form="form"
-                v-model:is-valid="isValid" />
+                v-model:is-valid="projectLinksIsValid" />
             </v-tabs-window-item>
             <v-tabs-window-item :value="tabValues.images">
               <ProjectImageUpload
@@ -332,6 +332,7 @@ watch(
             </v-tabs-window-item>
             <v-tabs-window-item :value="tabValues.links">
               <ProjectLinks
+                v-model:is-valid="projectLinksIsValid"
                 v-model:items="activeLinkItems"
                 v-model:removed="removedLinkItems" />
             </v-tabs-window-item>

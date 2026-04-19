@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import { findEditorItemAndIndexByClientId, normalizeEditorItemsSortOrder } from '~/utils/editorItems'
+import { ProjectLinkType } from '~/generated/graphql'
 
 const isValid = ref<boolean>(false)
 
@@ -11,22 +12,38 @@ const updateActiveLinkItems = (items: LinkEditorItem[]) => {
   activeLinkItems.value = normalizeEditorItemsSortOrder(items)
 }
 
+const createLink = (): LinkEditorItem => ({
+  clientId: crypto.randomUUID(),
+  url: '',
+  text: '',
+  type: ProjectLinkType.Repository,
+  sort: activeLinkItems.value.length + 1
+})
+
+const addLink = () => {
+  activeLinkItems.value = [
+    ...activeLinkItems.value,
+    createLink()
+  ]
+}
+
 const removeLink = (clientId: string) => {
   const result = findEditorItemAndIndexByClientId(clientId, activeLinkItems.value)
   if (!result) return
 
   const { item, index } = result
 
+  const isEmpty = !item.url && !item.text
+
   const nextActiveItems = [...activeLinkItems.value]
   nextActiveItems.splice(index, 1)
 
-  removedLinkItems.value.push(item)
-  updateActiveLinkItems(nextActiveItems)
-}
+  if (isEmpty) {
+    updateActiveLinkItems(nextActiveItems)
+    return
+  }
 
-const addLink = (item: LinkEditorItem) => {
-  const sort = activeLinkItems.value.length + 1
-  const nextActiveItems = [...activeLinkItems.value, { ...item, sort }]
+  removedLinkItems.value.push(item)
   updateActiveLinkItems(nextActiveItems)
 }
 
@@ -36,13 +53,7 @@ const addLink = (item: LinkEditorItem) => {
   <v-container
     fluid
     class="pa-0">
-    <v-row>
-      <v-col xs12>
-        <AddProjectLink
-          :link-count="activeLinkItems.length"
-          @add="addLink" />
-      </v-col>
-    </v-row>
+    <v-divider class="my-6" />
     <v-row>
       <v-col xs="12">
         <v-form
@@ -53,6 +64,16 @@ const addLink = (item: LinkEditorItem) => {
             v-model="activeLinkItems"
             @remove="removeLink" />
         </v-form>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-btn
+          variant="text"
+          prepend-icon="mdi-plus"
+          @click="addLink">
+          Add link
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>

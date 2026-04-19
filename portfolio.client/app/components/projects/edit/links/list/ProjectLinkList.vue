@@ -20,6 +20,7 @@ const itemsLocal = computed({
     <template #default="{ element }">
       <ProjectLinkListItem
         :item="element"
+        is-removing
         @update="$emit('remove', $event)" />
     </template>
   </DraggableList>

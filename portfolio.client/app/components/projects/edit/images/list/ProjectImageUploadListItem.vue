@@ -7,8 +7,8 @@ const item = defineModel<ImageEditorItem>('item', { required: true })
 
 withDefaults(
   defineProps<{
-    isRemoving?: boolean
-  }>(),
+      isRemoving?: boolean
+    }>(),
   {
     isRemoving: true
   }
@@ -21,13 +21,11 @@ defineEmits<{
 const imageUrl = computed(() => {
   const current = item.value
 
-  // New (not yet persisted) image
   if (!current.id) {
     if (!current.thumbFile) return null
     return URL.createObjectURL(current.thumbFile)
   }
 
-  // Existing image
   const base = config.public.storageBase
   const key = current.thumbKey
 
@@ -44,29 +42,23 @@ const createdAtDate = computed(() => {
   if (!item.value?.createdAt) return null
   return new Date(item.value.createdAt).toLocaleDateString()
 })
-
 </script>
 
 <template>
-  <v-container
-    class="pa-0 project-image-upload-list-item hover-surface"
-    fluid>
+  <EditorItemLayout
+    :draggable="isRemoving"
+    :action-icon="isRemoving ? 'mdi-close' : 'mdi-plus'"
+    :action-color="isRemoving ? 'error' : 'success'"
+    @action="$emit('update', item.clientId)">
+    <template #leading>
+      <v-img
+        v-if="imageUrl"
+        class="ma-2"
+        :src="imageUrl"
+        width="50" />
+    </template>
+
     <v-row align="center">
-      <v-col
-        cols="auto"
-        class="d-flex align-center justify-center order-1">
-        <div class="d-flex align-center">
-          <v-icon
-            v-if="isRemoving"
-            class="drag-handle cursor-grab"
-            icon="mdi-drag"/>
-          <v-img
-            v-if="imageUrl"
-            class="ma-2"
-            :src="imageUrl"
-            width="50" />
-        </div>
-      </v-col>
       <v-col
         class="order-2"
         sm="2">
@@ -77,26 +69,18 @@ const createdAtDate = computed(() => {
             </template>
             <span
               v-else
-              class="font-italic text-grey">{{ imageFileName }} (pending)</span>
+              class="font-italic text-grey">
+              {{ imageFileName }} (pending)
+            </span>
           </div>
           <div>{{ item.contentType }}</div>
           <div>{{ (item.sizeFull / 1024).toFixed(2) }} KB</div>
         </div>
       </v-col>
-      <v-col
-        cols="auto"
-        class="d-flex align-center justify-end order-3 order-sm-4">
-        <v-btn
-          :icon="isRemoving ? 'mdi-close' : 'mdi-plus'"
-          class="ma-2"
-          variant="text"
-          :color="isRemoving ? 'error' : 'success'"
-          @click="$emit('update', item.clientId)"/>
-      </v-col>
+
       <v-col
         cols="12"
-        sm
-        class="order-4 order-sm-3">
+        sm>
         <v-text-field
           v-model="item.altText"
           :disabled="!isRemoving"
@@ -105,9 +89,5 @@ const createdAtDate = computed(() => {
           hide-details />
       </v-col>
     </v-row>
-  </v-container>
+  </EditorItemLayout>
 </template>
-
-<style scoped>
-
-</style>

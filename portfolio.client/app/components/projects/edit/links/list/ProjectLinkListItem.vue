@@ -1,59 +1,58 @@
 <script setup lang="ts">
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
-import { ProjectLinkType } from '~/generated/graphql'
+import { required, validateUrl } from '~/utils/rules'
 
 const item = defineModel<LinkEditorItem>('item', { required: true })
 
-const icon = computed(() => {
-  switch (item.value.type) {
-  case ProjectLinkType.Demo:
-    return 'mdi-monitor-dashboard'
-  case ProjectLinkType.Repository:
-    return 'mdi-git'
-  default:
-    return 'mdi-link-variant'
+withDefaults(
+  defineProps<{
+    disableAction?: boolean
+    isRemoving?: boolean
+    }>(),
+  {
+    disableAction: true,
+    isRemoving: false
   }
-})
+)
+
+defineEmits<{
+  (e: 'update', clientId: string): void
+}>()
 
 </script>
 
 <template>
-  <v-container
-    class="pa-0 project-link-list-item hover-surface">
-    fluid>
-    <v-row align="center">
+  <EditorItemLayout
+    :draggable="isRemoving"
+    :action-icon="isRemoving ? 'mdi-close' : 'mdi-plus'"
+    :action-color="isRemoving ? 'error' : 'success'"
+    @action="$emit('update', item.clientId)">
+    <v-row dense>
       <v-col
-        cols="auto"
-        class="d-flex align-center justify-center order-1">
-        <v-icon
-          class="mr-2"
-          color="primary">
-          {{ icon}}
-        </v-icon>
+        cols="12"
+        md="4">
+        <v-text-field
+          v-model="item.url"
+          label="Url"
+          variant="filled"
+          hide-details
+          :rules="[required(), validateUrl()]" />
       </v-col>
       <v-col
-        cols="auto"
-        class="d-flex align-center justify-start order-2">
-        <div>
-          <v-text-field
-            v-model="item.url"
-            label="Url"
-            variant="filled"
-            hide-details
-            density="compact" />
-          <v-text-field
-            v-model="item.text"
-            label="Url"
-            variant="filled"
-            hide-details
-            density="compact" />
-        </div>
+        cols="12"
+        md="4">
+        <v-text-field
+          v-model="item.text"
+          label="Link Text"
+          variant="filled"
+          hide-details
+          :rules="[required()]" />
+      </v-col>
+      <v-col
+        cols="12"
+        md="4">
+        <ProjectLinkSelect v-model="item.type" />
       </v-col>
     </v-row>
-
-  </v-container>
+  </EditorItemLayout>
 </template>
-
-<style scoped>
-
-</style>

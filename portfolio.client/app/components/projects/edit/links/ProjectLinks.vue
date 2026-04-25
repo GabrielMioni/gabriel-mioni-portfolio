@@ -4,7 +4,7 @@ import { findEditorItemAndIndexByClientId, normalizeEditorItemsSortOrder } from 
 import { ProjectLinkType } from '~/generated/graphql'
 
 const activeLinkItems = defineModel<LinkEditorItem[]>('items', { required: true })
-const isValid = defineModel<boolean>('isValid', { required: true })
+const isValid = defineModel<boolean | null>('isValid', { required: true })
 const removedLinkItems = defineModel<LinkEditorItem[]>('removed', { required: true })
 
 const updateActiveLinkItems = (items: LinkEditorItem[]) => {

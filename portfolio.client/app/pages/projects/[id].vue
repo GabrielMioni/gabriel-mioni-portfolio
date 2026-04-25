@@ -18,6 +18,7 @@ import {
   findEditorItemAndIndexByClientId,
   normalizeEditorItemsSortOrder
 } from '~/utils/editorItems'
+import { isLikelyValidHttpUrl } from '~/utils/links'
 
 const {
   editing,
@@ -97,7 +98,7 @@ const updateInput = computed<EditProjectInput>(() => ({
     }))
     .filter((image): image is EditProjectImageInput => image.projectImageId != null),
   links: activeLinkItems.value
-    .filter((i): i is LinkEditorItem => i !== null)
+    .filter((i): i is LinkEditorItem => i.text.trim().length > 0 && isLikelyValidHttpUrl(i.url))
     .map((i): EditProjectLinkInput => ({
       id: i?.id ?? null,
       linkText: i.text,

@@ -3,6 +3,7 @@ import { useQuery } from '@urql/vue'
 import {
   type EditProjectInput,
   type EditProjectImageInput,
+  type EditProjectLinkInput,
   GetProjectByIdDocument,
   ProjectFragmentDoc,
   ProjectImageFragmentDoc,
@@ -94,7 +95,16 @@ const updateInput = computed<EditProjectInput>(() => ({
       altText: i.altText,
       sortOrder: i.sort
     }))
-    .filter((image): image is EditProjectImageInput => image.projectImageId != null)
+    .filter((image): image is EditProjectImageInput => image.projectImageId != null),
+  links: activeLinkItems.value
+    .filter((i): i is LinkEditorItem => i !== null)
+    .map((i): EditProjectLinkInput => ({
+      id: i?.id ?? null,
+      linkText: i.text,
+      linkType: i.type,
+      sortOrder: i.sort,
+      url: i.url
+    }))
 }))
 
 const imageCount = computed(() => activeImageItems.value.length)

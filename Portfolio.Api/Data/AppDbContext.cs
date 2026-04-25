@@ -38,6 +38,11 @@ namespace Portfolio.Api.Data
 
             modelBuilder.Entity<ProjectLink>(pl =>
             {
+                pl.HasKey(x => x.Id);
+
+                pl.Property(x => x.Id)
+                  .ValueGeneratedNever();
+
                 pl.HasOne(x => x.Project)
                   .WithMany(x => x.Links)
                   .HasForeignKey(x => x.ProjectId)

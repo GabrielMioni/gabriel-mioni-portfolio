@@ -71,7 +71,32 @@ namespace Portfolio.Api.Services
             if (!changed)
                 return project;
 
-            await db.SaveChangesAsync(ct);
+            // await db.SaveChangesAsync(ct);
+
+            try
+            {
+                Console.WriteLine(db.ChangeTracker.DebugView.LongView);
+                await db.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                Console.WriteLine("Concurrency exception during EditProjectAsync");
+
+                foreach (var entry in ex.Entries)
+                {
+                    Console.WriteLine($"Entity: {entry.Entity.GetType().Name}");
+                    Console.WriteLine($"State: {entry.State}");
+
+                    foreach (var prop in entry.Properties)
+                    {
+                        Console.WriteLine(
+                            $"  {prop.Metadata.Name}: Current={prop.CurrentValue}, Original={prop.OriginalValue}"
+                        );
+                    }
+                }
+
+                throw;
+            }
 
             return project;
         }
@@ -185,33 +210,40 @@ namespace Portfolio.Api.Services
 
         private static bool UpdateProjectLinks(Project project, IReadOnlyList<EditProjectLinkInput>? inputs)
         {
+            if (inputs is null || inputs.Count == 0)
+                return false;
+
             var changed = false;
 
-            foreach (var updateItem in inputs ?? Array.Empty<EditProjectLinkInput>())
-            {
-                if (updateItem.Id is Guid linkId)
-                {
-                    var existingLink = project.Links.FirstOrDefault(l => l.Id == linkId);
+            var existingLinksById = project.Links
+                .ToDictionary(link => link.Id);
 
-                    if (existingLink is null)
-                        continue;
+            foreach (var input in inputs)
+            {
+                if (input.Id is Guid linkId)
+                {
+                    if (!existingLinksById.TryGetValue(linkId, out var existingLink))
+                    {
+                        throw new InvalidOperationException(
+                            $"Project link '{linkId}' does not belong to project '{project.Id}'.");
+                    }
 
                     changed |= existingLink.Update(
-                        url: updateItem.Url,
-                        linkText: updateItem.LinkText,
-                        linkType: updateItem.LinkType);
+                        url: input.Url,
+                        linkText: input.LinkText,
+                        linkType: input.LinkType);
 
-                    changed |= existingLink.UpdateSortOrder(updateItem.SortOrder);
+                    changed |= existingLink.UpdateSortOrder(input.SortOrder);
 
                     continue;
                 }
 
                 var newLink = ProjectLink.Create(
                     projectId: project.Id,
-                    url: updateItem.Url,
-                    linkText: updateItem.LinkText,
-                    linkType: updateItem.LinkType,
-                    sortOrder: updateItem.SortOrder);
+                    url: input.Url,
+                    linkText: input.LinkText,
+                    linkType: input.LinkType,
+                    sortOrder: input.SortOrder);
 
                 project.AddLink(newLink);
                 changed = true;

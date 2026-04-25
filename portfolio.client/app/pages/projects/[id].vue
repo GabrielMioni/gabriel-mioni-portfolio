@@ -7,12 +7,14 @@ import {
   GetProjectByIdDocument,
   ProjectFragmentDoc,
   ProjectImageFragmentDoc,
+  ProjectLinkFragmentDoc,
   ProjectStatus
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import { imageFragmentToEditorItem } from '~/utils/images/imageEditorItems'
+import { linkFragmentToEditorItem } from '~/utils/links/linkEditorItems'
 import {
   checkIfEditorItemsUpdated,
   findEditorItemAndIndexByClientId,
@@ -44,7 +46,7 @@ const enum tabValues {
 const projectLinksIsValid = ref(false)
 const originalProject = ref<typeof project.value>(null)
 const originalImageItems = ref<ImageEditorItem[]>([])
-// const originalLinkItems = ref<LinkEditorItem[]>([])
+const originalLinkItems = ref<LinkEditorItem[]>([])
 const removedDialog = ref(false)
 const tab = ref<string>(tabValues.details)
 
@@ -120,6 +122,10 @@ const uploadItems = computed(() =>
   activeImageItems.value.filter((image): image is ImageEditorItem => !image.id)
 )
 
+const newLinkItems = computed(() =>
+  activeLinkItems.value.filter((link): link is LinkEditorItem => !link.id && link.text.trim().length > 0 && isLikelyValidHttpUrl(link.url))
+)
+
 const syncFromProject = (
   currentProject: NonNullable<typeof project.value>
 ) => {
@@ -143,6 +149,20 @@ const syncFromProject = (
 
   activeImageItems.value = mappedImageItems
   originalImageItems.value = mappedImageItems.map(item => ({ ...item }))
+
+  const projectLinkFragments = useFragment(
+    ProjectLinkFragmentDoc,
+    currentProject.links
+  )
+
+  const mappedLinkItems = normalizeEditorItemsSortOrder(
+    projectLinkFragments
+      .map(linkFragmentToEditorItem)
+      .sort((a, b) => a.sort - b.sort)
+  )
+
+  activeLinkItems.value = mappedLinkItems
+  originalLinkItems.value = mappedLinkItems.map(item => ({ ...item }))
 }
 
 const refreshProject = async () => {
@@ -170,6 +190,20 @@ const hasExistingImageUpdates = computed(() =>
   )
 )
 
+const hasExistingLinkUpdates = computed(() =>
+  checkIfEditorItemsUpdated(
+    originalLinkItems.value,
+    activeLinkItems.value,
+    item => ({
+      id: item.id!,
+      text: item.text,
+      url: item.url,
+      type: item.type,
+      sort: item.sort
+    })
+  )
+)
+
 const hasUpdates = computed(() => {
   if (!project.value || !originalProject.value) return false
 
@@ -180,9 +214,16 @@ const hasUpdates = computed(() => {
     form.status !== originalProject.value.status
 
   const hasImageUploads = uploadItems.value.length > 0
-  const hasDeleteItems = removedImageItems.value.length > 0
+  const hasImageDeleteItems = removedImageItems.value.length > 0
 
-  return hasFieldUpdates || hasImageUploads || hasDeleteItems || hasExistingImageUpdates.value
+  const hasNewLinks = newLinkItems.value.length > 0
+
+  return hasFieldUpdates ||
+    hasImageUploads ||
+    hasImageDeleteItems ||
+    hasExistingImageUpdates.value ||
+    hasExistingLinkUpdates.value ||
+    hasNewLinks
 })
 
 const deleteImageIds = computed(() => {

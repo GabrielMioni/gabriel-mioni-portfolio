@@ -37,7 +37,7 @@ const removeLink = (clientId: string) => {
   const nextActiveItems = [...activeLinkItems.value]
   nextActiveItems.splice(index, 1)
 
-  if (isEmpty) {
+  if (isEmpty || !item.id) {
     updateActiveLinkItems(nextActiveItems)
     return
   }

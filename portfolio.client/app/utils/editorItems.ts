@@ -78,3 +78,22 @@ export const normalizeEditorItemsSortOrder = <T extends { sort: number }>(
   }))
 }
 
+export const restoreEditorItem = <T extends { clientId: string, sort: number }>(
+  clientId: string,
+  removedItems: Ref<T[]>,
+  activeItems: Ref<T[]>
+) => {
+  const result = findEditorItemAndIndexByClientId(clientId, removedItems.value)
+  if (!result) return
+
+  const { item, index } = result
+
+  const nextRemovedItems = [...removedItems.value]
+  nextRemovedItems.splice(index, 1)
+  removedItems.value = nextRemovedItems
+
+  activeItems.value.push({
+    ...item,
+    sort: activeItems.value.length
+  })
+}

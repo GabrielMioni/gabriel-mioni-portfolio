@@ -22,15 +22,15 @@ defineEmits<{
 <template>
   <v-container
     fluid
-    class="pa-0 editor-list-item-layout hover-surface">
+    class="py-0 editor-list-item-layout hover-surface">
     <v-row
       :class="{ 'editor-list-item-layout--compact': compact }">
       <v-col
+        v-if="draggable"
         cols="auto"
         class="d-flex align-center justify-center order-1">
         <div class="d-flex align-center">
           <v-icon
-            v-if="draggable"
             class="drag-handle cursor-grab"
             icon="mdi-drag" />
           <slot name="leading" />

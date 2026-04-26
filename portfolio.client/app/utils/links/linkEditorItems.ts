@@ -7,6 +7,7 @@ export const linkFragmentToEditorItem = (
   return {
     id: linkFragment.id,
     clientId: crypto.randomUUID(),
+    createdAt: linkFragment.createdAt,
     url: linkFragment.url,
     text: linkFragment.linkText,
     type: linkFragment.linkType,

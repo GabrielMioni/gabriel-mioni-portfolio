@@ -25,7 +25,9 @@ watch(
 <template>
   <BaseDialog
     v-model="dialog"
-    hide-toolbar>
+    width="1000"
+    hide-toolbar
+    :fullscreen="$vuetify.display.smAndDown">
     <template #card-title>
       <div class="d-flex align-center">
         <span class="fs-14 font-weight-bold">

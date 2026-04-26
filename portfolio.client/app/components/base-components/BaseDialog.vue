@@ -5,6 +5,7 @@ withDefaults(
   defineProps<{
     title?: string
     divider?: boolean
+    fullscreen?: boolean
     persistent?: boolean
     toolbarColor?: string
     hideToolbar?: boolean
@@ -13,6 +14,7 @@ withDefaults(
   {
     title: undefined,
     divider: false,
+    fullscreen: false,
     persistent: false,
     hideToolbar: false,
     toolbarColor: 'primary',
@@ -26,7 +28,8 @@ withDefaults(
   <v-dialog
     v-model="dialog"
     :width="width"
-    :persistent="persistent">
+    :persistent="persistent"
+    :fullscreen="fullscreen">
     <v-toolbar
       v-if="!hideToolbar"
       :color="toolbarColor"

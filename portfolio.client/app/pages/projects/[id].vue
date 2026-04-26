@@ -17,7 +17,7 @@ import { imageFragmentToEditorItem } from '~/utils/images/imageEditorItems'
 import { linkFragmentToEditorItem } from '~/utils/links/linkEditorItems'
 import {
   checkIfEditorItemsUpdated,
-  findEditorItemAndIndexByClientId,
+  restoreEditorItem,
   normalizeEditorItemsSortOrder
 } from '~/utils/editorItems'
 import { isLikelyValidHttpUrl } from '~/utils/links'
@@ -232,6 +232,29 @@ const deleteImageIds = computed(() => {
     .filter((id): id is string => Boolean(id))
 })
 
+const hasRemovedItems = computed(() => {
+  if (tab.value === tabValues.images) {
+    return removedImageItems.value.length > 0
+  }
+  if (tab.value === tabValues.links) {
+    return removedLinkItems.value.length > 0
+  }
+  return true
+})
+
+const removedItemText = computed(() => {
+  if (!hasRemovedItems.value) {
+    return 'Empty'
+  }
+  if (tab.value === tabValues.images) {
+    return `Removed Images (${removedImageItems.value.length})`
+  }
+  if (tab.value === tabValues.links) {
+    return `Removed Links (${removedLinkItems.value.length})`
+  }
+  return ''
+})
+
 const handleDeleteItems = async () => {
   await deleteImageUploads({
     projectId: id,
@@ -262,25 +285,17 @@ const submitEditProject = async () => {
   }
 }
 
-const openRemoveImagesDialog = () => {
-  if (removedImageItems.value.length <= 0) return
+const openRemovedItemsDialog = () => {
+  if (!hasRemovedItems.value) return
   removedDialog.value = true
 }
 
-const restoreImage = (clientId: string) => {
-  const result = findEditorItemAndIndexByClientId(clientId, removedImageItems.value)
-  if (!result) return
+const restoreImageItem = (clientId: string) => {
+  restoreEditorItem(clientId, removedImageItems, activeImageItems)
+}
 
-  const { item, index } = result
-
-  const nextRemovedItems = [...removedImageItems.value]
-  nextRemovedItems.splice(index, 1)
-  removedImageItems.value = nextRemovedItems
-
-  activeImageItems.value.push({
-    ...item,
-    sort: activeImageItems.value.length
-  })
+const restoreLinkItem = (clientId: string) => {
+  restoreEditorItem(clientId, removedLinkItems, activeLinkItems)
 }
 
 watch(
@@ -324,13 +339,13 @@ watch(
         </v-tabs>
         <v-spacer />
         <v-btn
-          v-if="tab === tabValues.images"
+          v-if="tab === tabValues.images || tab === tabValues.links"
           text
           class="mr-3"
           prepend-icon="mdi-trash-can-outline"
-          :disabled="removedImageItems.length <= 0"
-          @click="openRemoveImagesDialog">
-          Removed Images ({{ removedImageItems.length > 0 ? removedImageItems.length : 'Empty' }})
+          :disabled="!hasRemovedItems"
+          @click="openRemovedItemsDialog">
+          {{ removedItemText }}
         </v-btn>
         <v-btn
           text
@@ -371,9 +386,15 @@ watch(
       </v-card>
     </template>
     <RemovedImagesDialog
+      v-if="tab === tabValues.images"
       v-model="removedDialog"
       :removed-image-items="removedImageItems"
-      @add="restoreImage"/>
+      @add="restoreImageItem" />
+    <RemovedLinksDialog
+      v-if="tab === tabValues.links"
+      v-model="removedDialog"
+      :removed-link-items="removedLinkItems"
+      @add="restoreLinkItem" />
   </v-container>
 </template>
 

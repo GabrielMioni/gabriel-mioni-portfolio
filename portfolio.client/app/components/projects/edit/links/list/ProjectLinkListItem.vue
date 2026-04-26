@@ -19,6 +19,11 @@ defineEmits<{
   (e: 'update', clientId: string): void
 }>()
 
+const createdAtDate = computed(() => {
+  if (!item.value?.createdAt) return null
+  return new Date(item.value.createdAt).toLocaleDateString()
+})
+
 </script>
 
 <template>
@@ -30,7 +35,7 @@ defineEmits<{
     <v-row dense>
       <v-col
         cols="12"
-        md="4">
+        md="3">
         <v-text-field
           v-model="item.url"
           label="Url"
@@ -40,7 +45,7 @@ defineEmits<{
       </v-col>
       <v-col
         cols="12"
-        md="4">
+        md="3">
         <v-text-field
           v-model="item.text"
           label="Link Text"
@@ -52,6 +57,22 @@ defineEmits<{
         cols="12"
         md="4">
         <ProjectLinkSelect v-model="item.type" />
+      </v-col>
+      <v-col
+        cols="12"
+        md="1"
+        class="d-flex align-center">
+        <div class="link-details text-break fs-12">
+          Created: <br>
+          <template v-if="createdAtDate">
+            {{ createdAtDate }}
+          </template>
+          <span
+            v-else
+            class="font-italic text-grey">
+            (pending)
+          </span>
+        </div>
       </v-col>
     </v-row>
   </EditorItemLayout>

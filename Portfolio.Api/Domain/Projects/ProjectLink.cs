@@ -15,7 +15,7 @@ public class ProjectLink
     public string Url { get; private set; } = default!;
     public string LinkText { get; private set; } = default!;
     public ProjectLinkType LinkType { get; private set; }
-
+    public DateTime CreatedAt { get; private set; }
     public int SortOrder { get; private set; }
 
     private ProjectLink() { }
@@ -41,6 +41,7 @@ public class ProjectLink
             Url = normalized,
             LinkText = linkText.Trim(),
             LinkType = linkType,
+            CreatedAt = DateTime.UtcNow,
             SortOrder = sortOrder
         };
     }

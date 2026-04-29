@@ -21,6 +21,7 @@ import {
   normalizeEditorItemsSortOrder
 } from '~/utils/editorItems'
 import { isLikelyValidHttpUrl } from '~/utils/links'
+import EditorItemTabDisplay from '~/components/projects/edit/EditorItemTabDisplay.vue'
 
 const {
   editing,
@@ -327,15 +328,15 @@ watch(
         <v-tabs v-model="tab">
           <v-tab :value="tabValues.details">Details</v-tab>
           <v-tab :value="tabValues.images">
-            <!-- Eliminate whitespace in parentheses -->
-            Images (
-            <span>{{ imageCount }}</span
-            ><template v-if="pendingImagesLength > 0"
-            ><span> • </span
-            ><span>{{ pendingImagesLength }} pending</span></template
-            >)
+            <EditorItemTabDisplay
+              label="Images"
+              :items="activeImageItems" />
           </v-tab>
-          <v-tab :value="tabValues.links">Links</v-tab>
+          <v-tab :value="tabValues.links">
+            <EditorItemTabDisplay
+              label="Links"
+              :items="activeLinkItems" />
+          </v-tab>
         </v-tabs>
         <v-spacer />
         <v-btn

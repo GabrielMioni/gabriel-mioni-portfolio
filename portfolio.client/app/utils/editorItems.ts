@@ -1,14 +1,8 @@
-type HasClientId = {
-  clientId: string
-}
-
-type HasId = {
-  id?: string | null
-}
-
-type HasSort = {
-  sort: number
-}
+import type {
+  HasClientId,
+  HasId,
+  HasSort
+} from '~/types/editor-items'
 
 export const findEditorItemAndIndexByClientId = <T extends HasClientId>(
   clientId: string,
@@ -26,29 +20,21 @@ export const findEditorItemAndIndexByClientId = <T extends HasClientId>(
 
 export const checkIfEditorItemsUpdated = <
   T extends HasId & HasSort,
-  M extends Record<string, unknown>
+  M extends HasSort & Record<string, unknown>
 >(
     original: T[],
     updated: T[],
-    mapItem: (item: T) => M
+    mapItem: (item: T & { id: string }) => M
   ): boolean => {
   const currentExisting = original
     .filter((item): item is T & { id: string } => Boolean(item.id))
     .map(mapItem)
-    .sort((a, b) => {
-      const aSort = typeof a.sort === 'number' ? a.sort : 0
-      const bSort = typeof b.sort === 'number' ? b.sort : 0
-      return aSort - bSort
-    })
+    .sort((a, b) => a.sort - b.sort)
 
   const updatedExisting = updated
     .filter((item): item is T & { id: string } => Boolean(item.id))
     .map(mapItem)
-    .sort((a, b) => {
-      const aSort = typeof a.sort === 'number' ? a.sort : 0
-      const bSort = typeof b.sort === 'number' ? b.sort : 0
-      return aSort - bSort
-    })
+    .sort((a, b) => a.sort - b.sort)
 
   if (currentExisting.length !== updatedExisting.length) return true
 
@@ -59,6 +45,7 @@ export const checkIfEditorItemsUpdated = <
     if (!currentItem || !updatedItem) return true
 
     const keys = Object.keys(currentItem) as (keyof M)[]
+
     for (const key of keys) {
       if (currentItem[key] !== updatedItem[key]) {
         return true
@@ -69,7 +56,7 @@ export const checkIfEditorItemsUpdated = <
   return false
 }
 
-export const normalizeEditorItemsSortOrder = <T extends { sort: number }>(
+export const normalizeEditorItemsSortOrder = <T extends HasSort>(
   items: T[]
 ): T[] => {
   return items.map((item, index) => ({
@@ -78,11 +65,11 @@ export const normalizeEditorItemsSortOrder = <T extends { sort: number }>(
   }))
 }
 
-export const restoreEditorItem = <T extends { clientId: string, sort: number }>(
+export const restoreEditorItem = <T extends HasClientId & HasSort>(
   clientId: string,
   removedItems: Ref<T[]>,
   activeItems: Ref<T[]>
-) => {
+): void => {
   const result = findEditorItemAndIndexByClientId(clientId, removedItems.value)
   if (!result) return
 

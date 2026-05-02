@@ -281,6 +281,9 @@ const submitEditProject = async () => {
     }
 
     await refreshProject()
+    if (removedLinkItems.value.length > 0) {
+      removedLinkItems.value = []
+    }
   } catch (error) {
     console.error('Failed to save project', error)
   }

@@ -19,11 +19,23 @@ namespace Portfolio.Api.Data
 
             modelBuilder.Entity<Project>(p =>
             {
-                p.Property(x => x.Title).IsRequired().HasMaxLength(300);
+                p.HasKey(x => x.Id);
+
+                p.Property(x => x.Id)
+                  .ValueGeneratedNever();
+
+                p.Property(x => x.Title)
+                  .IsRequired()
+                  .HasMaxLength(300);
             });
 
             modelBuilder.Entity<ProjectImage>(pi =>
             {
+                pi.HasKey(x => x.Id);
+
+                pi.Property(x => x.Id)
+                    .ValueGeneratedNever();
+
                 pi.HasOne(x => x.Project)
                   .WithMany(x => x.Images)
                   .HasForeignKey(x => x.ProjectId)

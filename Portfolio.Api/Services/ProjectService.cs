@@ -210,13 +210,18 @@ namespace Portfolio.Api.Services
 
         private static bool UpdateProjectLinks(Project project, IReadOnlyList<EditProjectLinkInput>? inputs)
         {
-            if (inputs is null || inputs.Count == 0)
+            if (inputs is null)
                 return false;
 
             var changed = false;
 
             var existingLinksById = project.Links
                 .ToDictionary(link => link.Id);
+
+            var inputIds = inputs
+                .Where(input => input.Id is not null)
+                .Select(input => input.Id!.Value)
+                .ToHashSet();
 
             foreach (var input in inputs)
             {
@@ -246,6 +251,16 @@ namespace Portfolio.Api.Services
                     sortOrder: input.SortOrder);
 
                 project.AddLink(newLink);
+                changed = true;
+            }
+
+            var linksToRemove = project.Links
+                .Where(link => !inputIds.Contains(link.Id))
+                .ToList();
+
+            foreach (var link in linksToRemove)
+            {
+                project.RemoveLink(link);
                 changed = true;
             }
 

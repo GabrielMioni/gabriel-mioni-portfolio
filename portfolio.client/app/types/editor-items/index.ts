@@ -13,3 +13,9 @@ export type HasSort = {
 export type HasIsRemoved = {
   isRemoved: boolean
 }
+
+export type BaseEditorItem =
+  HasClientId &
+  HasId &
+  HasIsRemoved &
+  HasSort

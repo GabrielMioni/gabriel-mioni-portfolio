@@ -1,22 +1,9 @@
 import type {
   HasClientId,
   HasId,
+  HasIsRemoved,
   HasSort
 } from '~/types/editor-items'
-
-export const findEditorItemAndIndexByClientId = <T extends HasClientId>(
-  clientId: string,
-  items: T[]
-): { item: T, index: number } | null => {
-  const index = items.findIndex(item => item.clientId === clientId)
-
-  if (index < 0) return null
-
-  return {
-    item: items[index]!,
-    index
-  }
-}
 
 export const checkIfEditorItemsUpdated = <
   T extends HasId & HasSort,
@@ -65,22 +52,26 @@ export const normalizeEditorItemsSortOrder = <T extends HasSort>(
   }))
 }
 
-export const restoreEditorItem = <T extends HasClientId & HasSort>(
+export const removeEditorItem = <T extends HasSort & HasClientId & HasIsRemoved>(
   clientId: string,
-  removedItems: Ref<T[]>,
-  activeItems: Ref<T[]>
-): void => {
-  const result = findEditorItemAndIndexByClientId(clientId, removedItems.value)
-  if (!result) return
+  items: T[]
+) => {
+  const nextItems = items.map(item =>
+    item.clientId === clientId
+      ? { ...item, isRemoved: true }
+      : item
+  )
 
-  const { item, index } = result
+  return normalizeEditorItemsSortOrder(nextItems)
+}
 
-  const nextRemovedItems = [...removedItems.value]
-  nextRemovedItems.splice(index, 1)
-  removedItems.value = nextRemovedItems
-
-  activeItems.value.push({
-    ...item,
-    sort: activeItems.value.length
-  })
+export const restoreEditorItem = <T extends HasClientId & HasIsRemoved>(
+  clientId: string,
+  items: T[]
+): T[] => {
+  return items.map(item =>
+    item.clientId === clientId
+      ? { ...item, isRemoved: false }
+      : item
+  )
 }

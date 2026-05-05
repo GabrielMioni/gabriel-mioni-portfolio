@@ -58,11 +58,8 @@ const form = reactive({
   status: ProjectStatus.Draft
 })
 
-const activeImageItems = ref<ImageEditorItem[]>([])
-const removedImageItems = ref<ImageEditorItem[]>([])
-
-const activeLinkItems = ref<LinkEditorItem[]>([])
-const removedLinkItems = ref<LinkEditorItem[]>([])
+const imageItems = ref<ImageEditorItem[]>([])
+const linkItems = ref<LinkEditorItem[]>([])
 
 const hasInitialized = ref(false)
 
@@ -81,6 +78,12 @@ const {
     id
   }
 })
+
+const activeImageItems = computed(() => imageItems.value.filter(item => !item.isRemoved))
+const removedImageItems = computed(() => imageItems.value.filter(item => item.isRemoved))
+
+const activeLinkItems = computed(() => linkItems.value.filter(item => !item.isRemoved))
+const removedLinkItems = computed(() => linkItems.value.filter(item => item.isRemoved))
 
 const project = computed(() => {
   const ref = data.value?.projectById
@@ -110,12 +113,6 @@ const updateInput = computed<EditProjectInput>(() => ({
       url: i.url
     }))
 }))
-
-const imageCount = computed(() => activeImageItems.value.length)
-
-const pendingImagesLength = computed(() => {
-  return activeImageItems.value.filter(image => !image.id).length
-})
 
 const isInitialLoading = computed(() => fetching.value && !project.value)
 
@@ -148,7 +145,7 @@ const syncFromProject = (
       .sort((a, b) => a.sort - b.sort)
   )
 
-  activeImageItems.value = mappedImageItems
+  imageItems.value = mappedImageItems
   originalImageItems.value = mappedImageItems.map(item => ({ ...item }))
 
   const projectLinkFragments = useFragment(
@@ -162,7 +159,7 @@ const syncFromProject = (
       .sort((a, b) => a.sort - b.sort)
   )
 
-  activeLinkItems.value = mappedLinkItems
+  linkItems.value = mappedLinkItems
   originalLinkItems.value = mappedLinkItems.map(item => ({ ...item }))
 }
 
@@ -277,13 +274,9 @@ const submitEditProject = async () => {
 
     if (deleteImageIds.value.length > 0) {
       await handleDeleteItems()
-      removedImageItems.value = []
     }
 
     await refreshProject()
-    if (removedLinkItems.value.length > 0) {
-      removedLinkItems.value = []
-    }
   } catch (error) {
     console.error('Failed to save project', error)
   }
@@ -295,11 +288,11 @@ const openRemovedItemsDialog = () => {
 }
 
 const restoreImageItem = (clientId: string) => {
-  restoreEditorItem(clientId, removedImageItems, activeImageItems)
+  imageItems.value = restoreEditorItem(clientId, imageItems.value)
 }
 
 const restoreLinkItem = (clientId: string) => {
-  restoreEditorItem(clientId, removedLinkItems, activeLinkItems)
+  linkItems.value = restoreEditorItem(clientId, linkItems.value)
 }
 
 watch(
@@ -376,14 +369,12 @@ watch(
             </v-tabs-window-item>
             <v-tabs-window-item :value="tabValues.images">
               <ProjectImageUpload
-                v-model:items="activeImageItems"
-                v-model:removed="removedImageItems" />
+                v-model:items="imageItems" />
             </v-tabs-window-item>
             <v-tabs-window-item :value="tabValues.links">
               <ProjectLinks
                 v-model:is-valid="projectLinksIsValid"
-                v-model:items="activeLinkItems"
-                v-model:removed="removedLinkItems" />
+                v-model:items="linkItems" />
             </v-tabs-window-item>
           </div>
         </v-tabs-window>

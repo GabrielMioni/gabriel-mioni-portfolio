@@ -11,6 +11,7 @@ export const imageFragmentToEditorItem = (
     contentType: imageFragment.contentType ?? 'unknown',
     createdAt: imageFragment.createdAt,
     height: imageFragment.height ?? -1,
+    isRemoved: false,
     width: imageFragment.width ?? -1,
     fileName: null,
     fullKey: imageFragment.fullKey,

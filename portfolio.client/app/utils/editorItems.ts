@@ -52,26 +52,31 @@ export const normalizeEditorItemsSortOrder = <T extends HasSort>(
   }))
 }
 
-export const removeEditorItem = <T extends HasSort & HasClientId & HasIsRemoved>(
+const setEditorItemRemovedState = <T extends HasSort & HasClientId & HasIsRemoved> (
   clientId: string,
-  items: T[]
-) => {
+  items: T[],
+  isRemoved: boolean
+): T[] => {
   const nextItems = items.map(item =>
     item.clientId === clientId
-      ? { ...item, isRemoved: true }
+      ? { ...item, isRemoved }
       : item
   )
 
   return normalizeEditorItemsSortOrder(nextItems)
 }
 
-export const restoreEditorItem = <T extends HasClientId & HasIsRemoved>(
+export const removeEditorItem = <T extends HasSort & HasClientId & HasIsRemoved> (
   clientId: string,
   items: T[]
 ): T[] => {
-  return items.map(item =>
-    item.clientId === clientId
-      ? { ...item, isRemoved: false }
-      : item
-  )
+  return setEditorItemRemovedState(clientId, items, true)
+}
+
+export const restoreEditorItem = <T extends HasSort & HasClientId & HasIsRemoved>
+  (
+    clientId: string,
+    items: T[]
+  ): T[] => {
+  return setEditorItemRemovedState(clientId, items, false)
 }

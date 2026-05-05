@@ -9,3 +9,7 @@ export type HasId = {
 export type HasSort = {
   sort: number
 }
+
+export type HasIsRemoved = {
+  isRemoved: boolean
+}

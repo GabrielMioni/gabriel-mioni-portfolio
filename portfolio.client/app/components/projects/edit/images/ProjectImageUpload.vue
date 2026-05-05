@@ -1,47 +1,50 @@
 <script setup lang="ts">
 import { getOutputMimeType, resizeImageTo } from '~/utils/images/'
-import { findEditorItemAndIndexByClientId, normalizeEditorItemsSortOrder } from '~/utils/editorItems'
+import {
+  normalizeEditorItemsSortOrder,
+  removeEditorItem
+} from '~/utils/editorItems'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
-const activeUploadItems = defineModel<ImageEditorItem[]>('items', { required: true })
-const removedUploadItems = defineModel<ImageEditorItem[]>('removed', { required: true })
+const imageItems = defineModel<ImageEditorItem[]>('items', { required: true })
 
 const filesList = ref<File[]>([])
 
-const updateActiveUploadItems = (items: ImageEditorItem[]) => {
-  activeUploadItems.value = normalizeEditorItemsSortOrder(items)
-}
-
 const updateImageUploadItems = async (files: File[]) => {
-  if (files.length === 0) {
-    return
-  }
+  if (files.length === 0) return
 
-  let sort = activeUploadItems.value.length ?? 0
-  const items = await Promise.all(files.map(async file => {
+  let sort = imageItems.value.length ?? 0
 
-    const mimeType = getOutputMimeType(file)
+  const items = await Promise.all(
+    files.map(async file => {
+      const mimeType = getOutputMimeType(file)
 
-    const resizedThumb = await resizeImageTo(file, 200, 200, mimeType)
-    const resizedFull = await resizeImageTo(file, 1600, 1600, mimeType)
+      const resizedThumb = await resizeImageTo(file, 200, 200, mimeType)
+      const resizedFull = await resizeImageTo(file, 1600, 1600, mimeType)
 
-    return {
-      id: null,
-      clientId: crypto.randomUUID(),
-      contentType: file.type,
-      fileName: file.name,
-      sizeThumb: resizedThumb.blob.size,
-      sizeFull: resizedFull.blob.size,
-      altText: file.name,
-      thumbFile: resizedThumb.blob,
-      fullFile: resizedFull.blob,
-      height: resizedFull.height,
-      width: resizedFull.width,
-      sort: ++sort
-    }
-  }))
+      return {
+        id: null,
+        clientId: crypto.randomUUID(),
+        contentType: file.type,
+        fileName: file.name,
+        sizeThumb: resizedThumb.blob.size,
+        sizeFull: resizedFull.blob.size,
+        altText: file.name,
+        thumbFile: resizedThumb.blob,
+        fullFile: resizedFull.blob,
+        height: resizedFull.height,
+        width: resizedFull.width,
+        isRemoved: false,
+        sort: ++sort
+      }
+    })
+  )
 
-  activeUploadItems.value.push(...items)
+  imageItems.value = normalizeEditorItemsSortOrder([
+    ...imageItems.value,
+    ...items
+  ])
+
   filesList.value = []
 }
 
@@ -54,16 +57,7 @@ watch(
 )
 
 const removeImage = (clientId: string) => {
-  const result = findEditorItemAndIndexByClientId (clientId, activeUploadItems.value)
-  if (!result) return
-
-  const { item, index } = result
-
-  const nextActiveItems = [...activeUploadItems.value]
-  nextActiveItems.splice(index, 1)
-
-  removedUploadItems.value.push(item)
-  updateActiveUploadItems(nextActiveItems)
+  imageItems.value = removeEditorItem(clientId, imageItems.value)
 }
 
 </script>
@@ -74,14 +68,14 @@ const removeImage = (clientId: string) => {
     class="pa-0 project-image-upload">
     <v-row>
       <v-col>
-        <ProjectImageDropzone v-model="filesList"/>
+        <ProjectImageDropzone v-model="filesList" />
       </v-col>
     </v-row>
     <v-divider class="my-6" />
     <v-row>
       <v-col>
         <ProjectImageUploadList
-          v-model="activeUploadItems"
+          v-model="imageItems"
           @remove="removeImage" />
       </v-col>
     </v-row>

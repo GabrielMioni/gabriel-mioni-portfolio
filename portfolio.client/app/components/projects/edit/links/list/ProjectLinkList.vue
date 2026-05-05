@@ -8,7 +8,7 @@ defineEmits<{
 }>()
 
 const itemsLocal = computed({
-  get: () => model.value,
+  get: () => model.value.filter(item => !item.isRemoved),
   set: (value: LinkEditorItem[]) => {
     model.value = normalizeEditorItemsSortOrder(value)
   }

@@ -1,49 +1,29 @@
 <script setup lang="ts">
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
-import { findEditorItemAndIndexByClientId, normalizeEditorItemsSortOrder } from '~/utils/editorItems'
 import { ProjectLinkType } from '~/generated/graphql'
+import { removeEditorItem } from '~/utils/editorItems'
 
-const activeLinkItems = defineModel<LinkEditorItem[]>('items', { required: true })
+const linkItems = defineModel<LinkEditorItem[]>('items', { required: true })
 const isValid = defineModel<boolean | null>('isValid', { required: true })
-const removedLinkItems = defineModel<LinkEditorItem[]>('removed', { required: true })
-
-const updateActiveLinkItems = (items: LinkEditorItem[]) => {
-  activeLinkItems.value = normalizeEditorItemsSortOrder(items)
-}
 
 const createLink = (): LinkEditorItem => ({
   clientId: crypto.randomUUID(),
   url: '',
   text: '',
   type: ProjectLinkType.Repository,
-  sort: activeLinkItems.value.length + 1
+  sort: linkItems.value.length + 1,
+  isRemoved: false
 })
 
 const addLink = () => {
-  activeLinkItems.value = [
-    ...activeLinkItems.value,
+  linkItems.value = [
+    ...linkItems.value,
     createLink()
   ]
 }
 
 const removeLink = (clientId: string) => {
-  const result = findEditorItemAndIndexByClientId(clientId, activeLinkItems.value)
-  if (!result) return
-
-  const { item, index } = result
-
-  const isEmpty = !item.url && !item.text
-
-  const nextActiveItems = [...activeLinkItems.value]
-  nextActiveItems.splice(index, 1)
-
-  if (isEmpty || !item.id) {
-    updateActiveLinkItems(nextActiveItems)
-    return
-  }
-
-  removedLinkItems.value.push(item)
-  updateActiveLinkItems(nextActiveItems)
+  linkItems.value = removeEditorItem(clientId, linkItems.value)
 }
 
 </script>
@@ -60,7 +40,7 @@ const removeLink = (clientId: string) => {
           class="project-links-list-form"
           autocomplete="off">
           <ProjectLinkList
-            v-model="activeLinkItems"
+            v-model="linkItems"
             @remove="removeLink" />
         </v-form>
       </v-col>

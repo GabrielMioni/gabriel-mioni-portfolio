@@ -223,6 +223,16 @@ namespace Portfolio.Api.Services
                 .Select(input => input.Id!.Value)
                 .ToHashSet();
 
+            var linksToRemove = project.Links
+                .Where(link => !inputIds.Contains(link.Id))
+                .ToList();
+
+            foreach (var link in linksToRemove)
+            {
+                project.RemoveLink(link);
+                changed = true;
+            }
+
             foreach (var input in inputs)
             {
                 if (input.Id is Guid linkId)
@@ -251,16 +261,6 @@ namespace Portfolio.Api.Services
                     sortOrder: input.SortOrder);
 
                 project.AddLink(newLink);
-                changed = true;
-            }
-
-            var linksToRemove = project.Links
-                .Where(link => !inputIds.Contains(link.Id))
-                .ToList();
-
-            foreach (var link in linksToRemove)
-            {
-                project.RemoveLink(link);
                 changed = true;
             }
 

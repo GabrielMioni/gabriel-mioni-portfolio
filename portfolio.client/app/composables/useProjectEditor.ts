@@ -1,6 +1,8 @@
 import { useQuery } from '@urql/vue'
 import { useFragment } from '~/generated'
 import {
+  type CreateProjectInput,
+  type CreateProjectLinkInput,
   type EditProjectImageInput,
   type EditProjectInput,
   type EditProjectLinkInput,
@@ -24,6 +26,7 @@ import { linkFragmentToEditorItem } from '~/utils/links/linkEditorItems'
 
 export const useProjectEditor = () => {
   const route = useRoute()
+  const router = useRouter()
 
   const projectId = computed(() => {
     const id = route.params?.id
@@ -38,6 +41,7 @@ export const useProjectEditor = () => {
 
   const {
     editing,
+    createProject,
     editProject
     // TODO: add createProject
     // createProject
@@ -128,6 +132,25 @@ export const useProjectEditor = () => {
       .map(item => item.id)
       .filter((id): id is string => Boolean(id))
   )
+
+  const createProjectInput = computed<CreateProjectInput | null>(() => {
+    return {
+      title: projectDetailsModel.title,
+      summary: projectDetailsModel.summary,
+      body: projectDetailsModel.body,
+      status: projectDetailsModel.status,
+      links: activeLinkItems.value
+        .filter((i): i is LinkEditorItem =>
+          i.text.trim().length > 0 && isLikelyValidHttpUrl(i.url)
+        )
+        .map((i): CreateProjectLinkInput => ({
+          linkText: i.text,
+          linkType: i.type,
+          sortOrder: i.sort,
+          url: i.url
+        }))
+    }
+  })
 
   const editProjectInput = computed<EditProjectInput | null>(() => {
     if (!projectId.value) return null
@@ -306,10 +329,27 @@ export const useProjectEditor = () => {
   }
 
   const submitCreateProject = async () => {
-    if (!hasUpdates.value) return
+    try {
+      if (!hasUpdates.value || !createProjectInput.value) return
+      const result = await createProject(createProjectInput.value)
 
-    // TODO: implement project creation
-    console.warn('Create project flow has not been implemented yet.')
+      const newProjectId = result?.id
+
+      if (!newProjectId) {
+        console.error('Failed to retrieve new project ID after creation')
+      }
+
+      if (uploadItems.value.length > 0 && newProjectId) {
+        await uploadImages({
+          uploadItems: uploadItems.value,
+          projectId: newProjectId
+        })
+      }
+
+      await router.push(`/projects/${newProjectId}`)
+    } catch (error) {
+      console.error('Failed to create project', error)
+    }
   }
 
   const submitProject = async () => {

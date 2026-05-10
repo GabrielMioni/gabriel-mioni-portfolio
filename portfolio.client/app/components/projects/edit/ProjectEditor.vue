@@ -16,6 +16,7 @@ const {
   activeLinkItems,
   removedImageItems,
   removedLinkItems,
+  isNewProject,
   isSavingProject,
   hasUpdates,
   isInitialLoading,
@@ -89,7 +90,7 @@ const openRemovedItemsDialog = () => {
         </v-tabs>
         <v-spacer />
         <v-btn
-          v-if="tab === tabValues.images || tab === tabValues.links"
+          v-if="!isNewProject && (tab === tabValues.images || tab === tabValues.links)"
           text
           class="mr-3"
           prepend-icon="mdi-trash-can-outline"
@@ -132,16 +133,18 @@ const openRemovedItemsDialog = () => {
           </div>
         </v-tabs-window>
       </v-card>
-      <RemovedImagesDialog
-        v-if="tab === tabValues.images"
-        v-model="removedDialog"
-        :removed-image-items="removedImageItems"
-        @add="restoreImageItem" />
-      <RemovedLinksDialog
-        v-if="tab === tabValues.links"
-        v-model="removedDialog"
-        :removed-link-items="removedLinkItems"
-        @add="restoreLinkItem" />
+      <template v-if="!isNewProject">
+        <RemovedImagesDialog
+          v-if="tab === tabValues.images"
+          v-model="removedDialog"
+          :removed-image-items="removedImageItems"
+          @add="restoreImageItem" />
+        <RemovedLinksDialog
+          v-if="tab === tabValues.links"
+          v-model="removedDialog"
+          :removed-link-items="removedLinkItems"
+          @add="restoreLinkItem" />
+      </template>
     </template>
   </v-container>
 </template>

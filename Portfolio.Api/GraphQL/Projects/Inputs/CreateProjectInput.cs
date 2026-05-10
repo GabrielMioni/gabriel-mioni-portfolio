@@ -5,7 +5,8 @@ namespace Portfolio.Api.GraphQL.Projects.Inputs;
 public sealed record CreateProjectLinkInput(
     string Url,
     string LinkText,
-    ProjectLinkType LinkType
+    ProjectLinkType LinkType,
+    int SortOrder
 );
 
 public sealed record CreateProjectInput(

@@ -1,0 +1,151 @@
+<script setup lang="ts">
+const enum tabValues {
+  details = 'details',
+  images = 'images',
+  links = 'links'
+}
+
+const {
+  // refs
+  projectDetailsModel,
+  imageItems,
+  linkItems,
+
+  // computed
+  activeImageItems,
+  activeLinkItems,
+  removedImageItems,
+  removedLinkItems,
+  isSavingProject,
+  hasUpdates,
+  isInitialLoading,
+  projectLinksIsValid,
+
+  // methods
+  restoreImageItem,
+  restoreLinkItem,
+  submitProject
+} = useProjectEditor()
+
+const tab = ref<string>(tabValues.details)
+const removedDialog = ref(false)
+
+const hasRemovedItems = computed(() => {
+  if (tab.value === tabValues.images) {
+    return removedImageItems.value.length > 0
+  }
+  if (tab.value === tabValues.links) {
+    return removedLinkItems.value.length > 0
+  }
+  return true
+})
+
+const removedItemText = computed(() => {
+  if (!hasRemovedItems.value) {
+    return 'Empty'
+  }
+  if (tab.value === tabValues.images) {
+    return `Removed Images (${removedImageItems.value.length})`
+  }
+  if (tab.value === tabValues.links) {
+    return `Removed Links (${removedLinkItems.value.length})`
+  }
+  return ''
+})
+
+const openRemovedItemsDialog = () => {
+  if (!hasRemovedItems.value) return
+  removedDialog.value = true
+}
+
+</script>
+
+<template>
+  <v-container>
+    <div
+      v-if="isInitialLoading"
+      class="d-flex justify-center">
+      <v-progress-circular
+        size="60"
+        indeterminate />
+    </div>
+    <template v-else>
+      <v-toolbar
+        color="background"
+        class="position-sticky top-0"
+        style="z-index: 999">
+        <v-tabs v-model="tab">
+          <v-tab :value="tabValues.details">Details</v-tab>
+          <v-tab :value="tabValues.images">
+            <EditorItemTabDisplay
+              label="Images"
+              :items="activeImageItems" />
+          </v-tab>
+          <v-tab :value="tabValues.links">
+            <EditorItemTabDisplay
+              label="Links"
+              :items="activeLinkItems" />
+          </v-tab>
+        </v-tabs>
+        <v-spacer />
+        <v-btn
+          v-if="tab === tabValues.images || tab === tabValues.links"
+          text
+          class="mr-3"
+          prepend-icon="mdi-trash-can-outline"
+          :disabled="!hasRemovedItems"
+          @click="openRemovedItemsDialog">
+          {{ removedItemText }}
+        </v-btn>
+        <v-btn
+          text
+          class="mr-3"
+          @click="$router.back()">
+          Cancel
+        </v-btn>
+        <v-btn
+          class="bg-primary"
+          :disabled="isSavingProject || !projectLinksIsValid || !hasUpdates"
+          :loading="isSavingProject"
+          @click="submitProject">
+          Save
+        </v-btn>
+      </v-toolbar>
+      <v-card
+        flat>
+        <v-tabs-window v-model="tab">
+          <div class="mt-3">
+            <v-tabs-window-item :value="tabValues.details">
+              <ProjectDetails
+                v-model:form="projectDetailsModel"
+                v-model:is-valid="projectLinksIsValid" />
+            </v-tabs-window-item>
+            <v-tabs-window-item :value="tabValues.images">
+              <ProjectImageUpload
+                v-model:items="imageItems" />
+            </v-tabs-window-item>
+            <v-tabs-window-item :value="tabValues.links">
+              <ProjectLinks
+                v-model:is-valid="projectLinksIsValid"
+                v-model:items="linkItems" />
+            </v-tabs-window-item>
+          </div>
+        </v-tabs-window>
+      </v-card>
+      <RemovedImagesDialog
+        v-if="tab === tabValues.images"
+        v-model="removedDialog"
+        :removed-image-items="removedImageItems"
+        @add="restoreImageItem" />
+      <RemovedLinksDialog
+        v-if="tab === tabValues.links"
+        v-model="removedDialog"
+        :removed-link-items="removedLinkItems"
+        @add="restoreLinkItem" />
+    </template>
+  </v-container>
+</template>
+
+<style scoped>
+
+</style>

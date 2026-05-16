@@ -43,8 +43,6 @@ export const useProjectEditor = () => {
     editing,
     createProject,
     editProject
-    // TODO: add createProject
-    // createProject
   } = useProjectMutations()
 
   const {

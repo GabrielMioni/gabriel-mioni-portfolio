@@ -32,7 +32,7 @@ namespace Portfolio.Api.Services
                 title: input.Title,
                 summary: input.Summary,
                 body: input.Body,
-                status: ProjectStatus.Draft);
+                status: input.Status);
 
             db.Projects.Add(newProject);
 

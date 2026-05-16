@@ -7,8 +7,8 @@ const form = defineModel<ProjectBaseForm>('form', { required: true })
 const isValid = defineModel<boolean>('is-valid', { default: false })
 
 const statusOptions = [
-  { label: 'Archived', value: ProjectStatus.Archived },
   { label: 'Draft', value: ProjectStatus.Draft },
+  { label: 'Archived', value: ProjectStatus.Archived },
   { label: 'Published', value: ProjectStatus.Published }
 ]
 

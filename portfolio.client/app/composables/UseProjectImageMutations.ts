@@ -1,4 +1,5 @@
 import { useMutation } from '@urql/vue'
+import { useFragment } from '~/generated'
 import type {
   DeleteProjectImagesInput,
   FinalizeProjectImageUploadsInput,
@@ -9,15 +10,19 @@ import {
   DeleteProjectImagesDocument,
   FinalizeProjectImageUploadsDocument,
   PrepareProjectImageUploadsDocument,
-  ProjectImageUploadInstructionFragmentDoc,
-  ProjectFragmentDoc
+  ProjectFragmentDoc,
+  ProjectImageUploadInstructionFragmentDoc
 } from '~/generated/graphql'
-import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import {
   imageEditorItemsToProjectImagePrepareItemInput,
   uploadImagesToStorage
 } from '~/utils/images/'
+
+type UploadImageEditorItem = ImageEditorItem & {
+  fullFile: File
+  thumbFile: File
+}
 
 export const useProjectImageMutations = () => {
   const {
@@ -31,7 +36,7 @@ export const useProjectImageMutations = () => {
   } = useMutation(FinalizeProjectImageUploadsDocument)
 
   const {
-    executeMutation: deleteImagesUploadMutation,
+    executeMutation: deleteProjectImagesMutation,
     fetching: deletingImages
   } = useMutation(DeleteProjectImagesDocument)
 
@@ -49,28 +54,38 @@ export const useProjectImageMutations = () => {
     const items = response.data?.prepareProjectImageUploads.items
 
     if (!items?.length) {
-      throw new Error('No upload instructions returned')
+      throw new Error('No upload instructions returned.')
     }
 
     return useFragment(ProjectImageUploadInstructionFragmentDoc, items)
   }
 
-  const finalizeImageUploads = async (input: FinalizeProjectImageUploadsInput) => {
+  const finalizeImageUploads = async (
+    input: FinalizeProjectImageUploadsInput
+  ): Promise<ProjectFragment | null> => {
     const response = await finalizeImagesUploadMutation({ input })
 
     if (response.error) throw response.error
 
     const project = response.data?.finalizeProjectImageUploads.project ?? null
-    return project ? useFragment(ProjectFragmentDoc, project) : null
+
+    return project
+      ? useFragment(ProjectFragmentDoc, project)
+      : null
   }
 
-  const deleteImageUploads = async (input: DeleteProjectImagesInput) => {
-    const response = await deleteImagesUploadMutation({ input })
+  const deleteImageUploads = async (
+    input: DeleteProjectImagesInput
+  ): Promise<ProjectFragment | null> => {
+    const response = await deleteProjectImagesMutation({ input })
 
     if (response.error) throw response.error
 
     const project = response.data?.deleteProjectImages.project ?? null
-    return project ? useFragment(ProjectFragmentDoc, project) : null
+
+    return project
+      ? useFragment(ProjectFragmentDoc, project)
+      : null
   }
 
   const uploadImages = async ({
@@ -81,8 +96,8 @@ export const useProjectImageMutations = () => {
     projectId: string
   }) => {
     const validUploadItems = uploadItems.filter(
-      (item): item is ImageEditorItem =>
-        !!item.fullFile && !!item.thumbFile
+      (item): item is UploadImageEditorItem =>
+        item.fullFile instanceof File && item.thumbFile instanceof File
     )
 
     const items = imageEditorItemsToProjectImagePrepareItemInput(validUploadItems)
@@ -101,7 +116,7 @@ export const useProjectImageMutations = () => {
     })
 
     if (instructions.length !== items.length) {
-      throw new Error('Upload instruction count did not match upload item count')
+      throw new Error('Upload instruction count did not match upload item count.')
     }
 
     const {
@@ -109,24 +124,24 @@ export const useProjectImageMutations = () => {
       failedProjectImageIds
     } = await uploadImagesToStorage(instructions, validUploadItems)
 
-    let project: ProjectFragment | null = null
+    let updatedProject: ProjectFragment | null = null
 
     if (succeededProjectImageIds.length > 0) {
-      project = await finalizeImageUploads({
+      updatedProject = await finalizeImageUploads({
         projectId,
         projectImageIds: succeededProjectImageIds
       })
     }
 
     if (failedProjectImageIds.length > 0) {
-      project = await deleteImageUploads({
+      updatedProject = await deleteImageUploads({
         projectId,
         projectImageIds: failedProjectImageIds
       })
     }
 
     return {
-      project,
+      project: updatedProject,
       succeededProjectImageIds,
       failedProjectImageIds
     }

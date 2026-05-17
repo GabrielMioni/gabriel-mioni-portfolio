@@ -51,6 +51,8 @@ export const useProjectEditor = () => {
     uploadImages
   } = useProjectImageMutations()
 
+  const { showSnackbar } = useSnackbarStore()
+
   const {
     data,
     fetching,
@@ -287,57 +289,93 @@ export const useProjectEditor = () => {
   }
 
   const refreshProject = async () => {
-    if (!projectId.value) return
+    if (!projectId.value) return false
 
-    const result = await executeQuery({
-      requestPolicy: 'network-only'
-    })
+    try {
+      const result = await executeQuery({
+        requestPolicy: 'network-only'
+      })
 
-    const refreshedProjectRef = result.data?.value?.projectById
+      const refreshedProjectRef = result.data?.value?.projectById
 
-    if (!refreshedProjectRef) return
+      if (!refreshedProjectRef) {
+        showSnackbar('Project saved, but failed to refresh project data.', 'warning')
+        return false
+      }
 
-    const refreshedProject = useFragment(ProjectFragmentDoc, refreshedProjectRef)
-    syncFromProject(refreshedProject)
+      const refreshedProject = useFragment(ProjectFragmentDoc, refreshedProjectRef)
+      syncFromProject(refreshedProject)
+
+      return true
+    } catch (error) {
+      console.error('Failed to refresh project', error)
+      showSnackbar('Failed to refresh project', 'error')
+
+      return false
+    }
   }
 
   const deleteRemovedImages = async () => {
-    if (!projectId.value || deleteImageIds.value.length === 0) return
+    if (!projectId.value || deleteImageIds.value.length === 0) return true
 
-    await deleteImageUploads({
-      projectId: projectId.value,
-      projectImageIds: deleteImageIds.value
-    })
+    try {
+      await deleteImageUploads({
+        projectId: projectId.value,
+        projectImageIds: deleteImageIds.value
+      })
+
+      return true
+    } catch (error) {
+      console.error('Failed to delete removed images', error)
+      showSnackbar(`Failed to delete remove ${deleteImageIds.value.length} images`, 'error')
+
+      return false
+    }
   }
 
   const submitEditProject = async () => {
-    if (!projectId.value || !editProjectInput.value || !hasUpdates.value) return
+    if (!projectId.value || !editProjectInput.value || !hasUpdates.value) return false
 
-    await editProject(editProjectInput.value)
+    try {
+      await editProject(editProjectInput.value)
 
-    if (uploadItems.value.length > 0) {
-      await uploadImages({
-        uploadItems: uploadItems.value,
-        projectId: projectId.value
-      })
+      if (uploadItems.value.length > 0) {
+        await uploadImages({
+          uploadItems: uploadItems.value,
+          projectId: projectId.value
+        })
+      }
+
+      const imagesDeleted = await deleteRemovedImages()
+      if (!imagesDeleted) return false
+
+      const projectRefreshed = await refreshProject()
+      if (!projectRefreshed) return false
+
+      showSnackbar('Project saved.', 'success')
+      return true
+    } catch (error) {
+      console.error('Failed to edit project', error)
+      showSnackbar('Failed to save project', 'error')
+      return false
     }
-
-    await deleteRemovedImages()
-    await refreshProject()
   }
 
   const submitCreateProject = async () => {
-    try {
-      if (!hasUpdates.value || !createProjectInput.value) return
-      const result = await createProject(createProjectInput.value)
+    if (!hasUpdates.value || !createProjectInput.value) return false
 
+    try {
+      const result = await createProject(createProjectInput.value)
       const newProjectId = result?.id
 
       if (!newProjectId) {
-        console.error('Failed to retrieve new project ID after creation')
+        console.error('Project created but no project ID was returned.', result)
+        showSnackbar('Project created, but failed to retrieve the new project ID.', 'error')
+
+        return false
       }
 
-      if (uploadItems.value.length > 0 && newProjectId) {
+      if (uploadItems.value.length > 0) {
         await uploadImages({
           uploadItems: uploadItems.value,
           projectId: newProjectId
@@ -345,8 +383,15 @@ export const useProjectEditor = () => {
       }
 
       await router.push(`/projects/${newProjectId}`)
+
+      showSnackbar('Project created.', 'success')
+
+      return true
     } catch (error) {
       console.error('Failed to create project', error)
+      showSnackbar('Failed to create project', 'error')
+
+      return false
     }
   }
 
@@ -360,6 +405,7 @@ export const useProjectEditor = () => {
       await submitEditProject()
     } catch (error) {
       console.error('Failed to save project', error)
+      showSnackbar('Failed to save project', 'error')
     }
   }
 
@@ -415,11 +461,7 @@ export const useProjectEditor = () => {
 
     editProjectInput,
 
-    refreshProject,
     submitProject,
-    submitEditProject,
-    submitCreateProject,
-
     restoreImageItem,
     restoreLinkItem
   }

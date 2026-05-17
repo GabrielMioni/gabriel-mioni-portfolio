@@ -429,40 +429,25 @@ export const useProjectEditor = () => {
   )
 
   return {
-    projectId,
-    project,
-    isExistingProject,
-    isNewProject,
-
+    // refs
     projectDetailsModel,
     imageItems,
     linkItems,
 
+    // computed
+    activeImageItems,
+    activeLinkItems,
+    removedImageItems,
+    removedLinkItems,
+    isNewProject,
+    isSavingProject,
+    hasUpdates,
+    isInitialLoading,
     projectLinksIsValid,
 
-    activeImageItems,
-    removedImageItems,
-    uploadItems,
-
-    activeLinkItems,
-    removedLinkItems,
-    newLinkItems,
-
-    deleteImageIds,
-
-    fetching,
-    isInitialLoading,
-    isSavingProject,
-
-    hasFieldUpdates,
-    hasExistingImageUpdates,
-    hasExistingLinkUpdates,
-    hasUpdates,
-
-    editProjectInput,
-
-    submitProject,
+    // methods
     restoreImageItem,
-    restoreLinkItem
+    restoreLinkItem,
+    submitProject
   }
 }

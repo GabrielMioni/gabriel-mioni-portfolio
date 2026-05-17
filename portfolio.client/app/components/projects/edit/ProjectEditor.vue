@@ -28,6 +28,8 @@ const {
   submitProject
 } = useProjectEditor()
 
+const router = useRouter()
+
 const tab = ref<string>(tabValues.details)
 const removedDialog = ref(false)
 
@@ -57,6 +59,10 @@ const removedItemText = computed(() => {
 const openRemovedItemsDialog = () => {
   if (!hasRemovedItems.value) return
   removedDialog.value = true
+}
+
+const goToProjects = () => {
+  router.push('/projects')
 }
 
 </script>
@@ -101,7 +107,7 @@ const openRemovedItemsDialog = () => {
         <v-btn
           text
           class="mr-3"
-          @click="$router.back()">
+          @click="goToProjects">
           Cancel
         </v-btn>
         <v-btn

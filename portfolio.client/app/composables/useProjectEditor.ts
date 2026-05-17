@@ -55,16 +55,22 @@ export const useProjectEditor = () => {
 
   const {
     data,
+    error,
     fetching,
     executeQuery
-    // TODO: handle error
-    // error
   } = useQuery({
     query: GetProjectByIdDocument,
     variables: computed(() => ({
       id: projectId.value ?? ''
     })),
     pause: computed(() => !projectId.value)
+  })
+
+  watch(error, (currentError) => {
+    if (currentError) {
+      console.error('Failed to fetch project data', currentError)
+      showSnackbar('Failed to load project data', 'error')
+    }
   })
 
   const projectLinksIsValid = ref(false)

@@ -8,11 +8,7 @@ export default defineNuxtConfig({
   components: [
     { path: '~/components', pathPrefix: false }
   ],
-  modules: [
-    '@nuxt/eslint',
-    '@vueuse/nuxt',
-    'vuetify-nuxt-module'
-  ],
+  modules: ['@nuxt/eslint', '@vueuse/nuxt', 'vuetify-nuxt-module', '@pinia/nuxt'],
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',

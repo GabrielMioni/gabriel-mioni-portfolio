@@ -1,5 +1,6 @@
 ﻿using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Inputs;
+using Portfolio.Api.GraphQL.Projects.Payloads;
 using Portfolio.Api.GraphQL.Projects.Types;
 using Portfolio.Api.Services;
 using Portfolio.Api.Services.Storage;
@@ -13,6 +14,15 @@ namespace Portfolio.Api.GraphQL.Projects
             return projects.CreateAsync(input, ct);
         }
 
+        public async Task<DeleteProjectPayload> DeleteProject(
+            DeleteProjectInput input,
+            [Service] ProjectService projects,
+            CancellationToken ct = default)
+        {
+            var projectId = await projects.DeleteProjectAsync(input.ProjectId, ct);
+
+            return new DeleteProjectPayload(projectId);
+        }
         public Task<Project?> EditProject(EditProjectInput input, [Service] ProjectService projects, CancellationToken ct = default)
         {
             return projects.EditProjectAsync(input, ct);

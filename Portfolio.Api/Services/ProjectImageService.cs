@@ -3,6 +3,7 @@ using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Inputs;
 using Portfolio.Api.GraphQL.Projects.Payloads;
+using Portfolio.Api.Services.Helpers;
 using Portfolio.Api.Services.Storage;
 
 namespace Portfolio.Api.Services;
@@ -115,8 +116,8 @@ public class ProjectImageService
     }
 
     public async Task<Project> DeleteProjectImagesAsync(
-        DeleteProjectImagesInput input,
-        CancellationToken ct)
+    DeleteProjectImagesInput input,
+    CancellationToken ct)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
@@ -128,13 +129,11 @@ public class ProjectImageService
             .Where(i => targetIds.Contains(i.Id))
             .ToList();
 
-        var deleteKeys = new HashSet<string>();
+        var deleteKeys = ProjectImageStorageKeyHelper.GetStorageKeys(imagesToDelete);
 
         foreach (var image in imagesToDelete)
         {
             project.RemoveImage(image);
-            deleteKeys.Add(image.FullKey);
-            deleteKeys.Add(image.ThumbKey);
         }
 
         var orderedRemainingImages = project.Images

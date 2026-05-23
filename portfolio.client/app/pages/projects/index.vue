@@ -54,8 +54,23 @@ const editDialog = computed({
   }
 })
 
+const deleteDialog = computed({
+  get: () => !!deleteDialogId.value,
+  set: (val) => {
+    if (!val) {
+      deleteDialogId.value = null
+    }
+  }
+})
+
 const selectedEditProject = computed(() => {
   const id = editDialogId.value
+  if (!id) return null
+  return projects.value.find((p) => p.id === id) ?? null
+})
+
+const selectedDeleteProject = computed(() => {
+  const id = deleteDialogId.value
   if (!id) return null
   return projects.value.find((p) => p.id === id) ?? null
 })
@@ -76,6 +91,7 @@ provide('projectActions', {
 const {
   projects,
   pageInfo,
+  refetchProjects,
   totalCount
 } = useProjectQueries(queryVars)
 
@@ -97,6 +113,10 @@ const {
     <ProjectDialog
       v-model="editDialog"
       :project="selectedEditProject" />
+    <DeleteProjectDialog
+      v-model="deleteDialog"
+      :project="selectedDeleteProject"
+      @deleted="refetchProjects"/>
   </v-container>
 </template>
 

@@ -1,17 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.Extensions.Msal;
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Inputs;
+using Portfolio.Api.Services.Helpers;
+using Portfolio.Api.Services.Storage;
 
 namespace Portfolio.Api.Services;
 
 public class ProjectService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
+    private readonly IObjectStorage _storage;
 
-    public ProjectService(IDbContextFactory<AppDbContext> dbFactory)
+    public ProjectService(IDbContextFactory<AppDbContext> dbFactory, IObjectStorage storage)
     {
         _dbFactory = dbFactory;
+        _storage = storage;
     }
 
     public async Task<Project?> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -43,6 +48,33 @@ public class ProjectService
         return newProject;
     }
 
+    public async Task<Guid> DeleteProjectAsync(
+        Guid projectId,
+        CancellationToken ct)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+        var project = await db.Projects
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
+
+        if (project is null)
+        {
+            throw new InvalidOperationException(
+                $"No project for '{projectId}' found.");
+        }
+
+        var deleteKeys = ProjectImageStorageKeyHelper.GetStorageKeys(project.Images);
+
+        db.Projects.Remove(project);
+
+        await db.SaveChangesAsync(ct);
+
+        await _storage.DeleteImagesAsync(deleteKeys, ct);
+
+        return projectId;
+    }
+
     public async Task<Project?> EditProjectAsync(EditProjectInput input, CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
@@ -70,8 +102,6 @@ public class ProjectService
 
         if (!changed)
             return project;
-
-        // await db.SaveChangesAsync(ct);
 
         try
         {

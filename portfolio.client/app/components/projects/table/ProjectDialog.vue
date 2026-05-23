@@ -96,7 +96,7 @@ const submit = async () => {
     divider
     :title="title"
     :persistent="editing || creating">
-    <ProjectForm
+    <ProjectDetails
       v-model:form="form"
       v-model:is-valid="isValid" />
     <template #actions>

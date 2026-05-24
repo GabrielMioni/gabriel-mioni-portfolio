@@ -97,35 +97,35 @@ const goToProjects = () => {
           </v-tab>
         </v-tabs>
         <v-spacer />
-        <v-btn
-          v-if="!isNewProject && (tab === tabValues.images || tab === tabValues.links)"
-          text
-          class="mr-3"
-          prepend-icon="mdi-trash-can-outline"
-          :disabled="!hasRemovedItems"
-          @click="openRemovedItemsDialog">
-          {{ removedItemText }}
-        </v-btn>
-        <v-btn
-          v-if="!isNewProject"
-          text
-          color="error"
-          @click="deleteProjectDialog = true">
-          Delete
-        </v-btn>
-        <v-btn
-          text
-          class="mr-3"
-          @click="goToProjects">
-          Cancel
-        </v-btn>
-        <v-btn
-          class="bg-primary"
-          :disabled="isSavingProject || !projectLinksIsValid || !hasUpdates"
-          :loading="isSavingProject"
-          @click="submitProject">
-          Save
-        </v-btn>
+        <v-card-actions>
+          <v-btn
+            v-if="!isNewProject && (tab === tabValues.images || tab === tabValues.links)"
+            text
+            prepend-icon="mdi-trash-can-outline"
+            :disabled="!hasRemovedItems"
+            @click="openRemovedItemsDialog">
+            {{ removedItemText }}
+          </v-btn>
+          <v-btn
+            v-if="!isNewProject"
+            text
+            color="error"
+            @click="deleteProjectDialog = true">
+            Delete
+          </v-btn>
+          <v-btn
+            text
+            @click="goToProjects">
+            Cancel
+          </v-btn>
+          <v-btn
+            class="bg-primary"
+            :disabled="isSavingProject || !projectLinksIsValid || !hasUpdates"
+            :loading="isSavingProject"
+            @click="submitProject">
+            Save
+          </v-btn>
+        </v-card-actions>
       </v-toolbar>
       <v-card
         flat>

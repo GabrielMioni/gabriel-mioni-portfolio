@@ -20,6 +20,7 @@ const {
   isSavingProject,
   hasUpdates,
   isInitialLoading,
+  projectId,
   projectLinksIsValid,
 
   // methods
@@ -32,6 +33,7 @@ const router = useRouter()
 
 const tab = ref<string>(tabValues.details)
 const removedDialog = ref(false)
+const deleteProjectDialog = ref<boolean>(false)
 
 const hasRemovedItems = computed(() => {
   if (tab.value === tabValues.images) {
@@ -105,6 +107,13 @@ const goToProjects = () => {
           {{ removedItemText }}
         </v-btn>
         <v-btn
+          v-if="!isNewProject"
+          text
+          color="error"
+          @click="deleteProjectDialog = true">
+          Delete
+        </v-btn>
+        <v-btn
           text
           class="mr-3"
           @click="goToProjects">
@@ -150,6 +159,11 @@ const goToProjects = () => {
           v-model="removedDialog"
           :removed-link-items="removedLinkItems"
           @add="restoreLinkItem" />
+        <DeleteProjectDialog
+          v-if="!isNewProject && projectId"
+          v-model="deleteProjectDialog"
+          :project-id="projectId"
+          @deleted="goToProjects" />
       </template>
     </template>
   </v-container>

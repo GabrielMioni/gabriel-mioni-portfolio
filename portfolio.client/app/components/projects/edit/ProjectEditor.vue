@@ -97,7 +97,7 @@ const goToProjects = () => {
           </v-tab>
         </v-tabs>
         <v-spacer />
-        <v-card-actions>
+        <div class="project-editor-actions">
           <v-btn
             v-if="!isNewProject && (tab === tabValues.images || tab === tabValues.links)"
             text
@@ -125,7 +125,7 @@ const goToProjects = () => {
             @click="submitProject">
             Save
           </v-btn>
-        </v-card-actions>
+        </div>
       </v-toolbar>
       <v-card
         flat>
@@ -170,5 +170,8 @@ const goToProjects = () => {
 </template>
 
 <style scoped>
-
+.project-editor-actions {
+  display: flex;
+  gap: 0.5rem;
+}
 </style>

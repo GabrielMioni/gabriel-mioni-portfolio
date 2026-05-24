@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Project } from '~/generated/graphql'
 
 const { deleteProject, deleting } = useProjectMutations()
 
@@ -10,13 +9,23 @@ const emit = defineEmits<{
   (e: 'deleted'): void
 }>()
 
-const props = defineProps<{
-  project?: Project | null
-}>()
+const props = withDefaults(
+  defineProps<{
+      projectId: string,
+      title?: string | null,
+      summary?: string | null,
+    }>(),
+  {
+    title: null,
+    summary: null
+  }
+)
+
+const showDetails = computed(() => !!(props.title || props.summary))
 
 const deleteProjectAsync = async () => {
   try {
-    const projectId = props.project?.id
+    const projectId = props.projectId
     if (!projectId) {
       return
     }
@@ -38,10 +47,12 @@ const deleteProjectAsync = async () => {
     :persistent="deleting"
     width="500"
     title="Delete Project">
-    <div class="mb-3">
+    <div :class="{ 'mb-3': showDetails }">
       Are you sure you want to delete this project?
     </div>
-    <v-container class="pa-0">
+    <v-container
+      v-if="showDetails"
+      class="pa-0">
       <v-row no-gutters>
         <v-col
           cols="3"
@@ -51,7 +62,7 @@ const deleteProjectAsync = async () => {
         <v-col>
           <div
             class="font-italic"
-            v-text="(props.project?.title ?? '').trim()"/>
+            v-text="(props.title ?? '').trim()"/>
         </v-col>
       </v-row>
       <v-row no-gutters>
@@ -63,7 +74,7 @@ const deleteProjectAsync = async () => {
         <v-col>
           <div
             class="font-italic"
-            v-text="(props.project?.summary ?? '').trim()"/>
+            v-text="(props.summary ?? '').trim()"/>
         </v-col>
       </v-row>
     </v-container>

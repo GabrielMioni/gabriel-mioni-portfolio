@@ -449,6 +449,7 @@ export const useProjectEditor = () => {
     isSavingProject,
     hasUpdates,
     isInitialLoading,
+    projectId,
     projectLinksIsValid,
 
     // methods

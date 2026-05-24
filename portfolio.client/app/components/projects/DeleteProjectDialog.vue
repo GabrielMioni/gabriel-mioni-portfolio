@@ -39,6 +39,26 @@ const deleteProjectAsync = async () => {
   }
 }
 
+const summaryDisplay = computed(() => {
+  if (!props.summary) return ''
+  return shorten(props.summary)
+})
+
+const titleDisplay = computed(() => {
+  if (!props.title) return ''
+  return shorten(props.title)
+})
+
+const shorten = (val?: string | null) => {
+  if (!val) return ''
+  const shortenVal = 50
+  const value = val.trim()
+  if (value.length > shortenVal) {
+    return value.slice(0, shortenVal) + '...'
+  }
+  return value
+}
+
 </script>
 
 <template>
@@ -62,7 +82,7 @@ const deleteProjectAsync = async () => {
         <v-col>
           <div
             class="font-italic"
-            v-text="(props.title ?? '').trim()"/>
+            v-text="titleDisplay"/>
         </v-col>
       </v-row>
       <v-row no-gutters>
@@ -74,7 +94,7 @@ const deleteProjectAsync = async () => {
         <v-col>
           <div
             class="font-italic"
-            v-text="(props.summary ?? '').trim()"/>
+            v-text="summaryDisplay"/>
         </v-col>
       </v-row>
     </v-container>

@@ -114,8 +114,11 @@ const {
       v-model="editDialog"
       :project="selectedEditProject" />
     <DeleteProjectDialog
+      v-if="selectedDeleteProject"
       v-model="deleteDialog"
-      :project="selectedDeleteProject"
+      :title="selectedDeleteProject?.title"
+      :summary="selectedDeleteProject?.summary"
+      :project-id="selectedDeleteProject?.id"
       @deleted="refetchProjects"/>
   </v-container>
 </template>

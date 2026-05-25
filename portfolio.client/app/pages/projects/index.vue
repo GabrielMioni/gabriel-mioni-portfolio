@@ -4,14 +4,51 @@ import type { TableOptions } from '~/types/ui/datatable'
 import { toGraphqlSort, toGraphqlFilterInput } from '~/utils/graphql'
 import { useProjectQueries } from '~/composables/useProjectQueries'
 
-const tableOptions = ref<TableOptions>({
-  page: 1,
-  itemsPerPage: 10,
-  sortBy: [],
-  groupBy: [],
-  search: ''
-})
-const search = ref<string>('')
+const route = useRoute()
+const router = useRouter()
+
+const getPositiveNumberFromQuery = (
+  value: unknown,
+  fallback: number
+): number => {
+  if (typeof value !== 'string') return fallback
+
+  const parsed = Number(value)
+
+  return Number.isFinite(parsed) && parsed > 0
+    ? parsed
+    : fallback
+}
+
+const getStringFromQuery = (
+  value: unknown,
+  fallback = ''
+): string => {
+  return typeof value === 'string'
+    ? value
+    : fallback
+}
+
+const getInitialTableOptions = (): TableOptions => {
+  const page = getPositiveNumberFromQuery(route.query.page, 1)
+  const itemsPerPage = getPositiveNumberFromQuery(route.query.itemsPerPage, 10)
+  const search = getStringFromQuery(route.query.search).trim()
+
+  return {
+    page,
+    itemsPerPage,
+    sortBy: [],
+    groupBy: [],
+    search
+  }
+}
+
+const tableOptions = ref<TableOptions>(getInitialTableOptions())
+const search = ref<string>((tableOptions.value?.search ?? '').trim())
+
+const editDialogId = ref<string | null>(null)
+const deleteDialogId = ref<string | null>(null)
+const newDraft = ref(false)
 
 const queryVars = computed<GetProjectsQueryVariables>(() => {
   const options = tableOptions.value
@@ -25,24 +62,72 @@ const queryVars = computed<GetProjectsQueryVariables>(() => {
     order: options.sortBy?.length
       ? toGraphqlSort(options.sortBy)
       : undefined,
-    where: toGraphqlFilterInput(tableOptions.value.search) ?? undefined
+    where: toGraphqlFilterInput(options.search) ?? undefined
   }
 })
 
+const replaceRouteQueryFromOptions = async (options: TableOptions) => {
+  const nextQuery: Record<string, string> = {
+    page: String(options.page),
+    itemsPerPage: String(options.itemsPerPage)
+  }
+
+  const trimmedSearch = options.search?.trim() ?? ''
+
+  if (trimmedSearch.length > 0) {
+    nextQuery.search = trimmedSearch
+  }
+
+  const currentPage = String(route.query.page ?? '1')
+  const currentItemsPerPage = String(route.query.itemsPerPage ?? '10')
+  const currentSearch = String(route.query.search ?? '')
+
+  const queryIsAlreadyCurrent =
+      currentPage === nextQuery.page &&
+      currentItemsPerPage === nextQuery.itemsPerPage &&
+      currentSearch === (nextQuery.search ?? '')
+
+  if (queryIsAlreadyCurrent) return
+
+  await router.replace({
+    query: nextQuery
+  })
+}
+
+const updateTableOptions = async (options: TableOptions) => {
+  tableOptions.value = {
+    ...tableOptions.value,
+    ...options,
+    search: tableOptions.value.search
+  }
+
+  await replaceRouteQueryFromOptions(tableOptions.value)
+}
+
 watchDebounced(
   search,
-  (val) => {
+  async (val) => {
     const next = val.trim()
+
     if (next === tableOptions.value.search) return
-    tableOptions.value.search = next
-    tableOptions.value.page = 1
+
+    tableOptions.value = {
+      ...tableOptions.value,
+      search: next,
+      page: 1
+    }
+
+    await replaceRouteQueryFromOptions(tableOptions.value)
   },
   { debounce: 350, maxWait: 1000 }
 )
 
-const editDialogId = ref<string | null>(null)
-const deleteDialogId = ref<string | null>(null)
-const newDraft = ref(false)
+const {
+  projects,
+  pageInfo,
+  refetchProjects,
+  totalCount
+} = useProjectQueries(queryVars)
 
 const editDialog = computed({
   get: () => !!editDialogId.value || newDraft.value,
@@ -66,18 +151,21 @@ const deleteDialog = computed({
 const selectedEditProject = computed(() => {
   const id = editDialogId.value
   if (!id) return null
-  return projects.value.find((p) => p.id === id) ?? null
+
+  return projects.value.find((project) => project.id === id) ?? null
 })
 
 const selectedDeleteProject = computed(() => {
   const id = deleteDialogId.value
   if (!id) return null
-  return projects.value.find((p) => p.id === id) ?? null
+
+  return projects.value.find((project) => project.id === id) ?? null
 })
 
 const onEdit = (id: string) => {
   editDialogId.value = id
 }
+
 const onDelete = (id: string) => {
   deleteDialogId.value = id
 }
@@ -86,15 +174,6 @@ provide('projectActions', {
   edit: onEdit,
   delete: onDelete
 })
-
-
-const {
-  projects,
-  pageInfo,
-  refetchProjects,
-  totalCount
-} = useProjectQueries(queryVars)
-
 </script>
 
 <template>
@@ -102,12 +181,13 @@ const {
     <v-row>
       <v-col class="px-0">
         <ProjectsTable
-          v-model:options="tableOptions"
           v-model:search="search"
+          :options="tableOptions"
           :projects="projects"
           :total-count="totalCount"
           :page-info="pageInfo"
-          @new-draft="newDraft = true"/>
+          @update:options="updateTableOptions"
+          @new-draft="newDraft = true" />
       </v-col>
     </v-row>
     <ProjectDialog
@@ -116,10 +196,10 @@ const {
     <DeleteProjectDialog
       v-if="selectedDeleteProject"
       v-model="deleteDialog"
-      :title="selectedDeleteProject?.title"
-      :summary="selectedDeleteProject?.summary"
-      :project-id="selectedDeleteProject?.id"
-      @deleted="refetchProjects"/>
+      :title="selectedDeleteProject.title"
+      :summary="selectedDeleteProject.summary"
+      :project-id="selectedDeleteProject.id"
+      @deleted="refetchProjects" />
   </v-container>
 </template>
 

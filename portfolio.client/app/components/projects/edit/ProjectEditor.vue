@@ -31,6 +31,8 @@ const {
 
 const router = useRouter()
 
+const { smAndDown } = useDisplay()
+
 const tab = ref<string>(tabValues.details)
 const removedDialog = ref(false)
 const deleteProjectDialog = ref<boolean>(false)
@@ -42,7 +44,7 @@ const hasRemovedItems = computed(() => {
   if (tab.value === tabValues.links) {
     return removedLinkItems.value.length > 0
   }
-  return true
+  return false
 })
 
 const removedItemText = computed(() => {
@@ -56,6 +58,35 @@ const removedItemText = computed(() => {
     return `Removed Links (${removedLinkItems.value.length})`
   }
   return ''
+})
+
+const menuItems = computed(() => {
+  return [
+    {
+      title: removedItemText.value,
+      icon: 'mdi-delete-restore',
+      disabled: !hasRemovedItems.value,
+      action: () => {
+        openRemovedItemsDialog()
+      }
+    },
+    {
+      title: 'Cancel',
+      icon: 'mdi-open-in-app',
+      action: () => {
+        goToProjects()
+      }
+    },
+    {
+      title: 'Delete',
+      icon: 'mdi-file-document',
+      itemClass: 'text-error',
+      filter: isNewProject.value,
+      action: () => {
+        deleteProjectDialog.value = true
+      }
+    }
+  ].filter(i => !i.filter)
 })
 
 const openRemovedItemsDialog = () => {
@@ -98,26 +129,31 @@ const goToProjects = () => {
         </v-tabs>
         <v-spacer />
         <div class="project-editor-actions">
-          <v-btn
-            v-if="!isNewProject && (tab === tabValues.images || tab === tabValues.links)"
-            text
-            prepend-icon="mdi-trash-can-outline"
-            :disabled="!hasRemovedItems"
-            @click="openRemovedItemsDialog">
-            {{ removedItemText }}
-          </v-btn>
-          <v-btn
-            v-if="!isNewProject"
-            text
-            color="error"
-            @click="deleteProjectDialog = true">
-            Delete
-          </v-btn>
-          <v-btn
-            text
-            @click="goToProjects">
-            Cancel
-          </v-btn>
+          <BaseMenu
+            v-if="smAndDown"
+            :items="menuItems" />
+          <template v-else>
+            <v-btn
+              v-if="!isNewProject && (tab === tabValues.images || tab === tabValues.links)"
+              text
+              prepend-icon="mdi-delete-restore"
+              :disabled="!hasRemovedItems"
+              @click="openRemovedItemsDialog">
+              {{ removedItemText }}
+            </v-btn>
+            <v-btn
+              v-if="!isNewProject"
+              text
+              color="error"
+              @click="deleteProjectDialog = true">
+              Delete
+            </v-btn>
+            <v-btn
+              text
+              @click="goToProjects">
+              Cancel
+            </v-btn>
+          </template>
           <v-btn
             class="bg-primary"
             :disabled="isSavingProject || !projectLinksIsValid || !hasUpdates"

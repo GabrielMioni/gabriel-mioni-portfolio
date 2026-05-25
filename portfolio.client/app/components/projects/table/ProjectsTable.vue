@@ -9,9 +9,20 @@ type ColumnKey = ProjectKey | ActionKey
 
 type ProjectHeader = Header<ColumnKey>
 
-const emits = defineEmits<{
+const props = defineProps<{
+  options: TableOptions
+  projects: Project[]
+  totalCount: number
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:options', options: TableOptions): void
   (e: 'new-draft'): void
 }>()
+
+const search = defineModel<string>('search', {
+  required: true
+})
 
 const headers: ProjectHeader[] = [
   {
@@ -45,7 +56,7 @@ const menuItems: MenuItem[] = [
     title: 'New Draft',
     icon: 'mdi-pencil',
     action: () => {
-      emits('new-draft')
+      emit('new-draft')
     }
   },
   {
@@ -55,26 +66,18 @@ const menuItems: MenuItem[] = [
   }
 ]
 
-const options = defineModel<TableOptions>('options')
-const search = defineModel<string>('search')
-
-defineProps<{
-  projects: Project[],
-  totalCount: number
-}>()
-
 const expanded = ref<string[]>([])
-
 </script>
 
 <template>
   <BaseTable
-    v-model:options="options"
     v-model:expanded="expanded"
-    :density="'comfortable'"
+    :options="props.options"
     :headers="headers"
     :items="projects"
-    :items-length="totalCount">
+    :items-length="totalCount"
+    density="comfortable"
+    @update:options="emit('update:options', $event)">
     <template #top>
       <v-container
         fluid
@@ -92,7 +95,7 @@ const expanded = ref<string[]>([])
             cols="auto"
             align-self="center"
             justify="end">
-            <BaseMenu :items="menuItems"/>
+            <BaseMenu :items="menuItems" />
           </v-col>
         </v-row>
       </v-container>
@@ -112,7 +115,3 @@ const expanded = ref<string[]>([])
     </template>
   </BaseTable>
 </template>
-
-<style>
-
-</style>

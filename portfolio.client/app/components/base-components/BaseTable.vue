@@ -1,43 +1,39 @@
 <script setup lang="ts" generic="T">
 import type { Header, TableOptions } from '~/types/ui/datatable'
 
-const options = defineModel<TableOptions>('options', {
-  default: () => ({
-    page: 1,
-    itemsPerPage: 10,
-    sortBy: [],
-    groupBy: [],
-    search: ''
-  })
-})
-
-const expanded = defineModel<string[]>('expanded', {
-  default: () => []
-})
-
-withDefaults(defineProps<{
+defineProps<{
   headers?: Header[] | undefined
   density?: 'default' | 'comfortable' | 'compact' | null
   items: T[]
   itemsLength: number
   itemValue?: string
-}>(), {
-  headers: undefined,
-  density: 'default',
-  itemValue: 'id'
+  options: TableOptions
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:options', options: TableOptions): void
+}>()
+
+const expanded = defineModel<string[]>('expanded', {
+  default: () => []
 })
 </script>
 
 <template>
   <v-data-table-server
-    v-model:options="options"
     v-model:expanded="expanded"
-    :density="density"
+    :density="density ?? 'default'"
     :headers="headers"
     :items="items"
     :items-length="itemsLength"
-    :item-value="itemValue"
-    class="base-table">
+    :item-value="itemValue ?? 'id'"
+    :page="options.page"
+    :items-per-page="options.itemsPerPage"
+    :sort-by="options.sortBy"
+    :group-by="options.groupBy"
+    :search="options.search"
+    class="base-table"
+    @update:options="emit('update:options', $event)">
     <template
       v-if="$slots.top"
       #top>

@@ -6,10 +6,10 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Portfolio.Api.Data;
 using Portfolio.Api.Infrastructure.Storage;
-using Portfolio.Api.GraphQL.Projects;
 using Portfolio.Api.GraphQL.Projects.Types;
 using Portfolio.Api.Services;
 using Portfolio.Api.Services.Storage;
+using Portfolio.Api.GraphQL.Projects.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,9 +43,9 @@ builder.Services.AddAuthorization();
 
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType<ProjectQuery>()
-    .AddMutationType<ProjectMutation>()
-    .AddTypeExtension<ProjectImageMutation>()
+    .AddQueryType<AdminProjectQuery>()
+    .AddMutationType<AdminProjectMutation>()
+    .AddTypeExtension<AdminProjectImageMutation>()
     .AddType<ProjectType>()
     .AddProjections()
     .AddFiltering()

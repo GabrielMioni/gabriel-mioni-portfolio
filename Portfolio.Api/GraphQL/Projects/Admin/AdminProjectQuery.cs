@@ -2,10 +2,10 @@
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.Services;
 
-namespace Portfolio.Api.GraphQL.Projects
+namespace Portfolio.Api.GraphQL.Projects.Admin
 {
 
-    public class ProjectQuery
+    public class AdminProjectQuery
     {
         public Task<Project?> GetProjectById(Guid id, [Service] ProjectService projects, CancellationToken ct = default)
         {

@@ -3,9 +3,9 @@ using Portfolio.Api.GraphQL.Projects.Inputs;
 using Portfolio.Api.GraphQL.Projects.Payloads;
 using Portfolio.Api.Services;
 
-namespace Portfolio.Api.GraphQL.Projects
+namespace Portfolio.Api.GraphQL.Projects.Admin
 {
-    public class ProjectMutation
+    public class AdminProjectMutation
     {
         public Task<Project> CreateProject(
             CreateProjectInput input,

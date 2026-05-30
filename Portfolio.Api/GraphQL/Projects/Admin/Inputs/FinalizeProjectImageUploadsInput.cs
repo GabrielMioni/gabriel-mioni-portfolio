@@ -1,4 +1,4 @@
-﻿namespace Portfolio.Api.GraphQL.Projects.Inputs;
+﻿namespace Portfolio.Api.GraphQL.Projects.Admin.Inputs;
 
 public record FinalizeProjectImageUploadsInput(
     Guid ProjectId,

@@ -6,10 +6,10 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Portfolio.Api.Data;
 using Portfolio.Api.Infrastructure.Storage;
-using Portfolio.Api.GraphQL.Projects.Types;
 using Portfolio.Api.Services;
 using Portfolio.Api.Services.Storage;
 using Portfolio.Api.GraphQL.Projects.Admin;
+using Portfolio.Api.GraphQL.Projects.Admin.Types;
 
 var builder = WebApplication.CreateBuilder(args);
 

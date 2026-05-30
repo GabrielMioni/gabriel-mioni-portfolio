@@ -1,6 +1,6 @@
 ﻿using Portfolio.Api.Domain.Projects;
 
-namespace Portfolio.Api.GraphQL.Projects.Types
+namespace Portfolio.Api.GraphQL.Projects.Admin.Types
 {
     public class ProjectType: ObjectType<Project>
     {

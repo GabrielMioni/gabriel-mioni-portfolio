@@ -1,6 +1,6 @@
 ﻿using Portfolio.Api.Domain.Projects;
 
-namespace Portfolio.Api.GraphQL.Projects.Inputs;
+namespace Portfolio.Api.GraphQL.Projects.Admin.Inputs;
 
 public record EditProjectImageInput(
   Guid ProjectImageId,

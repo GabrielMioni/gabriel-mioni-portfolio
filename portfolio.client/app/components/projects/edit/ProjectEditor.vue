@@ -94,8 +94,15 @@ const openRemovedItemsDialog = () => {
   removedDialog.value = true
 }
 
-const goToProjects = () => {
-  router.push('/projects')
+const goToProjects = async () => {
+  const previous = router.options.history.state.back
+
+  if (typeof previous === 'string') {
+    router.back()
+    return
+  }
+
+  await router.replace('/projects')
 }
 
 </script>

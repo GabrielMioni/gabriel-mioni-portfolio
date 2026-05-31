@@ -5,6 +5,7 @@ using Portfolio.Api.Services;
 
 namespace Portfolio.Api.GraphQL.Projects.Admin
 {
+    [ExtendObjectType(OperationTypeNames.Mutation)]
     public class AdminProjectMutation
     {
         public Task<Project> CreateProject(

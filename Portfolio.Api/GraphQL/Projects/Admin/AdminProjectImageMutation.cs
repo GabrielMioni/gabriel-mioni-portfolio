@@ -4,7 +4,7 @@ using Portfolio.Api.Services;
 
 namespace Portfolio.Api.GraphQL.Projects.Admin;
 
-[ExtendObjectType(typeof(AdminProjectMutation))]
+[ExtendObjectType(OperationTypeNames.Mutation)]
 public class AdminProjectImageMutation
 {
     public async Task<PrepareProjectImageUploadsPayload> PrepareProjectImageUploads(

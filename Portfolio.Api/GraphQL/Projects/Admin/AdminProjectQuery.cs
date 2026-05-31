@@ -4,7 +4,7 @@ using Portfolio.Api.Services;
 
 namespace Portfolio.Api.GraphQL.Projects.Admin
 {
-
+    [ExtendObjectType(OperationTypeNames.Query)]
     public class AdminProjectQuery
     {
         public Task<Project?> GetProjectById(Guid id, [Service] ProjectService projects, CancellationToken ct = default)
@@ -21,9 +21,9 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
         [UseSorting]
         [UseFiltering]
         public IQueryable<Project> GetProjects(
+            bool includeUnpublished,
             [Service] AppDbContext db,
-            [Service] ProjectService projectService,
-            bool includeUnpublished = false)
+            [Service] ProjectService projectService)
         {
             return projectService.QueryProjects(db, includeUnpublished);
         }

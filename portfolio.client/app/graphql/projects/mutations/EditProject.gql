@@ -3,6 +3,7 @@ mutation editProject ($input: EditProjectInput!) {
         id
         title
         summary
+        status
         body
         publishedAt
         createdAt

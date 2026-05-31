@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
-      graphQlBase: process.env.NUXT_PUBLIC_GRAPHQL_BASE || '/graphql',
+      graphQlBase: process.env.NUXT_PUBLIC_GRAPHQL_BASE || '/graphql/admin',
       storageBase: process.env.NUXT_PUBLIC_STORAGE_BASE || ''
     }
   },
@@ -20,6 +20,9 @@ export default defineNuxtConfig({
     routeRules: {
       '/api/**': {
         proxy: 'http://localhost:5217/api/**'
+      },
+      '/graphql/admin': {
+        proxy: 'http://localhost:5217/graphql/admin'
       },
       '/graphql': {
         proxy: 'http://localhost:5217/graphql'

@@ -10,6 +10,7 @@ using Portfolio.Api.Services;
 using Portfolio.Api.Services.Storage;
 using Portfolio.Api.GraphQL.Projects.Admin;
 using Portfolio.Api.GraphQL.Projects.Admin.Types;
+using Portfolio.Api.GraphQL.Projects.Public;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,8 +44,18 @@ builder.Services.AddAuthorization();
 
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType<AdminProjectQuery>()
-    .AddMutationType<AdminProjectMutation>()
+    .AddQueryType(d => d.Name("Query"))
+    .AddTypeExtension<PublicProjectQuery>()
+    .AddProjections()
+    .AddFiltering()
+    .AddSorting();
+
+builder.Services
+    .AddGraphQLServer("admin")
+    .AddQueryType(d => d.Name("Query"))
+    .AddTypeExtension<AdminProjectQuery>()
+    .AddMutationType(d => d.Name("Mutation"))
+    .AddTypeExtension<AdminProjectMutation>()
     .AddTypeExtension<AdminProjectImageMutation>()
     .AddType<ProjectType>()
     .AddProjections()
@@ -100,7 +111,8 @@ app.UseCors("client");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGraphQL();
+app.MapGraphQL("/graphql");
+app.MapGraphQL("/graphql/admin", schemaName: "admin");
 
 app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 

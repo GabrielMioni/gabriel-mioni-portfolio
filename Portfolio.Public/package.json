@@ -8,16 +8,23 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.111",
     "@iconify-json/simple-icons": "^1.2.84",
     "@nuxt/ui": "^4.8.1",
+    "@urql/exchange-graphcache": "^9.0.0",
+    "@urql/vue": "^2.1.0",
+    "graphql": "^16.14.1",
     "nuxt": "^4.4.6",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^7.1.2",
+    "@graphql-codegen/client-preset": "^6.0.1",
     "@nuxt/eslint": "^1.15.2",
     "eslint": "^10.4.1",
     "typescript": "^6.0.3",

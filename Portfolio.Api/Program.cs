@@ -25,6 +25,11 @@ builder.Services.AddCors(options =>
       .AllowAnyHeader()
       .AllowAnyMethod()
       .AllowCredentials());
+
+    options.AddPolicy("public", p => p
+      .WithOrigins("http://localhost:3001")
+      .AllowAnyHeader()
+      .AllowAnyMethod());
 });
 
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -111,8 +116,8 @@ app.UseCors("client");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGraphQL("/graphql");
-app.MapGraphQL("/graphql/admin", schemaName: "admin");
+app.MapGraphQL("/graphql").RequireCors("public");
+app.MapGraphQL("/graphql/admin", schemaName: "admin").RequireCors("client");
 
 app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 

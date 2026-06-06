@@ -1,0 +1,12 @@
+query GetPublishedProjects($skip: Int, $take: Int) {
+  publishedProjects(skip: $skip, take: $take) {
+    items {
+      ...PublicProject
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    totalCount
+  }
+}

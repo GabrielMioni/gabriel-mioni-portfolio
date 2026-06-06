@@ -1,0 +1,7 @@
+fragment PublicProject on PublicProjectDto {
+  id
+  title
+  summary
+  body
+  publishedAt
+}

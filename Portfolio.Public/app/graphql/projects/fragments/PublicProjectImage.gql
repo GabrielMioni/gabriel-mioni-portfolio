@@ -1,0 +1,7 @@
+fragment PublicProjectImage on PublicProjectImageDto {
+  id
+  fullKey
+  thumbKey
+  altText
+  sortOrder
+}

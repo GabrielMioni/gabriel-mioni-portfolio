@@ -1,0 +1,7 @@
+fragment PublicProjectLink on PublicProjectLinkDto {
+  id
+  url
+  linkText
+  linkType
+  sortOrder
+}

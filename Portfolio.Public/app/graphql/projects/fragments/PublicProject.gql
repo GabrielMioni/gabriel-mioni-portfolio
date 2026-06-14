@@ -4,16 +4,10 @@ fragment PublicProject on PublicProjectDto {
   summary
   body
   publishedAt
-  links {
-    linkType
-    linkText
-    url
-    sortOrder
-  },
   images {
-    fullKey
-    thumbKey
-    altText
-    sortOrder
+    ...PublicProjectImage
+  }
+  links {
+    ...PublicProjectLink
   }
 }

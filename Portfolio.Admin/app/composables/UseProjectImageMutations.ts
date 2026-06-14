@@ -20,8 +20,8 @@ import {
 } from '~/utils/images/'
 
 type UploadImageEditorItem = ImageEditorItem & {
-  fullFile: File
-  thumbFile: File
+  fullFile: Blob
+  thumbFile: Blob
 }
 
 export const useProjectImageMutations = () => {
@@ -97,7 +97,7 @@ export const useProjectImageMutations = () => {
   }) => {
     const validUploadItems = uploadItems.filter(
       (item): item is UploadImageEditorItem =>
-        item.fullFile instanceof File && item.thumbFile instanceof File
+        item.fullFile instanceof Blob && item.thumbFile instanceof Blob
     )
 
     const items = imageEditorItemsToProjectImagePrepareItemInput(validUploadItems)

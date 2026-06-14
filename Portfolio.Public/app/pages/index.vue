@@ -17,8 +17,9 @@
         size: 'xl',
         color: 'neutral',
         variant: 'subtle'
-      }]"
-    />
+      }]" />
+
+    <ProjectsGrid />
 
     <UPageSection
       id="features"
@@ -48,8 +49,7 @@
         icon: 'i-lucide-shield-check',
         title: 'Built for scale',
         description: 'Enterprise-ready architecture with proper error handling, SEO optimization, and security best practices built-in.'
-      }]"
-    />
+      }]" />
 
     <UPageSection>
       <UPageCTA
@@ -69,8 +69,7 @@
           icon: 'i-simple-icons-github',
           color: 'neutral',
           variant: 'outline'
-        }]"
-      />
+        }]" />
     </UPageSection>
   </div>
 </template>

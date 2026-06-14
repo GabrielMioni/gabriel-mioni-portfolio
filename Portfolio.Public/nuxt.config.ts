@@ -8,9 +8,15 @@ export default defineNuxtConfig({
     enabled: true
   },
   css: ['~/assets/css/main.css'],
+  ui: {
+    theme: {
+      colors: ['primary', 'secondary', 'info', 'success', 'warning', 'error', 'neutral']
+    }
+  },
   runtimeConfig: {
     public: {
-      graphQlBase: process.env.NUXT_PUBLIC_GRAPHQL_BASE || '/graphql'
+      graphQlBase: process.env.NUXT_PUBLIC_GRAPHQL_BASE || '/graphql',
+      storageBase: process.env.NUXT_PUBLIC_STORAGE_BASE || ''
     }
   },
   routeRules: {
@@ -34,5 +40,5 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
-  }
+  },
 })

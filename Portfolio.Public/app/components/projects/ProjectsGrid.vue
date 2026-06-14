@@ -3,6 +3,7 @@ import { useProjectQueries } from '~/composables/useProjectQueries'
 import ProjectItem from '~/components/projects/ProjectItem.vue'
 import ProjectDialog from '~/components/projects/ProjectDialog.vue'
 
+const dialogOpen = ref(false)
 const selectedProjectId = ref<string | null>(null)
 
 const {
@@ -10,24 +11,13 @@ const {
   fetchingProjects
 } = useProjectQueries()
 
-const projectDialogOpen = computed({
-  get: () => selectedProjectId.value !== null,
-  set: (open: boolean) => {
-    if (!open) {
-      selectedProjectId.value = null
-    }
-  }
-})
-
-const selectedProject = computed(() => {
-  if (!selectedProjectId.value) {
-    return null
-  }
-  return projects.value.find(project => project.id === selectedProjectId.value) ?? null
-})
+const selectedProject = computed(() =>
+  projects.value.find(p => p.id === selectedProjectId.value) ?? null
+)
 
 const selectProject = (projectId: string) => {
   selectedProjectId.value = projectId
+  dialogOpen.value = true
 }
 </script>
 
@@ -41,7 +31,7 @@ const selectProject = (projectId: string) => {
         @select="selectProject" />
     </div>
     <ProjectDialog
-      v-model:open="projectDialogOpen"
+      v-model:open="dialogOpen"
       :project="selectedProject" />
   </UContainer>
 </template>

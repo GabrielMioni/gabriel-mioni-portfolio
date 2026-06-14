@@ -20,7 +20,7 @@ const updateImageUploadItems = async (files: File[]) => {
       const mimeType = getOutputMimeType(file)
 
       const resizedThumb = await resizeImageTo(file, 200, 200, mimeType)
-      const resizedFull = await resizeImageTo(file, 1600, 1600, mimeType)
+      const resizedFull = await resizeImageTo(file, 2400, 2400, mimeType)
 
       return {
         id: null,

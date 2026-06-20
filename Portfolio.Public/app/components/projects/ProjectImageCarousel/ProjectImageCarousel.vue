@@ -50,7 +50,7 @@ const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnai
         :alt="formatThumbnailAltText(selectedImage?.altText ?? null, 'full')"
         class="max-w-full max-h-70 object-contain" />
     </div>
-    <div v-if="images.length > 0">
+    <div v-if="images.length > 1">
       <UCarousel
         ref="carousel"
         v-slot="{ item, index }"

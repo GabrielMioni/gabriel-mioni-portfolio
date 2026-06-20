@@ -6,6 +6,8 @@ import ProjectImageCarousel from '~/components/projects/ProjectImageCarousel/Pro
 
 const open = defineModel<boolean>('open', { required: true })
 
+const { md: isMobile } = useMediaQuery()
+
 const props = defineProps<{
   project?: PublicProjectFragment | null
 }>()
@@ -23,12 +25,18 @@ const linkIcon: Record<string, string> = {
   DEMO: 'i-lucide-external-link',
   EXTERNAL: 'i-lucide-external-link'
 }
+
+const modalUi = computed(() => ({
+  content: isMobile.value ? '' : `${images.value.length > 0 ? 'w-[90vw]' : 'w-[45vw]'} h-[80vh] max-w-full`,
+  header: 'border-0'
+}))
 </script>
 
 <template>
   <UModal
     v-model:open="open"
-    :ui="{ content: 'w-[90vw] max-w-full', header: 'border-0' }"
+    :fullscreen="isMobile"
+    :ui="modalUi"
     title="">
     <template #body>
       <div class="grid md:grid-cols-2 max-h-[70vh]">
@@ -57,7 +65,9 @@ const linkIcon: Record<string, string> = {
               variant="subtle" />
           </div>
         </div>
-        <div class="overflow-y-auto">
+        <div
+          v-if="images.length > 0"
+          class="overflow-y-auto">
           <div class="grid grid-cols-1">
             <ProjectImageCarousel :images="images" />
           </div>

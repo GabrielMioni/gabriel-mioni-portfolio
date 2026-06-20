@@ -39,21 +39,23 @@ const modalUi = computed(() => ({
     :ui="modalUi"
     title="">
     <template #body>
-      <div class="grid md:grid-cols-2 max-h-[70vh]">
-        <div class="flex flex-col gap-4 p-6 overflow-y-auto">
-          <p
-            v-if="project?.summary"
-            class="text-sm text-stone-500 dark:text-stone-400">
-            {{ project.summary }}
-          </p>
-          <p
-            v-if="project?.body"
-            class="text-sm text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-wrap flex-1">
-            {{ project.body }}
-          </p>
+      <div class="grid md:grid-cols-2 h-[calc(70vh-4rem)]">
+        <div class="flex flex-col h-full">
+          <div class="flex flex-col gap-4 p-6 overflow-y-auto flex-1">
+            <p
+              v-if="project?.summary"
+              class="text-sm text-stone-500 dark:text-stone-400">
+              {{ project.summary }}
+            </p>
+            <p
+              v-if="project?.body"
+              class="text-sm text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-wrap">
+              {{ project.body }}
+            </p>
+          </div>
           <div
             v-if="links.length"
-            class="flex flex-wrap gap-2">
+            class="flex flex-wrap gap-2 p-6 pt-0 shrink-0">
             <UButton
               v-for="link in links"
               :key="link.id"

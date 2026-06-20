@@ -46,14 +46,9 @@ const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnai
   <div class="w-full">
     <div class="h-80 flex items-center justify-center bg-stone-100 dark:bg-stone-800 rounded-lg overflow-hidden mb-4">
       <StorageImage
-        v-if="selectedImage"
-        :storage-key="selectedImage.fullKey"
-        :alt="formatThumbnailAltText(selectedImage.altText, 'full')"
+        :storage-key="selectedImage?.fullKey"
+        :alt="formatThumbnailAltText(selectedImage?.altText ?? null, 'full')"
         class="max-w-full max-h-70 object-contain" />
-      <UIcon
-        v-else
-        name="i-lucide-image"
-        class="size-12 text-stone-400" />
     </div>
     <div>
       <UCarousel

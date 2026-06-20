@@ -2,6 +2,7 @@
 import type { PublicProjectFragment } from '~/generated/graphql'
 import { PublicProjectImageFragmentDoc, PublicProjectLinkFragmentDoc } from '~/generated/graphql'
 import { useFragment } from '~/generated'
+import ProjectImageCarousel from '~/components/projects/ProjectImageCarousel/ProjectImageCarousel.vue'
 
 const open = defineModel<boolean>('open', { required: true })
 
@@ -57,17 +58,8 @@ const linkIcon: Record<string, string> = {
           </div>
         </div>
         <div class="bg-stone-100 dark:bg-stone-800 overflow-y-auto">
-          <div class="grid grid-cols-2 gap-1 p-1">
-            <div
-              v-for="image in images"
-              :key="image.id"
-              :class="{ 'col-span-2': images.length === 1 }"
-              class="overflow-hidden">
-              <StorageImage
-                :storage-key="image.thumbKey"
-                :alt="image.altText"
-                class="w-full aspect-video object-cover" />
-            </div>
+          <div class="grid grid-cols-1">
+            <ProjectImageCarousel :images="images" />
           </div>
         </div>
       </div>

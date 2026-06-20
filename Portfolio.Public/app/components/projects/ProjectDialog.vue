@@ -37,11 +37,17 @@ const modalUi = computed(() => ({
     v-model:open="open"
     :fullscreen="isMobile"
     :ui="modalUi"
-    title="">
+    :title="project?.title">
     <template #body>
-      <div class="grid md:grid-cols-2 h-[calc(70vh-4rem)]">
-        <div class="flex flex-col h-full">
-          <div class="flex flex-col gap-4 p-6 overflow-y-auto flex-1">
+      <div
+        class="grid md:grid-cols-2"
+        :class="{ 'h-[calc(70vh-4rem)]': !isMobile }">
+        <div
+          class="flex flex-col order-2 md:order-1"
+          :class="isMobile ? '' : 'h-full'">
+          <div
+            class="flex flex-col gap-4 p-6"
+            :class="isMobile ? '' : 'overflow-y-auto flex-1'">
             <p
               v-if="project?.summary"
               class="text-sm text-stone-500 dark:text-stone-400">
@@ -69,7 +75,8 @@ const modalUi = computed(() => ({
         </div>
         <div
           v-if="images.length > 0"
-          class="overflow-y-auto">
+          :class="isMobile ? '' : 'overflow-y-auto'"
+          class="order-1 md:order-2">
           <div class="grid grid-cols-1">
             <ProjectImageCarousel :images="images" />
           </div>

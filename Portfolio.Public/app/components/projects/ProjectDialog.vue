@@ -57,7 +57,7 @@ const linkIcon: Record<string, string> = {
               variant="subtle" />
           </div>
         </div>
-        <div class="bg-stone-100 dark:bg-stone-800 overflow-y-auto">
+        <div class="overflow-y-auto">
           <div class="grid grid-cols-1">
             <ProjectImageCarousel :images="images" />
           </div>

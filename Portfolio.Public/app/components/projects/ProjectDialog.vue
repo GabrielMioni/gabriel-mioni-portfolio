@@ -46,7 +46,7 @@ const modalUi = computed(() => ({
           class="flex flex-col order-2 md:order-1"
           :class="isMobile ? '' : 'h-full'">
           <div
-            class="flex flex-col gap-4 px-6"
+            class="flex flex-col px-6"
             :class="isMobile ? '' : 'overflow-y-auto flex-1'">
             <div
               v-if="project?.body"
@@ -73,9 +73,7 @@ const modalUi = computed(() => ({
           v-if="images.length > 0"
           :class="isMobile ? '' : 'overflow-y-auto'"
           class="order-1 md:order-2">
-          <div class="grid grid-cols-1">
-            <ProjectImageCarousel :images="images" />
-          </div>
+          <ProjectImageCarousel :images="images" />
         </div>
       </div>
     </template>

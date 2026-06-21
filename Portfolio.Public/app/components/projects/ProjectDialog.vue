@@ -40,7 +40,7 @@ const modalUi = computed(() => ({
     :title="project?.title">
     <template #body>
       <div
-        class="grid md:grid-cols-2"
+        class="grid md:grid-cols-2 gap-6"
         :class="{ 'h-[calc(70vh-4rem)]': !isMobile }">
         <div
           class="flex flex-col order-2 md:order-1"
@@ -50,13 +50,14 @@ const modalUi = computed(() => ({
             :class="isMobile ? '' : 'overflow-y-auto flex-1'">
             <div
               v-if="project?.body"
-              class="text-sm text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-wrap">
+              class="text-sm text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-wrap"
+              :class="!isMobile ? 'max-h-[calc(70vh-8rem)]' : ''">
               {{ project.body }}
             </div>
           </div>
           <div
             v-if="links.length"
-            class="flex flex-wrap gap-2 px-6 pt-0 shrink-0">
+            class="flex flex-wrap gap-2 px-6 pt-4 pb-6 shrink-0">
             <UButton
               v-for="link in links"
               :key="link.id"

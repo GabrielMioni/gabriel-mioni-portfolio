@@ -7,6 +7,26 @@ import ProjectLinks from '~/components/projects/ProjectLinks.vue'
 
 const open = defineModel<boolean>('open', { required: true })
 
+const textSection = useTemplateRef('text-section')
+
+onMounted(() => {
+  addEventListener('keydown', keyNavigation)
+})
+
+onUnmounted(() => {
+  removeEventListener('keydown', keyNavigation)
+})
+
+const keyNavigation = (event: KeyboardEvent) => {
+  const element = textSection?.value
+
+  if (event.key === 'ArrowUp') {
+    element?.scrollBy({ top: -80, behavior: 'smooth' })
+  } else if (event.key === 'ArrowDown') {
+    element?.scrollBy({ top: 80, behavior: 'smooth' })
+  }
+}
+
 const { md: isMobile } = useMediaQuery()
 
 const props = defineProps<{
@@ -41,6 +61,7 @@ const modalUi = computed(() => ({
           class="flex flex-col order-2 md:order-1"
           :class="isMobile ? '' : 'h-full'">
           <div
+            ref="text-section"
             class="flex flex-col px-6"
             :class="isMobile ? '' : 'overflow-y-auto flex-1'">
             <div

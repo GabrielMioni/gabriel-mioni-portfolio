@@ -26,12 +26,6 @@ const hasAdditionalContent = computed(() => {
     || props.project.images.length > 1)
 })
 
-const linkIcon: Record<string, string> = {
-  REPOSITORY: 'i-simple-icons-github',
-  DEMO: 'i-lucide-external-link',
-  EXTERNAL: 'i-lucide-external-link'
-}
-
 const selectProject = () => {
   emit('select', props.project.id)
 }
@@ -49,7 +43,7 @@ const selectProject = () => {
           <StorageImage
             v-if="mainImage"
             :storage-key="mainImage.thumbKey"
-            :alt="mainImage.altText"
+            :alt="mainImage?.altText ?? 'Project image'"
             :class="{ 'transition-transform duration-300 group-hover:scale-105': hasAdditionalContent }"
             class="w-full h-full object-cover" />
           <div
@@ -75,18 +69,9 @@ const selectProject = () => {
     <template
       v-if="links.length"
       #footer>
-      <div class="flex flex-wrap gap-2">
-        <UButton
-          v-for="link in links"
-          :key="link.id"
-          :to="link.url"
-          :icon="linkIcon[link.linkType] ?? 'i-lucide-link'"
-          :label="link.linkText"
-          target="_blank"
-          size="sm"
-          variant="subtle"
-          @click.stop />
-      </div>
+      <ProjectLinks
+        :links="links"
+        @click.stop />
     </template>
   </UCard>
 </template>

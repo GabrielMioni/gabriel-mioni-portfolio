@@ -3,6 +3,7 @@ import type { PublicProjectFragment } from '~/generated/graphql'
 import { PublicProjectImageFragmentDoc, PublicProjectLinkFragmentDoc } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 import ProjectImageCarousel from '~/components/projects/ProjectImageCarousel/ProjectImageCarousel.vue'
+import ProjectLinks from '~/components/projects/ProjectLinks.vue'
 
 const open = defineModel<boolean>('open', { required: true })
 
@@ -19,12 +20,6 @@ const images = computed(() =>
 const links = computed(() =>
   props.project?.links.map(l => useFragment(PublicProjectLinkFragmentDoc, l)) ?? []
 )
-
-const linkIcon: Record<string, string> = {
-  REPOSITORY: 'i-simple-icons-github',
-  DEMO: 'i-lucide-external-link',
-  EXTERNAL: 'i-lucide-external-link'
-}
 
 const modalUi = computed(() => ({
   content: isMobile.value ? '' : `${images.value.length > 0 ? 'w-[90vw]' : 'w-[45vw]'} h-[80vh] max-w-full`,
@@ -57,16 +52,8 @@ const modalUi = computed(() => ({
           </div>
           <div
             v-if="links.length"
-            class="flex flex-wrap gap-2 px-6 pt-4 pb-6 shrink-0">
-            <UButton
-              v-for="link in links"
-              :key="link.id"
-              :to="link.url"
-              :icon="linkIcon[link.linkType] ?? 'i-lucide-link'"
-              :label="link.linkText"
-              target="_blank"
-              size="sm"
-              variant="subtle" />
+            class="px-6 pt-4 pb-6 shrink-0">
+            <ProjectLinks :links="links" />
           </div>
         </div>
         <div

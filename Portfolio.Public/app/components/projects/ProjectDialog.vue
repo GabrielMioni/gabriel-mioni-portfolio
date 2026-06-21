@@ -46,22 +46,17 @@ const modalUi = computed(() => ({
           class="flex flex-col order-2 md:order-1"
           :class="isMobile ? '' : 'h-full'">
           <div
-            class="flex flex-col gap-4 p-6"
+            class="flex flex-col gap-4 px-6"
             :class="isMobile ? '' : 'overflow-y-auto flex-1'">
-            <p
-              v-if="project?.summary"
-              class="text-sm text-stone-500 dark:text-stone-400">
-              {{ project.summary }}
-            </p>
-            <p
+            <div
               v-if="project?.body"
               class="text-sm text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-wrap">
               {{ project.body }}
-            </p>
+            </div>
           </div>
           <div
             v-if="links.length"
-            class="flex flex-wrap gap-2 p-6 pt-0 shrink-0">
+            class="flex flex-wrap gap-2 px-6 pt-0 shrink-0">
             <UButton
               v-for="link in links"
               :key="link.id"

@@ -8,30 +8,44 @@ const props = defineProps<{
 const carousel = useTemplateRef('carousel')
 const activeIndex = ref(0)
 
+onMounted(() => {
+  addEventListener('keydown', keyNavigation)
+})
+
+onUnmounted(() => {
+  removeEventListener('keydown', keyNavigation)
+})
+
+const keyNavigation = (event: KeyboardEvent) => {
+  if (event.key === 'ArrowLeft') {
+    onClickPrev()
+  } else if (event.key === 'ArrowRight') {
+    onClickNext()
+  }
+}
+
 const selectedImage = computed(() => {
   const image = props.images[activeIndex.value]
   return image ?? null
 })
 
+watch(activeIndex, (index) => {
+  carousel.value?.emblaApi?.scrollTo(index)
+})
+
 const onClickPrev = () => {
-  if (activeIndex.value <= 0) {
-    activeIndex.value = props.images.length - 1
-    return
-  }
-  activeIndex.value--
+  activeIndex.value = activeIndex.value <= 0
+    ? props.images.length - 1
+    : activeIndex.value - 1
 }
 const onClickNext = () => {
-  if (activeIndex.value >= props.images.length - 1) {
-    activeIndex.value = 0
-    return
-  }
-  activeIndex.value++
+  activeIndex.value = activeIndex.value >= props.images.length - 1
+    ? 0
+    : activeIndex.value + 1
 }
 
 const select = (index: number) => {
   activeIndex.value = index
-
-  carousel.value?.emblaApi?.scrollTo(index)
 }
 
 const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnail') => {

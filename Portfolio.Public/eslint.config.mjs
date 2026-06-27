@@ -2,4 +2,4 @@
 import withNuxt from './.nuxt/eslint.config.mjs'
 import sharedRules from '../eslint.shared.mjs'
 
-export default withNuxt({ rules: sharedRules })
+export default withNuxt().append({ rules: sharedRules })

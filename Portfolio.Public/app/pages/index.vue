@@ -19,6 +19,7 @@
         variant: 'subtle'
       }]"
       :ui="{
+        container: 'px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16 sm:gap-16',
         header: 'flex flex-col',
         headline: 'max-w-4xl',
         title: 'text-4xl sm:text-5xl',

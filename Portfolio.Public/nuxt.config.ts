@@ -8,6 +8,9 @@ export default defineNuxtConfig({
     enabled: true
   },
   css: ['~/assets/css/main.css'],
+  colorMode: {
+    preference: 'system'
+  },
   ui: {
     theme: {
       colors: ['primary', 'secondary', 'info', 'success', 'warning', 'error', 'neutral']
@@ -40,5 +43,5 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
-  },
+  }
 })

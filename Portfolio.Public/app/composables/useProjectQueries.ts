@@ -1,31 +1,47 @@
 import {
   GetPublishedProjectsDocument,
-  PublicProjectFragmentDoc
+  PublicProjectFragmentDoc,
+  type PublicProjectFragment
 } from '~/generated/graphql'
 import { useQuery } from '@urql/vue'
 import { useFragment } from '~/generated'
 
+const PAGE_SIZE = 9
+
 export const useProjectQueries = () => {
+  const skip = ref(0)
+  const projects = ref<PublicProjectFragment[]>([])
+
   const {
     data,
     fetching: fetchingProjects
   } = useQuery({
     query: GetPublishedProjectsDocument,
-    requestPolicy: 'cache-and-network',
-    variables: {
-      skip: 0,
-      take: 10
-    }
+    requestPolicy: 'network-only',
+    variables: computed(() => ({ skip: skip.value, take: PAGE_SIZE }))
   })
 
-  const projects = computed(() => {
-    const raw = data.value?.publishedProjects?.items || []
-
-    return raw.map(item => useFragment(PublicProjectFragmentDoc, item))
+  // accumulator
+  watch(data, (newData) => {
+    const items = newData?.publishedProjects?.items ?? []
+    projects.value = [
+      ...projects.value,
+      ...items.map(item => useFragment(PublicProjectFragmentDoc, item))
+    ]
   })
+
+  const hasNextPage = computed(() =>
+    data.value?.publishedProjects?.pageInfo.hasNextPage ?? false
+  )
+
+  const loadMore = () => {
+    skip.value += PAGE_SIZE
+  }
 
   return {
     projects,
-    fetchingProjects
+    fetchingProjects,
+    hasNextPage,
+    loadMore
   }
 }

@@ -75,16 +75,19 @@ const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnai
         :next="{ onClick: onClickNext }"
         :items="images"
         :ui="{
-          item: 'basis-1/3 ps-0',
+          item: 'basis-1/3 ps-2',
           prev: 'sm:start-8',
           next: 'sm:end-8',
           container: 'ms-0'
         }">
-        <StorageImage
-          :storage-key="item.thumbKey"
-          :alt="formatThumbnailAltText(item.altText)"
-          class="rounded-lg"
-          @click="select(index)" />
+        <div
+          class="aspect-square overflow-hidden rounded-lg cursor-pointer"
+          @click="select(index)">
+          <StorageImage
+            :storage-key="item.thumbKey"
+            :alt="formatThumbnailAltText(item.altText)"
+            class="w-full h-full object-cover" />
+        </div>
       </UCarousel>
     </div>
   </div>

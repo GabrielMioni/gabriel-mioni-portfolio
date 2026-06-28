@@ -35,24 +35,15 @@ const selectProject = () => {
   <UCard
     :ui="{ header: 'p-0' }"
     :class="{ 'cursor-pointer group transition hover:ring-2 hover:ring-primary': hasAdditionalContent }"
-    class="overflow-hidden"
     @click="selectProject">
     <template #header>
       <div class="h-[250px] content-center">
-        <div class="aspect-video overflow-hidden bg-stone-100 dark:bg-stone-800">
+        <div class="aspect-video bg-stone-100 dark:bg-stone-800">
           <StorageImage
-            v-if="mainImage"
-            :storage-key="mainImage.thumbKey"
+            :storage-key="mainImage?.thumbKey"
             :alt="mainImage?.altText ?? 'Project image'"
             :class="{ 'transition-transform duration-300 group-hover:scale-105': hasAdditionalContent }"
             class="w-full h-full object-cover" />
-          <div
-            v-else
-            class="w-full h-full flex items-center justify-center text-stone-400">
-            <UIcon
-              name="i-lucide-image"
-              class="size-10" />
-          </div>
         </div>
       </div>
     </template>

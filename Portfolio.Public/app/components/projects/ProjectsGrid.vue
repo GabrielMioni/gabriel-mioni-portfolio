@@ -41,6 +41,16 @@ useIntersectionObserver(observer, ([entry]) => {
         :project="item"
         @select="selectProject" />
     </div>
+    <div
+      v-if="!fetchingProjects && projects.length <= 0"
+      class="flex flex-col items-center justify-center py-24 text-stone-400 dark:text-stone-600">
+      <UIcon
+        name="i-lucide-ghost"
+        class="size-10 mb-3" />
+      <p class="text-sm">
+        No projects yet.
+      </p>
+    </div>
     <div ref="observer" />
     <div
       v-if="fetchingProjects"

@@ -34,13 +34,17 @@ useIntersectionObserver(observer, ([entry]) => {
 
 <template>
   <UContainer>
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <TransitionGroup
+      tag="div"
+      class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      appear>
       <ProjectItem
-        v-for="item in projects"
+        v-for="(item, index) in projects"
         :key="item.id"
         :project="item"
+        :style="{ transitionDelay: `${index * 40}ms` }"
         @select="selectProject" />
-    </div>
+    </TransitionGroup>
     <div
       v-if="!fetchingProjects && projects.length <= 0"
       class="flex flex-col items-center justify-center py-24 text-stone-400 dark:text-stone-600">
@@ -66,5 +70,11 @@ useIntersectionObserver(observer, ([entry]) => {
 </template>
 
 <style scoped>
-
+.v-enter-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.v-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
 </style>

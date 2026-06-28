@@ -8,7 +8,9 @@ const selectedProjectId = ref<string | null>(null)
 
 const {
   projects,
-  fetchingProjects
+  fetchingProjects,
+  hasNextPage,
+  loadMore
 } = useProjectQueries()
 
 const selectedProject = computed(() =>
@@ -19,6 +21,15 @@ const selectProject = (projectId: string) => {
   selectedProjectId.value = projectId
   dialogOpen.value = true
 }
+
+const observer = useTemplateRef('observer')
+
+useIntersectionObserver(observer, ([entry]) => {
+  if (!entry) return
+  if (entry.isIntersecting && hasNextPage.value && !fetchingProjects.value) {
+    loadMore()
+  }
+})
 </script>
 
 <template>
@@ -29,6 +40,14 @@ const selectProject = (projectId: string) => {
         :key="item.id"
         :project="item"
         @select="selectProject" />
+    </div>
+    <div ref="observer" />
+    <div
+      v-if="fetchingProjects"
+      class="flex justify-center py-8">
+      <UIcon
+        name="i-lucide-loader-circle"
+        class="size-6 text-stone-400 animate-spin" />
     </div>
     <ProjectDialog
       v-model:open="dialogOpen"

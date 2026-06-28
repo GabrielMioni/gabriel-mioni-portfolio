@@ -4,7 +4,7 @@ useHead({
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
   ],
   link: [
-    { rel: 'icon', href: '/favicon.ico' }
+    { rel: 'icon', type: 'image/svg+xml', href: '/owl-icon.svg' }
   ],
   htmlAttrs: {
     lang: 'en'
@@ -42,6 +42,16 @@ useSeoMeta({
     </UMain>
 
     <UFooter>
+      <template #top>
+        <div class="flex items-center gap-4 px-4 sm:px-6 lg:px-8 py-4">
+          <div class="flex-1 h-px bg-stone-200 dark:bg-stone-700" />
+          <img
+            src="/owl-icon.svg"
+            alt="Owl"
+            class="size-10">
+          <div class="flex-1 h-px bg-stone-200 dark:bg-stone-700" />
+        </div>
+      </template>
       <template #left>
         <p class="text-sm text-muted">
           Gabriel Mioni • © {{ new Date().getFullYear() }}

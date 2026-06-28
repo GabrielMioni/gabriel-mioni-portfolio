@@ -19,7 +19,7 @@ const updateImageUploadItems = async (files: File[]) => {
     files.map(async file => {
       const mimeType = getOutputMimeType(file)
 
-      const resizedThumb = await resizeImageTo(file, 200, 200, mimeType)
+      const resizedThumb = await resizeImageTo(file, 600, 600, mimeType)
       const resizedFull = await resizeImageTo(file, 2400, 2400, mimeType)
 
       return {

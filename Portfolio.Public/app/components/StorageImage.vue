@@ -3,43 +3,39 @@ defineOptions({ inheritAttrs: false })
 
 const config = useRuntimeConfig()
 
-const props = withDefaults(
-  defineProps<{
-    alt?: string
-    storageKey?: string
-    height?: string | number
-    width?: string | number
-  }>(),
-  {
-    alt: 'project image',
-    height: 'auto',
-    width: 'auto'
-  }
-)
+const props = defineProps<{
+  alt?: string
+  storageKey?: string
+}>()
 
 const src = computed(() => `${config.public.storageBase}/${props.storageKey}`)
 
 const failed = ref(false)
+const loaded = ref(false)
 
-watch(
-  () => props.storageKey,
-  () => { failed.value = false }
-)
+watch(() => props.storageKey, () => {
+  failed.value = false
+  loaded.value = false
+})
 </script>
 
 <template>
   <img
     v-if="storageKey && !failed"
     v-bind="$attrs"
-    :alt="alt"
-    :height="height"
-    :width="width"
+    :alt="alt ?? 'project image'"
     :src="src"
     loading="lazy"
-    class="block mx-auto object-center"
+    class="transition-opacity duration-1000"
+    :class="loaded ? 'opacity-100' : 'opacity-0'"
+    @load="loaded = true"
     @error="failed = true">
-  <UIcon
+  <div
     v-else
-    name="i-lucide-image"
-    class="size-12 text-stone-400" />
+    v-bind="$attrs"
+    class="flex items-center justify-center w-full h-full">
+    <UIcon
+      name="i-lucide-image"
+      class="size-12 text-stone-400" />
+  </div>
 </template>

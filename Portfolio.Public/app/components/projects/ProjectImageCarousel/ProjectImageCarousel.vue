@@ -58,11 +58,11 @@ const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnai
 
 <template>
   <div class="w-full">
-    <div class="h-64 flex items-center justify-center bg-stone-100 dark:bg-stone-800 rounded-lg overflow-hidden mb-4">
+    <div class="h-65 flex items-center justify-center bg-stone-100 dark:bg-stone-800 rounded-lg overflow-hidden mb-4">
       <StorageImage
         :storage-key="selectedImage?.fullKey"
         :alt="formatThumbnailAltText(selectedImage?.altText ?? null, 'full')"
-        class="max-w-full max-h-56 object-contain" />
+        class="max-w-full max-h-64 object-contain" />
     </div>
     <div v-if="images.length > 1">
       <UCarousel
@@ -75,7 +75,7 @@ const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnai
         :next="{ onClick: onClickNext }"
         :items="images"
         :ui="{
-          item: 'basis-1/3 ps-2',
+          item: 'basis-1/4 ps-2',
           prev: 'sm:start-8',
           next: 'sm:end-8',
           container: 'ms-0'

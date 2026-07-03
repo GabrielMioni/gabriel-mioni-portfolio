@@ -7,14 +7,6 @@ namespace Portfolio.Api.GraphQL.Projects.Admin;
 [ExtendObjectType(OperationTypeNames.Mutation)]
 public class AdminProjectTagMutation
 {
-    public Task<ProjectTag> CreateProjectTag(
-        CreateProjectTagInput input,
-        [Service] ProjectTagService tags,
-        CancellationToken ct = default)
-    {
-        return tags.CreateAsync(input.Name, ct);
-    }
-
     public Task<List<ProjectTag>> CreateProjectTags(
         CreateProjectTagsInput input,
         [Service] ProjectTagService tags,

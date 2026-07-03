@@ -26,6 +26,7 @@ public class ProjectService
         return await db.Projects
             .Include(p => p.Images)
             .Include(p => p.Links)
+            .Include(p => p.Tags)
             .FirstOrDefaultAsync(p => p.Id == id, ct);
     }
 

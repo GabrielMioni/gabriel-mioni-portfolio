@@ -15,6 +15,14 @@ public class AdminProjectTagMutation
         return tags.CreateAsync(input.Name, ct);
     }
 
+    public Task<List<ProjectTag>> CreateProjectTags(
+        CreateProjectTagsInput input,
+        [Service] ProjectTagService tags,
+        CancellationToken ct = default)
+    {
+        return tags.CreateManyAsync(input.Names, ct);
+    }
+
     public Task<Project?> UpdateProjectTags(
         UpdateProjectTagsInput input,
         [Service] ProjectTagService tags,

@@ -22,6 +22,30 @@ public class ProjectTagService
             .ToListAsync(ct);
     }
 
+    public async Task<List<ProjectTag>> CreateManyAsync(IReadOnlyList<string> names, CancellationToken ct = default)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+        var created = new List<ProjectTag>();
+
+        foreach (var name in names)
+        {
+            var value = ProjectTag.GenerateValue(name);
+
+            var exists = await db.Tags.AnyAsync(t => t.Value == value, ct);
+            if (exists)
+                throw new InvalidOperationException($"A tag with the name '{name.Trim()}' already exists.");
+
+            var tag = ProjectTag.Create(name);
+            db.Tags.Add(tag);
+            created.Add(tag);
+        }
+
+        await db.SaveChangesAsync(ct);
+
+        return created;
+    }
+
     public async Task<ProjectTag> CreateAsync(string name, CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);

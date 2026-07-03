@@ -168,5 +168,6 @@ app.Use(async (ctx, next) =>
 });
 
 await IdentitySeed.SeedAdminAsync(app);
+await ProjectTagSeed.SeedAsync(app);
 
 app.Run();

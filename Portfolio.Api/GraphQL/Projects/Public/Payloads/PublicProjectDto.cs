@@ -15,5 +15,7 @@
         public IReadOnlyList<PublicProjectImageDto> Images { get; init; } = [];
 
         public IReadOnlyList<PublicProjectLinkDto> Links { get; init; } = [];
+
+        public IReadOnlyList<PublicProjectTagDto> Tags { get; init; } = [];
     }
 }

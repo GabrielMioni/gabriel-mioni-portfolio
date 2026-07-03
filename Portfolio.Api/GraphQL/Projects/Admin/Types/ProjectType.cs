@@ -17,7 +17,11 @@ namespace Portfolio.Api.GraphQL.Projects.Admin.Types
 
             descriptor.Field(p => p.CreatedAt);
             descriptor.Field(p => p.PublishedAt);
-            descriptor.Field(p => p.PublishedAt);
+            descriptor.Field(p => p.UpdatedAt);
+
+            descriptor.Field(p => p.Images);
+            descriptor.Field(p => p.Links);
+            descriptor.Field(p => p.Tags);
         }
     }
 }

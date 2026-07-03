@@ -15,8 +15,8 @@ public class Project
     public ProjectStatus? Status { get; private set; }
 
     public ICollection<ProjectImage> Images { get; private set; } = new List<ProjectImage>();
-
     public ICollection<ProjectLink> Links { get; private set; } = new List<ProjectLink>();
+    public ICollection<ProjectTag> Tags { get; private set; } = new List<ProjectTag>();
 
     private Project() { } // EF
 
@@ -101,6 +101,20 @@ public class Project
         ArgumentNullException.ThrowIfNull(image);
 
         Images.Remove(image);
+        Touch();
+    }
+
+    public void AddTag(ProjectTag tag)
+    {
+        ArgumentNullException.ThrowIfNull(tag);
+        Tags.Add(tag);
+        Touch();
+    }
+
+    public void RemoveTag(ProjectTag tag)
+    {
+        ArgumentNullException.ThrowIfNull(tag);
+        Tags.Remove(tag);
         Touch();
     }
 

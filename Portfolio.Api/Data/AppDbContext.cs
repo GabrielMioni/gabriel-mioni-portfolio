@@ -12,6 +12,7 @@ namespace Portfolio.Api.Data
         public DbSet<Project> Projects => Set<Project>();
         public DbSet<ProjectImage> ProjectImages => Set<ProjectImage>();
         public DbSet<ProjectLink> ProjectLinks => Set<ProjectLink>();
+        public DbSet<ProjectTag> Tags => Set<ProjectTag>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,6 +48,20 @@ namespace Portfolio.Api.Data
                 pi.HasIndex(x => x.ProjectId);
                 pi.HasIndex(x => new { x.ProjectId, x.SortOrder });
             });
+
+            modelBuilder.Entity<ProjectTag>(t =>
+            {
+                t.HasKey(x => x.Id);
+                t.Property(x => x.Id).ValueGeneratedNever();
+                t.Property(x => x.Name).IsRequired().HasMaxLength(50);
+                t.Property(x => x.Value).IsRequired().HasMaxLength(50);
+                t.HasIndex(x => x.Value).IsUnique();
+            });
+
+            modelBuilder.Entity<Project>()
+                .HasMany(x => x.Tags)
+                .WithMany(x => x.Projects)
+                .UsingEntity(j => j.ToTable("ProjectTags"));
 
             modelBuilder.Entity<ProjectLink>(pl =>
             {

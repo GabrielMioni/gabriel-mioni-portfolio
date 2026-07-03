@@ -46,6 +46,15 @@ namespace Portfolio.Api.GraphQL.Projects.Public
                             LinkType = l.LinkType,
                             SortOrder = l.SortOrder
                         })
+                        .ToList(),
+                    Tags = project.Tags
+                        .OrderBy(t => t.Name)
+                        .Select(t => new PublicProjectTagDto
+                        {
+                            Id = t.Id,
+                            Name = t.Name,
+                            Value = t.Value
+                        })
                         .ToList()
                 });
         }

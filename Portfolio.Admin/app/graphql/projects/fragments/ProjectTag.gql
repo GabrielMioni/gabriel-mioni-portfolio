@@ -1,0 +1,5 @@
+fragment projectTag on ProjectTag {
+    id
+    name
+    value
+}

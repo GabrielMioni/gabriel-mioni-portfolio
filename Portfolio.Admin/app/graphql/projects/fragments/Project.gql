@@ -13,4 +13,7 @@ fragment Project on Project {
     links {
         ...projectLink
     }
+    tags {
+        ...projectTag
+    }
 }

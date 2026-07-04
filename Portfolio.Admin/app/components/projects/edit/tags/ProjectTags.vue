@@ -10,11 +10,19 @@ const tagItems = computed<TagEditorItem[]>(() =>
   allTags.value.map(t => ({ id: t.id, name: t.name, value: t.value }))
 )
 
+const removeTag = (index: number) => {
+  assignedTags.value = assignedTags.value.filter((_, i) => i !== index)
+}
+
+const resolveTag = (v: string): TagEditorItem => {
+  const value = generateTagValue(v)
+  const existing = allTags.value.find(t => t.value === value)
+  return existing ?? { id: null, name: v, value }
+}
+
 const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
   const normalized = values.map(v =>
-    typeof v === 'string'
-      ? { id: null, name: v, value: generateTagValue(v) }
-      : v
+    typeof v === 'string' ? resolveTag(v) : v
   )
 
   const seen = new Set<string>()
@@ -39,6 +47,23 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
       multiple
       variant="filled"
       hide-details
-      @update:model-value="onUpdateModelValue" />
+      @update:model-value="onUpdateModelValue">
+      <template #chip="{ item, index }">
+        <v-chip
+          :key="`tag-chip-${index}`"
+          :value="item.raw.value"
+          :color="item.raw?.id ? 'primary' : 'secondary'"
+          :variant="item.raw?.id ? 'flat' : 'outlined'"
+          :prepend-icon="item.raw?.id ? undefined : 'mdi-plus'"
+          class="ma-1"
+          closable
+          label
+          small
+          @mousedown.stop
+          @click:close="removeTag(index)">
+          {{ item.raw.name }}
+        </v-chip>
+      </template>
+    </v-combobox>
   </div>
 </template>

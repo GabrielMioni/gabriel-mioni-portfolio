@@ -49,20 +49,30 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
       hide-details
       @update:model-value="onUpdateModelValue">
       <template #chip="{ item, index }">
-        <v-chip
-          :key="`tag-chip-${index}`"
-          :value="item.raw.value"
-          :color="item.raw?.id ? 'primary' : 'secondary'"
-          :variant="item.raw?.id ? 'flat' : 'outlined'"
-          :prepend-icon="item.raw?.id ? undefined : 'mdi-plus'"
-          class="ma-1"
-          closable
-          label
-          small
-          @mousedown.stop
-          @click:close="removeTag(index)">
-          {{ item.raw.name }}
-        </v-chip>
+        <v-tooltip
+          :disabled="!!item.raw?.id"
+          class="fs-10"
+          content-class="font-italic"
+          text="Pending"
+          location="top">
+          <template #activator="{ props }">
+            <v-chip
+              v-bind="props"
+              :key="`tag-chip-${index}`"
+              :value="item.raw.value"
+              :color="item.raw?.id ? 'primary' : 'warning'"
+              :variant="item.raw?.id ? 'flat' : 'outlined'"
+              :prepend-icon="item.raw?.id ? undefined : 'mdi-plus'"
+              class="ma-1"
+              closable
+              label
+              small
+              @mousedown.stop
+              @click:close="removeTag(index)">
+              {{ item.raw.name }}
+            </v-chip>
+          </template>
+        </v-tooltip>
       </template>
     </v-combobox>
   </div>

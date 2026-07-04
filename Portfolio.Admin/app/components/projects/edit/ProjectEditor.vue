@@ -10,6 +10,7 @@ const {
   projectDetailsModel,
   imageItems,
   linkItems,
+  tagItems,
 
   // computed
   activeImageItems,
@@ -177,7 +178,8 @@ const goToProjects = async () => {
             <v-tabs-window-item :value="tabValues.details">
               <ProjectDetails
                 v-model:form="projectDetailsModel"
-                v-model:is-valid="projectLinksIsValid" />
+                v-model:is-valid="projectLinksIsValid"
+                v-model:assigned-tags="tagItems" />
             </v-tabs-window-item>
             <v-tabs-window-item :value="tabValues.images">
               <ProjectImageUpload

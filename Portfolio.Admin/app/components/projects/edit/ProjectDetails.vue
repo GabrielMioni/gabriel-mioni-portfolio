@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ProjectStatus } from '~/generated/graphql'
 import type { ProjectBaseForm } from '~/types/ui/form'
+import type { TagEditorItem } from '~/types/tags'
 import { required } from '~/utils/rules'
 
 const form = defineModel<ProjectBaseForm>('form', { required: true })
 const isValid = defineModel<boolean>('is-valid', { default: false })
+const assignedTags = defineModel<TagEditorItem[]>('assignedTags', { default: () => [] })
 
 const statusOptions = [
   { label: 'Draft', value: ProjectStatus.Draft },
@@ -28,7 +30,9 @@ const statusOptions = [
             :rules="[required()]"/>
         </v-col>
       </v-row>
-      <v-row no-gutters>
+      <v-row
+        no-gutters
+        class="mb-3">
         <v-col>
           <v-text-field
             v-model="form.summary"
@@ -49,6 +53,13 @@ const statusOptions = [
               :label="option.label"
               :value="option.value" />
           </v-radio-group>
+        </v-col>
+      </v-row>
+      <v-row
+        no-gutters
+        class="mb-3">
+        <v-col>
+          <ProjectTags v-model:assigned-tags="assignedTags" />
         </v-col>
       </v-row>
       <v-row no-gutters>

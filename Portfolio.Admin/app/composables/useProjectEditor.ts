@@ -11,10 +11,12 @@ import {
   ProjectFragmentDoc,
   ProjectImageFragmentDoc,
   ProjectLinkFragmentDoc,
+  ProjectTagFragmentDoc,
   ProjectStatus
 } from '~/generated/graphql'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
+import type { TagEditorItem } from '~/types/tags'
 import {
   checkIfEditorItemsUpdated,
   normalizeEditorItemsSortOrder,
@@ -86,8 +88,12 @@ export const useProjectEditor = () => {
     status: ProjectStatus.Draft
   })
 
+  const { createProjectTags, updateProjectTags } = useProjectTagMutations()
+
   const imageItems = ref<ImageEditorItem[]>([])
   const linkItems = ref<LinkEditorItem[]>([])
+  const tagItems = ref<TagEditorItem[]>([])
+  const originalTagIds = ref<string[]>([])
 
   const project = computed(() => {
     const ref = data.value?.projectById
@@ -216,6 +222,13 @@ export const useProjectEditor = () => {
     )
   )
 
+  const hasTagUpdates = computed(() => {
+    const hasPending = tagItems.value.some(t => !t.id)
+    const currentIds = tagItems.value.filter(t => t.id).map(t => t.id as string).sort().join(',')
+    const original = [...originalTagIds.value].sort().join(',')
+    return hasPending || currentIds !== original
+  })
+
   const hasFieldUpdates = computed(() => {
     if (!originalProject.value) {
       return (
@@ -239,7 +252,8 @@ export const useProjectEditor = () => {
       return (
         hasFieldUpdates.value ||
         uploadItems.value.length > 0 ||
-        newLinkItems.value.length > 0
+        newLinkItems.value.length > 0 ||
+        tagItems.value.length > 0
       )
     }
 
@@ -251,7 +265,8 @@ export const useProjectEditor = () => {
       removedImageItems.value.length > 0 ||
       hasExistingImageUpdates.value ||
       hasExistingLinkUpdates.value ||
-      newLinkItems.value.length > 0
+      newLinkItems.value.length > 0 ||
+      hasTagUpdates.value
     )
   })
 
@@ -292,6 +307,10 @@ export const useProjectEditor = () => {
 
     linkItems.value = mappedLinkItems
     originalLinkItems.value = mappedLinkItems.map(item => ({ ...item }))
+
+    tagItems.value = useFragment(ProjectTagFragmentDoc, currentProject.tags)
+      .map(t => ({ id: t.id, name: t.name, value: t.value }))
+    originalTagIds.value = tagItems.value.map(t => t.id as string)
   }
 
   const refreshProject = async () => {
@@ -339,6 +358,27 @@ export const useProjectEditor = () => {
     }
   }
 
+  const resolvePendingTags = async (): Promise<boolean> => {
+    const pending = tagItems.value.filter(t => !t.id)
+    if (pending.length === 0) return true
+
+    try {
+      const resolved = await createProjectTags(pending)
+
+      tagItems.value = tagItems.value.map(t => {
+        if (t.id) return t
+        const match = resolved.find(r => r.value === t.value)
+        return match ? { id: match.id, name: match.name, value: match.value } : t
+      })
+
+      return true
+    } catch (error) {
+      console.error('Failed to create new tags', error)
+      showSnackbar('Failed to create new tags', 'error')
+      return false
+    }
+  }
+
   const submitEditProject = async () => {
     if (!projectId.value || !editProjectInput.value || !hasUpdates.value) return false
 
@@ -354,6 +394,13 @@ export const useProjectEditor = () => {
 
       const imagesDeleted = await deleteRemovedImages()
       if (!imagesDeleted) return false
+
+      if (hasTagUpdates.value) {
+        const tagsResolved = await resolvePendingTags()
+        if (!tagsResolved) return false
+
+        await updateProjectTags(projectId.value, tagItems.value)
+      }
 
       const projectRefreshed = await refreshProject()
       if (!projectRefreshed) return false
@@ -386,6 +433,13 @@ export const useProjectEditor = () => {
           uploadItems: uploadItems.value,
           projectId: newProjectId
         })
+      }
+
+      if (tagItems.value.length > 0) {
+        const tagsResolved = await resolvePendingTags()
+        if (!tagsResolved) return false
+
+        await updateProjectTags(newProjectId, tagItems.value)
       }
 
       await router.push(`/projects/${newProjectId}`)
@@ -439,6 +493,7 @@ export const useProjectEditor = () => {
     projectDetailsModel,
     imageItems,
     linkItems,
+    tagItems,
 
     // computed
     activeImageItems,

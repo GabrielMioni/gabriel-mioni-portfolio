@@ -1,4 +1,5 @@
 <script setup lang="ts">
+definePageMeta({ layout: 'auth' })
 const { email: emailRule, required: requiredRule } = useValidation()
 
 const email = ref('')

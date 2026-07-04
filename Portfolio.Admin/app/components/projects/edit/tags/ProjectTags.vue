@@ -39,6 +39,7 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
     <v-combobox
       :model-value="assignedTags"
       :items="tagItems"
+      :hide-no-data="false"
       :loading="fetchingTags"
       item-title="name"
       return-object
@@ -48,6 +49,19 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
       variant="filled"
       hide-details
       @update:model-value="onUpdateModelValue">
+      <template #no-data>
+        <v-list-item>
+          <template #prepend>
+            <v-icon
+              icon="mdi-plus"
+              class="mr-2" />
+          </template>
+          <v-list-item-title>
+            Press enter to create tag
+          </v-list-item-title>
+        </v-list-item>
+      </template>
+
       <template #chip="{ item, index }">
         <v-tooltip
           :disabled="!!item.raw?.id"

@@ -1,0 +1,5 @@
+mutation CreateProjectTags($input: CreateProjectTagsInput!) {
+    createProjectTags(input: $input) {
+        ...projectTag
+    }
+}

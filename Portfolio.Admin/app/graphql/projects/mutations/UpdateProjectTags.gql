@@ -1,0 +1,8 @@
+mutation UpdateProjectTags($input: UpdateProjectTagsInput!) {
+    updateProjectTags(input: $input) {
+        id
+        tags {
+            ...projectTag
+        }
+    }
+}

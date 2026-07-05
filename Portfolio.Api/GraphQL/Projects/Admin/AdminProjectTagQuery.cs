@@ -1,4 +1,5 @@
 using Portfolio.Api.Domain.Projects;
+using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 using Portfolio.Api.Services;
 
 namespace Portfolio.Api.GraphQL.Projects.Admin;
@@ -11,5 +12,15 @@ public class AdminProjectTagQuery
         CancellationToken ct = default)
     {
         return tags.GetAllAsync(ct);
+    }
+
+    [UseOffsetPaging(IncludeTotalCount = true)]
+    [UseSorting]
+    [UseFiltering]
+    public Task<IEnumerable<ProjectTagSummary>> GetTagSummaries(
+        [Service] ProjectTagService tags,
+        CancellationToken ct)
+    {
+        return tags.GetSummariesAsync(ct);
     }
 }

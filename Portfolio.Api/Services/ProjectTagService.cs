@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
+using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 
 namespace Portfolio.Api.Services;
 
@@ -11,6 +12,14 @@ public class ProjectTagService
     public ProjectTagService(IDbContextFactory<AppDbContext> dbFactory)
     {
         _dbFactory = dbFactory;
+    }
+
+    public async Task<IEnumerable<ProjectTagSummary>> GetSummariesAsync(CancellationToken ct = default)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+        return await db.Tags
+            .Select(t => new ProjectTagSummary(t.Id, t.Name, t.Value, t.Projects.Count))
+            .ToListAsync(ct);
     }
 
     public async Task<List<ProjectTag>> GetAllAsync(CancellationToken ct = default)

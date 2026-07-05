@@ -1,0 +1,15 @@
+query GetTagSummaries($skip: Int, $take: Int, $order: [ProjectTagSummarySortInput!], $where: ProjectTagSummaryFilterInput) {
+    tagSummaries(skip: $skip, take: $take, order: $order, where: $where) {
+        items {
+            id
+            name
+            value
+            projectsCount
+        }
+        pageInfo {
+            hasNextPage
+            hasPreviousPage
+        }
+        totalCount
+    }
+}

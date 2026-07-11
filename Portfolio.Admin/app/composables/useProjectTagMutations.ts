@@ -3,6 +3,8 @@ import {
   type ProjectTagFragment,
   CreateProjectTagsDocument,
   UpdateProjectTagsDocument,
+  RenameProjectTagDocument,
+  RemoveTagFromProjectsDocument,
   ProjectTagFragmentDoc
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
@@ -19,6 +21,9 @@ export const useProjectTagMutations = () => {
     fetching: updatingTags
   } = useMutation(UpdateProjectTagsDocument)
 
+  const { executeMutation: executeRename, fetching: renamingTag } = useMutation(RenameProjectTagDocument)
+  const { executeMutation: executeRemoveFromProjects, fetching: removingFromProjects } = useMutation(RemoveTagFromProjectsDocument)
+
   const createProjectTags = async (tagItems: TagEditorItem[]): Promise<ProjectTagFragment[]> => {
     const response = await executeCreateMany({ input: { names: tagItems.map(t => t.name) } })
     if (response.error) throw response.error
@@ -32,5 +37,21 @@ export const useProjectTagMutations = () => {
     if (response.error) throw response.error
   }
 
-  return { createProjectTags, updateProjectTags, creatingTags, updatingTags }
+  const renameProjectTag = async (id: string, name: string): Promise<ProjectTagFragment | null> => {
+    const response = await executeRename({ input: { id, name } })
+    if (response.error) throw response.error
+    const data = response.data?.renameProjectTag
+    return data ? useFragment(ProjectTagFragmentDoc, data) : null
+  }
+
+  const removeTagFromProjects = async (tagId: string, projectIds: string[]): Promise<string[]> => {
+    const response = await executeRemoveFromProjects({ input: { tagId, projectIds } })
+    if (response.error) throw response.error
+    return response.data?.removeTagFromProjects ?? []
+  }
+
+  return {
+    createProjectTags, updateProjectTags, creatingTags, updatingTags,
+    renameProjectTag, removeTagFromProjects, renamingTag, removingFromProjects
+  }
 }

@@ -1,0 +1,6 @@
+query GetProjectsByTagId($tagId: UUID!) {
+    projectsByTagId(tagId: $tagId) {
+        id
+        title
+    }
+}

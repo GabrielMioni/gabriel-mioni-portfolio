@@ -26,6 +26,16 @@ public class ProjectTag
         };
     }
 
+    public void Rename(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Tag name is required.", nameof(name));
+
+        var trimmed = name.Trim();
+        Name = trimmed;
+        Value = GenerateValue(trimmed);
+    }
+
     public static string GenerateValue(string name)
     {
         var lower = name.ToLowerInvariant();

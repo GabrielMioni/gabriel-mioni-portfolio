@@ -22,6 +22,51 @@ public class ProjectTagService
             .ToListAsync(ct);
     }
 
+    public async Task<ProjectTag?> RenameAsync(Guid id, string name, CancellationToken ct = default)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+        var tag = await db.Tags.FirstOrDefaultAsync(t => t.Id == id, ct);
+        if (tag is null) return null;
+
+        var newValue = ProjectTag.GenerateValue(name);
+        var conflict = await db.Tags.AnyAsync(t => t.Value == newValue && t.Id != id, ct);
+        if (conflict)
+            throw new InvalidOperationException($"A tag with the name '{name.Trim()}' already exists.");
+
+        tag.Rename(name);
+        await db.SaveChangesAsync(ct);
+
+        return tag;
+    }
+
+    public async Task RemoveTagFromProjectsAsync(Guid tagId, IReadOnlyList<Guid> projectIds, CancellationToken ct = default)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+        var projects = await db.Projects
+            .Include(p => p.Tags)
+            .Where(p => projectIds.Contains(p.Id))
+            .ToListAsync(ct);
+
+        foreach (var project in projects)
+        {
+            var tag = project.Tags.FirstOrDefault(t => t.Id == tagId);
+            if (tag is not null) project.RemoveTag(tag);
+        }
+
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task<List<Project>> GetProjectsByTagIdAsync(Guid tagId, CancellationToken ct = default)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+        return await db.Projects
+            .Where(p => p.Tags.Any(t => t.Id == tagId))
+            .OrderBy(p => p.Title)
+            .ToListAsync(ct);
+    }
+
     public async Task<List<ProjectTag>> GetAllAsync(CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);

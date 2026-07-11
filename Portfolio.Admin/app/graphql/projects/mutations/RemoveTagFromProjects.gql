@@ -1,0 +1,3 @@
+mutation RemoveTagFromProjects($input: RemoveTagFromProjectsInput!) {
+    removeTagFromProjects(input: $input)
+}

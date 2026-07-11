@@ -1,5 +1,16 @@
 <script setup lang="ts">
+import type { Directive } from 'vue'
+
 const dialog = defineModel<boolean>()
+
+const vFocusFirstInput: Directive<HTMLElement, boolean> = {
+  mounted(el, binding) {
+    if (!binding.value) return
+    requestAnimationFrame(() => {
+      el.querySelector<HTMLElement>('input:not([type="hidden"]), textarea')?.focus()
+    })
+  }
+}
 
 withDefaults(
   defineProps<{
@@ -10,6 +21,7 @@ withDefaults(
     toolbarColor?: string
     hideToolbar?: boolean
     width?: string | number
+    focusFirstInput?: boolean
   }>(),
   {
     title: undefined,
@@ -18,7 +30,8 @@ withDefaults(
     persistent: false,
     hideToolbar: false,
     toolbarColor: 'primary',
-    width: 600
+    width: 600,
+    focusFirstInput: false
   }
 )
 
@@ -44,7 +57,7 @@ withDefaults(
         variant="text"
         @click="dialog = false" />
     </v-toolbar>
-    <v-card>
+    <v-card v-focus-first-input="focusFirstInput">
       <v-card-title v-if="$slots['card-title']">
         <slot name="card-title" />
       </v-card-title>

@@ -73,7 +73,8 @@ const save = async () => {
     v-model="dialog"
     :persistent="saving"
     :title="tag?.name ?? ''"
-    width="560">
+    width="560"
+    focus-first-input>
     <v-text-field
       v-model="editedName"
       label="Name"

@@ -14,7 +14,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:options': [options: TableOptions]
   edit: [tagId: string]
-  'view-projects': [tagId: string]
   delete: [tagId: string]
 }>()
 
@@ -29,7 +28,6 @@ const headers: TagHeader[] = [
 
 const getMenuItems = (tag: ProjectTagSummary): MenuItem[] => [
   { title: 'Edit', icon: 'mdi-pencil-outline', action: () => emit('edit', tag.id) },
-  { title: 'View Projects', icon: 'mdi-folder-multiple-outline', action: () => emit('view-projects', tag.id) },
   { title: 'Delete', icon: 'mdi-trash-can-outline', itemClass: 'text-error', action: () => emit('delete', tag.id) }
 ]
 </script>

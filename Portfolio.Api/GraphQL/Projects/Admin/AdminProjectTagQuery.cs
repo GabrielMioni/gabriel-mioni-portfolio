@@ -14,6 +14,14 @@ public class AdminProjectTagQuery
         return tags.GetAllAsync(ct);
     }
 
+    public Task<List<Project>> GetProjectsByTagId(
+        Guid tagId,
+        [Service] ProjectTagService tags,
+        CancellationToken ct = default)
+    {
+        return tags.GetProjectsByTagIdAsync(tagId, ct);
+    }
+
     [UseOffsetPaging(IncludeTotalCount = true)]
     [UseSorting]
     [UseFiltering]

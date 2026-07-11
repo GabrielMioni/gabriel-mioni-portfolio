@@ -5,7 +5,6 @@ import { toTagSortInput, toTagFilterInput, useTagsTableQueries } from '~/composa
 
 enum TagAction {
   Edit = 'edit',
-  ViewProjects = 'viewProjects',
   Delete = 'delete'
 }
 
@@ -60,11 +59,6 @@ const onEdit = (tagId: string) => {
   activeAction.value = TagAction.Edit
 }
 
-const onViewProjects = (tagId: string) => {
-  selectedTagId.value = tagId
-  activeAction.value = TagAction.ViewProjects
-}
-
 const onDelete = (tagId: string) => {
   selectedTagId.value = tagId
   activeAction.value = TagAction.Delete
@@ -80,10 +74,10 @@ const onDelete = (tagId: string) => {
       :options="tableOptions"
       @update:options="updateTableOptions"
       @edit="onEdit"
-      @view-projects="onViewProjects"
       @delete="onDelete" />
-    <TagEditDialog
+    <TagDialog
       v-model="editDialogOpen"
-      :tag="selectedTag" />
+      :tag="selectedTag"
+      @save="refetchTags" />
   </v-container>
 </template>

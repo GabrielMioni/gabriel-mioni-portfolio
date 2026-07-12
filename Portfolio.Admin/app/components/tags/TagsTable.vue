@@ -19,6 +19,7 @@ const emit = defineEmits<{
 }>()
 
 const search = defineModel<string>('search', { required: true })
+const showOrphaned = defineModel<boolean>('showOrphaned', { required: true })
 
 const headers: TagHeader[] = [
   { title: 'Name', key: 'name', sortable: true, align: 'start' },
@@ -53,6 +54,14 @@ const getMenuItems = (tag: ProjectTagSummary): MenuItem[] => [
               append-inner-icon="mdi-magnify"
               clearable
               hide-details />
+          </v-col>
+          <v-col cols="auto">
+            <v-switch
+              v-model="showOrphaned"
+              label="Show orphaned"
+              hide-details
+              density="compact"
+              color="primary" />
           </v-col>
           <v-col cols="auto">
             <v-btn

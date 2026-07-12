@@ -83,7 +83,8 @@ const onDelete = (tagId: string) => {
     <TagDialog
       v-model="editDialogOpen"
       :tag="selectedTag"
-      @save="refetchTags" />
+      @save="refetchTags"
+      @deleted="refetchTags" />
     <DeleteTagDialog
       v-model="deleteDialogOpen"
       :tag="selectedTag"

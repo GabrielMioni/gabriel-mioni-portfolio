@@ -9,10 +9,12 @@ const props = defineProps<{
   tag: ProjectTagSummary | null
 }>()
 
-const { renameProjectTag, removeTagFromProjects, renamingTag, removingFromProjects } = useProjectTagMutations()
+const { renameProjectTag, removeTagFromProjects, renamingTag, removingFromProjects, deleteProjectTag, deletingTag } = useProjectTagMutations()
 const { showSnackbar } = useSnackbarStore()
 
-const emit = defineEmits<{ save: [] }>()
+const emit = defineEmits<{ save: [], deleted: [] }>()
+
+const confirmingDelete = ref(false)
 
 const { data, fetching: fetchingProjects, executeQuery } = useQuery({
   query: GetProjectsByTagIdDocument,
@@ -29,12 +31,13 @@ const isDirty = computed(() =>
   editedName.value.trim() !== (props.tag?.name ?? '') || pendingRemovals.value.size > 0
 )
 
-const saving = computed(() => renamingTag.value || removingFromProjects.value)
+const saving = computed(() => renamingTag.value || removingFromProjects.value || deletingTag.value)
 
 watch(dialog, (open) => {
   if (open && props.tag) {
     editedName.value = props.tag.name
     pendingRemovals.value = new Set()
+    confirmingDelete.value = false
     executeQuery()
   }
 })
@@ -44,6 +47,19 @@ const toggleRemoval = (projectId: string) => {
   if (next.has(projectId)) next.delete(projectId)
   else next.add(projectId)
   pendingRemovals.value = next
+}
+
+const confirmDelete = async () => {
+  if (!props.tag) return
+  try {
+    await deleteProjectTag(props.tag.id)
+    showSnackbar(`"${props.tag.name}" deleted`, 'success')
+    dialog.value = false
+    emit('deleted')
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'An error occurred'
+    showSnackbar(message, 'error')
+  }
 }
 
 const save = async () => {
@@ -118,21 +134,48 @@ const save = async () => {
       </v-list-item>
     </v-list>
     <template #actions>
-      <v-spacer />
-      <v-btn
-        variant="text"
-        :disabled="saving"
-        @click="dialog = false">
-        Cancel
-      </v-btn>
-      <v-btn
-        color="primary"
-        variant="flat"
-        :disabled="!isDirty || saving"
-        :loading="saving"
-        @click="save">
-        Save
-      </v-btn>
+      <template v-if="confirmingDelete">
+        <span class="text-error text-body-2">Delete this tag? This will remove the tag from all associated projects.</span>
+        <v-btn
+          variant="text"
+          size="small"
+          :disabled="saving"
+          @click="confirmingDelete = false">
+          Cancel
+        </v-btn>
+        <v-btn
+          color="error"
+          variant="flat"
+          size="small"
+          :loading="deletingTag"
+          @click="confirmDelete">
+          Confirm
+        </v-btn>
+      </template>
+      <template v-else>
+        <v-btn
+          variant="text"
+          color="error"
+          :disabled="saving"
+          @click="confirmingDelete = true">
+          Delete Tag
+        </v-btn>
+        <v-spacer />
+        <v-btn
+          variant="text"
+          :disabled="saving"
+          @click="dialog = false">
+          Cancel
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="flat"
+          :disabled="!isDirty || saving"
+          :loading="saving"
+          @click="save">
+          Save
+        </v-btn>
+      </template>
     </template>
   </BaseDialog>
 </template>

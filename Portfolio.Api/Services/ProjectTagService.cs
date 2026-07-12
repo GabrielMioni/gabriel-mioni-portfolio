@@ -22,6 +22,19 @@ public class ProjectTagService
             .ToListAsync(ct);
     }
 
+    public async Task<Guid?> DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+        var tag = await db.Tags.FirstOrDefaultAsync(t => t.Id == id, ct);
+        if (tag is null) return null;
+
+        db.Tags.Remove(tag);
+        await db.SaveChangesAsync(ct);
+
+        return id;
+    }
+
     public async Task<ProjectTag?> RenameAsync(Guid id, string name, CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);

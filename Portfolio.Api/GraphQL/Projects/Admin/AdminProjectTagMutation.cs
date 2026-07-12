@@ -23,6 +23,14 @@ public class AdminProjectTagMutation
         return tags.UpdateProjectTagsAsync(input.ProjectId, input.TagIds, ct);
     }
 
+    public Task<Guid?> DeleteProjectTag(
+        DeleteProjectTagInput input,
+        [Service] ProjectTagService tags,
+        CancellationToken ct = default)
+    {
+        return tags.DeleteAsync(input.Id, ct);
+    }
+
     public Task<ProjectTag?> RenameProjectTag(
         RenameProjectTagInput input,
         [Service] ProjectTagService tags,

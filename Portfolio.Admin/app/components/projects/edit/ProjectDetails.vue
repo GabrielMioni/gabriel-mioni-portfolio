@@ -59,7 +59,7 @@ const statusOptions = [
         no-gutters
         class="mb-3">
         <v-col>
-          <ProjectTags v-model:assigned-tags="assignedTags" />
+          <TagsCombobox v-model:assigned-tags="assignedTags" />
         </v-col>
       </v-row>
       <v-row no-gutters>

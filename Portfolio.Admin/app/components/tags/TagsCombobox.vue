@@ -4,11 +4,25 @@ import { generateTagValue } from '~/utils/tags'
 
 const assignedTags = defineModel<TagEditorItem[]>('assignedTags', { default: () => [] })
 
-const { allTags, fetchingTags } = useProjectTagQueries()
-
-const tagItems = computed<TagEditorItem[]>(() =>
-  allTags.value.map(t => ({ id: t.id, name: t.name, value: t.value }))
+const props = withDefaults(
+  defineProps<{
+      disableExisting?: boolean
+    }>(),
+  {
+    disableExisting: false
+  }
 )
+
+const { allTags, fetchingTags } = useProjectTagQueries()
+const { showSnackbar } = useSnackbarStore()
+
+const search = ref('')
+
+const tagItems = computed<TagEditorItem[]>(() => {
+  const all = allTags.value.map(t => ({ id: t.id, name: t.name, value: t.value }))
+  if (props.disableExisting && !search.value.trim()) return []
+  return all
+})
 
 const removeTag = (index: number) => {
   assignedTags.value = assignedTags.value.filter((_, i) => i !== index)
@@ -21,6 +35,16 @@ const resolveTag = (v: string): TagEditorItem => {
 }
 
 const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
+  if (props.disableExisting) {
+    const duplicate = values.find(
+      v => typeof v === 'string' &&
+      allTags.value.some(t => t.value === generateTagValue(v as string))
+    )
+    if (duplicate) {
+      showSnackbar(`"${duplicate}" already exists`, 'warning')
+      return
+    }
+  }
   const normalized = values.map(v =>
     typeof v === 'string' ? resolveTag(v) : v
   )
@@ -37,6 +61,7 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
 <template>
   <div class="pt-3">
     <v-combobox
+      v-model:search="search"
       :model-value="assignedTags"
       :items="tagItems"
       :hide-no-data="false"
@@ -49,6 +74,13 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
       variant="filled"
       hide-details
       @update:model-value="onUpdateModelValue">
+      <template #item="{ item, props: itemProps }">
+        <v-list-item
+          v-bind="itemProps"
+          :disabled="disableExisting && !!item.raw.id"
+          :subtitle="disableExisting && item.raw.id ? 'Already exists' : undefined" />
+      </template>
+
       <template #no-data>
         <v-list-item>
           <template #prepend>

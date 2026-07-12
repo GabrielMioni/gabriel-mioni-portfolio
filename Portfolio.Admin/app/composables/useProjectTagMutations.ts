@@ -5,6 +5,7 @@ import {
   UpdateProjectTagsDocument,
   RenameProjectTagDocument,
   RemoveTagFromProjectsDocument,
+  DeleteProjectTagDocument,
   ProjectTagFragmentDoc
 } from '~/generated/graphql'
 import { useFragment } from '~/generated'
@@ -23,6 +24,7 @@ export const useProjectTagMutations = () => {
 
   const { executeMutation: executeRename, fetching: renamingTag } = useMutation(RenameProjectTagDocument)
   const { executeMutation: executeRemoveFromProjects, fetching: removingFromProjects } = useMutation(RemoveTagFromProjectsDocument)
+  const { executeMutation: executeDelete, fetching: deletingTag } = useMutation(DeleteProjectTagDocument)
 
   const createProjectTags = async (tagItems: TagEditorItem[]): Promise<ProjectTagFragment[]> => {
     const response = await executeCreateMany({ input: { names: tagItems.map(t => t.name) } })
@@ -50,8 +52,15 @@ export const useProjectTagMutations = () => {
     return response.data?.removeTagFromProjects ?? []
   }
 
+  const deleteProjectTag = async (id: string): Promise<string | null> => {
+    const response = await executeDelete({ input: { id } })
+    if (response.error) throw response.error
+    return response.data?.deleteProjectTag ?? null
+  }
+
   return {
     createProjectTags, updateProjectTags, creatingTags, updatingTags,
-    renameProjectTag, removeTagFromProjects, renamingTag, removingFromProjects
+    renameProjectTag, removeTagFromProjects, renamingTag, removingFromProjects,
+    deleteProjectTag, deletingTag
   }
 }

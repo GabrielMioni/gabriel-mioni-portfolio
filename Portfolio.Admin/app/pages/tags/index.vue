@@ -54,6 +54,11 @@ const editDialogOpen = computed({
   set: (val) => { if (!val) activeAction.value = null }
 })
 
+const deleteDialogOpen = computed({
+  get: () => activeAction.value === TagAction.Delete,
+  set: (val) => { if (!val) activeAction.value = null }
+})
+
 const onEdit = (tagId: string) => {
   selectedTagId.value = tagId
   activeAction.value = TagAction.Edit
@@ -79,5 +84,9 @@ const onDelete = (tagId: string) => {
       v-model="editDialogOpen"
       :tag="selectedTag"
       @save="refetchTags" />
+    <DeleteTagDialog
+      v-model="deleteDialogOpen"
+      :tag="selectedTag"
+      @deleted="refetchTags" />
   </v-container>
 </template>

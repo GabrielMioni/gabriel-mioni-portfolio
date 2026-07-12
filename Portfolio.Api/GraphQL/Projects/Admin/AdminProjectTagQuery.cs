@@ -26,9 +26,10 @@ public class AdminProjectTagQuery
     [UseSorting]
     [UseFiltering]
     public Task<IEnumerable<ProjectTagSummary>> GetTagSummaries(
+        bool showOrphaned,
         [Service] ProjectTagService tags,
         CancellationToken ct)
     {
-        return tags.GetSummariesAsync(ct);
+        return tags.GetSummariesAsync(showOrphaned, ct);
     }
 }

@@ -1,5 +1,5 @@
-query GetTagSummaries($skip: Int, $take: Int, $order: [ProjectTagSummarySortInput!], $where: ProjectTagSummaryFilterInput) {
-    tagSummaries(skip: $skip, take: $take, order: $order, where: $where) {
+query GetTagSummaries($skip: Int, $take: Int, $order: [ProjectTagSummarySortInput!], $where: ProjectTagSummaryFilterInput, $showOrphaned: Boolean!) {
+    tagSummaries(skip: $skip, take: $take, order: $order, where: $where, showOrphaned: $showOrphaned) {
         items {
             id
             name

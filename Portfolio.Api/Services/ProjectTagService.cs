@@ -14,10 +14,13 @@ public class ProjectTagService
         _dbFactory = dbFactory;
     }
 
-    public async Task<IEnumerable<ProjectTagSummary>> GetSummariesAsync(CancellationToken ct = default)
+    public async Task<IEnumerable<ProjectTagSummary>> GetSummariesAsync(bool showOrphaned = true, CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
-        return await db.Tags
+        var query = db.Tags.AsQueryable();
+        if (!showOrphaned)
+            query = query.Where(t => t.Projects.Any());
+        return await query
             .Select(t => new ProjectTagSummary(t.Id, t.Name, t.Value, t.Projects.Count))
             .ToListAsync(ct);
     }

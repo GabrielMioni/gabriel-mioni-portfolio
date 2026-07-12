@@ -1,7 +1,7 @@
 export const generateTagValue = (name: string): string =>
   name
+    .trim()
     .toLowerCase()
-    .replace(/[\s-]+/g, '_')
-    .replace(/[^\w]/g, '')
-    .replace(/_+/g, '_')
-    .replace(/^_+|_+$/g, '')
+    .replace(/[\s-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')

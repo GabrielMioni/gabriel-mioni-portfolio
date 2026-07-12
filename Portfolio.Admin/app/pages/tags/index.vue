@@ -42,6 +42,8 @@ watchDebounced(
 
 const { tags, totalCount, refetchTags } = useTagsTableQueries(queryVars)
 
+const createDialogOpen = ref(false)
+
 const activeAction = ref<TagAction | null>(null)
 const selectedTagId = ref<string | null>(null)
 
@@ -78,6 +80,7 @@ const onDelete = (tagId: string) => {
       :total-count="totalCount"
       :options="tableOptions"
       @update:options="updateTableOptions"
+      @new-tag="createDialogOpen = true"
       @edit="onEdit"
       @delete="onDelete" />
     <TagDialog
@@ -85,6 +88,9 @@ const onDelete = (tagId: string) => {
       :tag="selectedTag"
       @save="refetchTags"
       @deleted="refetchTags" />
+    <CreateTagsDialog
+      v-model="createDialogOpen"
+      @created="refetchTags" />
     <DeleteTagDialog
       v-model="deleteDialogOpen"
       :tag="selectedTag"

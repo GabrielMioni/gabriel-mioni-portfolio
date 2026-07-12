@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { GetTagSummariesQueryVariables } from '~/generated/graphql'
-import type { TableOptions } from '~/types/ui/datatable'
 import { toTagSortInput, toTagFilterInput, useTagsTableQueries } from '~/composables/useTagsTableQueries'
 
 enum TagAction {
@@ -8,15 +7,28 @@ enum TagAction {
   Delete = 'delete'
 }
 
-const tableOptions = ref<TableOptions>({
-  page: 1,
-  itemsPerPage: 25,
-  sortBy: [{ key: 'name', order: 'asc' }],
-  groupBy: [],
-  search: ''
-})
+const route = useRoute()
 
-const search = ref<string>('')
+const activeAction = ref<TagAction | null>(route.query.tagId ? TagAction.Edit : null)
+const selectedTagId = ref<string | null>(
+  typeof route.query.tagId === 'string' ? route.query.tagId : null
+)
+
+const extra = computed((): Record<string, string> =>
+  activeAction.value === TagAction.Edit && selectedTagId.value
+    ? { tagId: selectedTagId.value }
+    : {}
+)
+
+const {
+  tableOptions,
+  search,
+  updateTableOptions
+} = useTableUrlSync({
+  defaultItemsPerPage: 10,
+  defaultSort: { key: 'name', order: 'asc' },
+  extra
+})
 
 const queryVars = computed<GetTagSummariesQueryVariables>(() => {
   const { page, itemsPerPage, sortBy } = tableOptions.value
@@ -28,24 +40,9 @@ const queryVars = computed<GetTagSummariesQueryVariables>(() => {
   }
 })
 
-const updateTableOptions = (options: TableOptions) => {
-  tableOptions.value = { ...tableOptions.value, ...options, search: tableOptions.value.search }
-}
-
-watchDebounced(
-  search,
-  (val) => {
-    tableOptions.value = { ...tableOptions.value, search: val.trim(), page: 1 }
-  },
-  { debounce: 350, maxWait: 1000 }
-)
-
 const { tags, totalCount, refetchTags } = useTagsTableQueries(queryVars)
 
 const createDialogOpen = ref(false)
-
-const activeAction = ref<TagAction | null>(null)
-const selectedTagId = ref<string | null>(null)
 
 const selectedTag = computed(() =>
   tags.value.find(t => t.id === selectedTagId.value) ?? null

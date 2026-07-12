@@ -33,14 +33,18 @@ const isDirty = computed(() =>
 
 const saving = computed(() => renamingTag.value || removingFromProjects.value || deletingTag.value)
 
-watch(dialog, (open) => {
-  if (open && props.tag) {
-    editedName.value = props.tag.name
-    pendingRemovals.value = new Set()
-    confirmingDelete.value = false
-    executeQuery()
-  }
-})
+watch(
+  [dialog, () => props.tag] as const,
+  ([open, tag]) => {
+    if (open && tag) {
+      editedName.value = tag.name
+      pendingRemovals.value = new Set()
+      confirmingDelete.value = false
+      executeQuery()
+    }
+  },
+  { immediate: true }
+)
 
 const toggleRemoval = (projectId: string) => {
   const next = new Set(pendingRemovals.value)

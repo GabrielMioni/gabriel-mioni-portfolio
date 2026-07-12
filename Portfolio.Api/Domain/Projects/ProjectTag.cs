@@ -38,9 +38,8 @@ public class ProjectTag
 
     public static string GenerateValue(string name)
     {
-        var lower = name.ToLowerInvariant();
-        var underscored = Regex.Replace(lower, @"[\s\-]+", "_");
-        var cleaned = Regex.Replace(underscored, @"[^\w]", "");
-        return Regex.Replace(cleaned, @"_+", "_").Trim('_');
+        var trimmed = name.Trim().ToLowerInvariant();
+        var hyphenated = Regex.Replace(trimmed, @"[\s\-]+", "-");
+        return Regex.Replace(hyphenated, @"-+", "-").Trim('-');
     }
 }

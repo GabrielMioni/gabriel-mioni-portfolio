@@ -53,7 +53,8 @@ const getMenuItems = (tag: ProjectTagSummary): MenuItem[] => [
               label="Search"
               append-inner-icon="mdi-magnify"
               clearable
-              hide-details />
+              hide-details
+              @click:clear="search = ''" />
           </v-col>
           <v-col cols="auto">
             <v-switch

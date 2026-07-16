@@ -21,7 +21,6 @@ export const useProjectQueries = (tagValues?: Ref<string[]>) => {
   if (tagValues) {
     watch(tagValues, () => {
       skip.value = 0
-      projects.value = []
     })
   }
 
@@ -40,10 +39,12 @@ export const useProjectQueries = (tagValues?: Ref<string[]>) => {
 
   watch(data, (newData) => {
     const items = newData?.publishedProjects?.items ?? []
-    projects.value = [
-      ...projects.value,
-      ...items.map(item => useFragment(PublicProjectFragmentDoc, item))
-    ]
+    const fragments = items.map(item => useFragment(PublicProjectFragmentDoc, item))
+    if (skip.value === 0) {
+      projects.value = fragments
+    } else {
+      projects.value = [...projects.value, ...fragments]
+    }
   })
 
   const hasNextPage = computed(() =>

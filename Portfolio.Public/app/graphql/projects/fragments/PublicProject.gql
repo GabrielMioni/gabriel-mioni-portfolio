@@ -10,4 +10,9 @@ fragment PublicProject on PublicProjectDto {
   links {
     ...PublicProjectLink
   }
+  tags {
+    id
+    name
+    value
+  }
 }

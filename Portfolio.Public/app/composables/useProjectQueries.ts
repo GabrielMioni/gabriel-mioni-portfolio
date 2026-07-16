@@ -1,16 +1,29 @@
 import {
   GetPublishedProjectsDocument,
+  GetPublishedTagsDocument,
   PublicProjectFragmentDoc,
   type PublicProjectFragment
 } from '~/generated/graphql'
 import { useQuery } from '@urql/vue'
 import { useFragment } from '~/generated'
+import type { Ref } from 'vue'
 
 const PAGE_SIZE = 9
 
-export const useProjectQueries = () => {
+export const useProjectQueries = (tagValues?: Ref<string[]>) => {
   const skip = ref(0)
   const projects = ref<PublicProjectFragment[]>([])
+
+  const { data: tagsData } = useQuery({ query: GetPublishedTagsDocument })
+
+  const availableTags = computed(() => tagsData.value?.publishedTags ?? [])
+
+  if (tagValues) {
+    watch(tagValues, () => {
+      skip.value = 0
+      projects.value = []
+    })
+  }
 
   const {
     data,
@@ -18,10 +31,13 @@ export const useProjectQueries = () => {
   } = useQuery({
     query: GetPublishedProjectsDocument,
     requestPolicy: 'network-only',
-    variables: computed(() => ({ skip: skip.value, take: PAGE_SIZE }))
+    variables: computed(() => ({
+      skip: skip.value,
+      take: PAGE_SIZE,
+      tagValues: tagValues?.value.length ? tagValues.value : undefined
+    }))
   })
 
-  // accumulator
   watch(data, (newData) => {
     const items = newData?.publishedProjects?.items ?? []
     projects.value = [
@@ -42,6 +58,7 @@ export const useProjectQueries = () => {
     projects,
     fetchingProjects,
     hasNextPage,
-    loadMore
+    loadMore,
+    availableTags
   }
 }

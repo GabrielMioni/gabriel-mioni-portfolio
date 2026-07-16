@@ -1,0 +1,7 @@
+query GetPublishedTags {
+  publishedTags {
+    id
+    name
+    value
+  }
+}

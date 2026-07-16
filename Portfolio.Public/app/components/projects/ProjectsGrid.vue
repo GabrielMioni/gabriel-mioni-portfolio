@@ -42,23 +42,28 @@ useIntersectionObserver(observer, ([entry]) => {
 
 <template>
   <UContainer>
-    <div
+    <TransitionGroup
       v-if="availableTags.length > 0"
-      class="flex flex-wrap gap-2 mb-6">
+      tag="div"
+      name="tag"
+      class="flex flex-wrap gap-2 mb-6"
+      appear>
       <UButton
-        v-for="tag in availableTags"
+        v-for="(tag, index) in availableTags"
         :key="tag.value"
         :label="tag.name"
         :variant="selectedTags.includes(tag.value) ? 'solid' : 'outline'"
+        :style="{ transitionDelay: `${index * 25}ms` }"
         color="primary"
         size="xs"
         class="select-none"
         @click="toggleTag(tag.value)" />
-    </div>
+    </TransitionGroup>
     <TransitionGroup
       tag="div"
       class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-      appear>
+      appear
+      @before-leave="(el) => { (el as HTMLElement).style.transitionDelay = '0ms' }">
       <ProjectItem
         v-for="(item, index) in projects"
         :key="item.id"
@@ -97,5 +102,19 @@ useIntersectionObserver(observer, ([entry]) => {
 .v-enter-from {
   opacity: 0;
   transform: translateY(10px);
+}
+.v-leave-active {
+  transition: opacity 0.2s ease;
+}
+.v-leave-to {
+  opacity: 0;
+}
+
+.tag-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.tag-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 </style>

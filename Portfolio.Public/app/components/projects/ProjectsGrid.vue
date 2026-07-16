@@ -46,14 +46,26 @@ useIntersectionObserver(observer, ([entry]) => {
       v-if="availableTags.length > 0"
       tag="div"
       name="tag"
-      class="flex flex-wrap gap-2 mb-6"
+      class="flex flex-wrap items-center gap-2 mb-6"
       appear>
+      <UIcon
+        key="filter-icon"
+        name="i-lucide-filter"
+        class="size-3.5 text-stone-400 dark:text-stone-500 shrink-0" />
+      <UButton
+        key="all"
+        label="All"
+        :variant="selectedTags.length === 0 ? 'solid' : 'outline'"
+        color="primary"
+        size="xs"
+        class="select-none"
+        @click="selectedTags = []" />
       <UButton
         v-for="(tag, index) in availableTags"
         :key="tag.value"
         :label="tag.name"
         :variant="selectedTags.includes(tag.value) ? 'solid' : 'outline'"
-        :style="{ transitionDelay: `${index * 25}ms` }"
+        :style="{ transitionDelay: `${(index + 1) * 25}ms` }"
         color="primary"
         size="xs"
         class="select-none"

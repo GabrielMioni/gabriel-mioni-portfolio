@@ -1,5 +1,5 @@
-query GetPublishedProjects($skip: Int, $take: Int) {
-  publishedProjects(skip: $skip, take: $take) {
+query GetPublishedProjects($skip: Int, $take: Int, $tagValues: [String!]) {
+  publishedProjects(skip: $skip, take: $take, tagValues: $tagValues) {
     items {
       ...PublicProject
     }

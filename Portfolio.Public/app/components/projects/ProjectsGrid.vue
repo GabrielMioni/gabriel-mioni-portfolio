@@ -5,13 +5,15 @@ import ProjectDialog from '~/components/projects/ProjectDialog.vue'
 
 const dialogOpen = ref(false)
 const selectedProjectId = ref<string | null>(null)
+const selectedTags = ref<string[]>([])
 
 const {
   projects,
   fetchingProjects,
   hasNextPage,
-  loadMore
-} = useProjectQueries()
+  loadMore,
+  availableTags
+} = useProjectQueries(selectedTags)
 
 const selectedProject = computed(() =>
   projects.value.find(p => p.id === selectedProjectId.value) ?? null
@@ -20,6 +22,12 @@ const selectedProject = computed(() =>
 const selectProject = (projectId: string) => {
   selectedProjectId.value = projectId
   dialogOpen.value = true
+}
+
+const toggleTag = (value: string) => {
+  const idx = selectedTags.value.indexOf(value)
+  if (idx === -1) selectedTags.value = [...selectedTags.value, value]
+  else selectedTags.value = selectedTags.value.filter(v => v !== value)
 }
 
 const observer = useTemplateRef('observer')
@@ -34,6 +42,19 @@ useIntersectionObserver(observer, ([entry]) => {
 
 <template>
   <UContainer>
+    <div
+      v-if="availableTags.length > 0"
+      class="flex flex-wrap gap-2 mb-6">
+      <UButton
+        v-for="tag in availableTags"
+        :key="tag.value"
+        :label="tag.name"
+        :variant="selectedTags.includes(tag.value) ? 'solid' : 'outline'"
+        color="primary"
+        size="xs"
+        class="select-none"
+        @click="toggleTag(tag.value)" />
+    </div>
     <TransitionGroup
       tag="div"
       class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"

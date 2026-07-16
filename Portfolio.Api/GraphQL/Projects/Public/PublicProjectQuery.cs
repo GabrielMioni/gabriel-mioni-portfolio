@@ -8,17 +8,38 @@ namespace Portfolio.Api.GraphQL.Projects.Public
     [ExtendObjectType(OperationTypeNames.Query)]
     public class PublicProjectQuery
     {
+        public async Task<List<PublicProjectTagDto>> GetPublishedTags(
+            [Service] AppDbContext db,
+            [Service] ProjectService projectService,
+            CancellationToken ct)
+        {
+            var publishedIds = projectService
+                .QueryProjects(db, includeUnpublished: false)
+                .Select(p => p.Id);
+
+            return await db.Tags
+                .Where(t => t.Projects.Any(p => publishedIds.Contains(p.Id)))
+                .OrderBy(t => t.Name)
+                .Select(t => new PublicProjectTagDto { Id = t.Id, Name = t.Name, Value = t.Value })
+                .ToListAsync(ct);
+        }
+
         [UseOffsetPaging(IncludeTotalCount = true)]
         [UseFiltering]
         [UseSorting]
         public IQueryable<PublicProjectDto> GetPublishedProjects(
+            string[]? tagValues,
             [Service] AppDbContext db,
             [Service] ProjectService projectService)
         {
-            return projectService
+            var query = projectService
                 .QueryProjects(db, includeUnpublished: false)
-                .AsNoTracking()
-                .Select(project => new PublicProjectDto
+                .AsNoTracking();
+
+            if (tagValues is { Length: > 0 })
+                query = query.Where(p => p.Tags.Any(t => tagValues.Contains(t.Value)));
+
+            return query.Select(project => new PublicProjectDto
                 {
                     Id = project.Id,
                     Title = project.Title,

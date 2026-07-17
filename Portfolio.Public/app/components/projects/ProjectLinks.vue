@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import type { PublicProjectLinkFragment } from '~/generated/graphql'
+import { PublicProjectLinkFragmentDoc } from '~/generated/graphql'
+import { useFragment, type FragmentType } from '~/generated'
 
-defineProps<{
-  links: PublicProjectLinkFragment[]
+const props = defineProps<{
+  links: FragmentType<typeof PublicProjectLinkFragmentDoc>[]
 }>()
+
+const resolvedLinks = computed(() =>
+  props.links.map(l => useFragment(PublicProjectLinkFragmentDoc, l))
+)
 </script>
 
 <template>
   <div class="flex flex-wrap gap-2">
     <UButton
-      v-for="link in links"
+      v-for="link in resolvedLinks"
       :key="link.id"
       :to="link.url"
       :icon="linkIcon[link.linkType] ?? 'i-lucide-link'"

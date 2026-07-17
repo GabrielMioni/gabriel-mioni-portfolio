@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { PublicProjectFragment } from '~/generated/graphql'
-import { PublicProjectImageFragmentDoc, PublicProjectLinkFragmentDoc } from '~/generated/graphql'
-import { useFragment } from '~/generated'
 import ProjectImageCarousel from '~/components/projects/ProjectImageCarousel/ProjectImageCarousel.vue'
 import ProjectLinks from '~/components/projects/ProjectLinks.vue'
 
@@ -33,16 +31,8 @@ const props = defineProps<{
   project?: PublicProjectFragment | null
 }>()
 
-const images = computed(() =>
-  props.project?.images.map(i => useFragment(PublicProjectImageFragmentDoc, i)) ?? []
-)
-
-const links = computed(() =>
-  props.project?.links.map(l => useFragment(PublicProjectLinkFragmentDoc, l)) ?? []
-)
-
 const modalUi = computed(() => ({
-  content: isMobile.value ? '' : `${images.value.length > 0 ? 'w-[90vw]' : 'w-[45vw]'} h-[80vh] max-w-full`,
+  content: isMobile.value ? '' : `${(props.project?.images.length ?? 0) > 0 ? 'w-[90vw]' : 'w-[45vw]'} h-[80vh] max-w-full`,
   header: 'border-0'
 }))
 </script>
@@ -76,16 +66,16 @@ const modalUi = computed(() => ({
             </div>
           </div>
           <div
-            v-if="links.length"
+            v-if="project?.links.length"
             class="px-6 pt-4 pb-6 shrink-0">
-            <ProjectLinks :links="links" />
+            <ProjectLinks :links="project.links" />
           </div>
         </div>
         <div
-          v-if="images.length > 0"
+          v-if="project?.images.length"
           :class="isMobile ? '' : 'overflow-y-auto'"
           class="order-1 md:order-2">
-          <ProjectImageCarousel :images="images" />
+          <ProjectImageCarousel :images="project.images" />
         </div>
       </div>
     </template>

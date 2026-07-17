@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import type { PublicProjectImageFragment } from '~/generated/graphql'
+import { PublicProjectImageFragmentDoc } from '~/generated/graphql'
+import { useFragment, type FragmentType } from '~/generated'
 
 const props = defineProps<{
-  images: PublicProjectImageFragment[]
+  images: FragmentType<typeof PublicProjectImageFragmentDoc>[]
 }>()
+
+const resolvedImages = computed(() =>
+  props.images.map(i => useFragment(PublicProjectImageFragmentDoc, i))
+)
 
 const carousel = useTemplateRef('carousel')
 const activeIndex = ref(0)
@@ -24,10 +29,9 @@ const keyNavigation = (event: KeyboardEvent) => {
   }
 }
 
-const selectedImage = computed(() => {
-  const image = props.images[activeIndex.value]
-  return image ?? null
-})
+const selectedImage = computed(() =>
+  resolvedImages.value[activeIndex.value] ?? null
+)
 
 watch(activeIndex, (index) => {
   carousel.value?.emblaApi?.scrollTo(index)
@@ -35,11 +39,11 @@ watch(activeIndex, (index) => {
 
 const onClickPrev = () => {
   activeIndex.value = activeIndex.value <= 0
-    ? props.images.length - 1
+    ? resolvedImages.value.length - 1
     : activeIndex.value - 1
 }
 const onClickNext = () => {
-  activeIndex.value = activeIndex.value >= props.images.length - 1
+  activeIndex.value = activeIndex.value >= resolvedImages.value.length - 1
     ? 0
     : activeIndex.value + 1
 }
@@ -64,7 +68,7 @@ const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnai
         :alt="formatThumbnailAltText(selectedImage?.altText ?? null, 'full')"
         class="max-w-full max-h-64 object-contain" />
     </div>
-    <div v-if="images.length > 1">
+    <div v-if="resolvedImages.length > 1">
       <UCarousel
         ref="carousel"
         v-slot="{ item, index }"
@@ -73,7 +77,7 @@ const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnai
         wheel-gestures
         :prev="{ onClick: onClickPrev }"
         :next="{ onClick: onClickNext }"
-        :items="images"
+        :items="resolvedImages"
         :ui="{
           item: 'basis-1/4 ps-2',
           prev: 'sm:start-8',

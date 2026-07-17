@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PublicProjectFragment } from '~/generated/graphql'
-import { PublicProjectImageFragmentDoc, PublicProjectLinkFragmentDoc } from '~/generated/graphql'
+import { PublicProjectImageFragmentDoc } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 
 const props = defineProps<{
@@ -16,17 +16,11 @@ const mainImage = computed(() => {
   return raw ? useFragment(PublicProjectImageFragmentDoc, raw) : null
 })
 
-const links = computed(() =>
-  props.project.links.map(l => useFragment(PublicProjectLinkFragmentDoc, l))
-)
-
-
 const hasAdditionalContent = computed(() => {
   return (
     (props.project.body?.trim() || '').length > 0
     || props.project.images.length > 1)
 })
-
 
 const selectProject = () => {
   emit('select', props.project.id)
@@ -63,10 +57,10 @@ const selectProject = () => {
         class="pt-1" />
     </div>
     <template
-      v-if="links.length"
+      v-if="project.links.length"
       #footer>
       <ProjectLinks
-        :links="links"
+        :links="project.links"
         @click.stop />
     </template>
   </UCard>

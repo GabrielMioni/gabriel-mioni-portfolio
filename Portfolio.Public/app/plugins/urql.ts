@@ -7,7 +7,12 @@ export default defineNuxtPlugin((nuxtApp) => {
   const clientOptions: ClientOptions = {
     url: config.public.graphQlBase,
     exchanges: [
-      cacheExchange(),
+      cacheExchange({
+        keys: {
+          PublishedProjectsCollectionSegment: () => null,
+          CollectionSegmentInfo: () => null
+        }
+      }),
       fetchExchange
     ]
   }

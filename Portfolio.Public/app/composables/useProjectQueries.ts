@@ -29,7 +29,6 @@ export const useProjectQueries = (tagValues?: Ref<string[]>) => {
     fetching: fetchingProjects
   } = useQuery({
     query: GetPublishedProjectsDocument,
-    requestPolicy: 'network-only',
     variables: computed(() => ({
       skip: skip.value,
       take: PAGE_SIZE,

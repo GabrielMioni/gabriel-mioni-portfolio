@@ -96,10 +96,10 @@ useIntersectionObserver(observer, ([entry]) => {
     <div ref="observer" />
     <div
       v-if="fetchingProjects"
-      class="flex justify-center py-8">
-      <UIcon
-        name="i-lucide-loader-circle"
-        class="size-6 text-stone-400 animate-spin" />
+      class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-6">
+      <ProjectItemSkeleton
+        v-for="n in (projects.length === 0 ? 9 : 3)"
+        :key="n" />
     </div>
     <ProjectDialog
       v-model:open="dialogOpen"

@@ -64,6 +64,10 @@ const modalUi = computed(() => ({
             ref="text-section"
             class="flex flex-col px-6"
             :class="isMobile ? '' : 'overflow-y-auto flex-1'">
+            <ProjectTagIcons
+              v-if="project?.tags.length"
+              :tags="project.tags"
+              class="mb-3" />
             <div
               v-if="project?.body"
               class="text-sm text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-wrap"

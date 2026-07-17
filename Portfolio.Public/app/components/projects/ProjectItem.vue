@@ -20,11 +20,13 @@ const links = computed(() =>
   props.project.links.map(l => useFragment(PublicProjectLinkFragmentDoc, l))
 )
 
+
 const hasAdditionalContent = computed(() => {
   return (
     (props.project.body?.trim() || '').length > 0
     || props.project.images.length > 1)
 })
+
 
 const selectProject = () => {
   emit('select', props.project.id)
@@ -56,6 +58,9 @@ const selectProject = () => {
         class="text-sm text-stone-500 dark:text-stone-400 line-clamp-3">
         {{ project.summary }}
       </p>
+      <ProjectTagIcons
+        :tags="project.tags"
+        class="pt-1" />
     </div>
     <template
       v-if="links.length"

@@ -11,8 +11,6 @@ fragment PublicProject on PublicProjectDto {
     ...PublicProjectLink
   }
   tags {
-    id
-    name
-    value
+    ...PublicProjectTag
   }
 }

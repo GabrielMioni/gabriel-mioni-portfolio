@@ -1,0 +1,5 @@
+fragment PublicProjectTag on PublicProjectTagDto {
+  id
+  name
+  value
+}

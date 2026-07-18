@@ -22,7 +22,6 @@ const {
   hasUpdates,
   isInitialLoading,
   projectId,
-  // projectLinksIsValid,
 
   // methods
   restoreImageItem,

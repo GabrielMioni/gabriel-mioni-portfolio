@@ -36,7 +36,7 @@ const { smAndDown } = useDisplay()
 const tab = ref<string>(tabValues.details)
 const removedDialog = ref(false)
 const deleteProjectDialog = ref<boolean>(false)
-const linksValid = ref<boolean>(false)
+const linksValid = ref<boolean>(true)
 const detailsValid = ref<boolean>(false)
 
 const hasRemovedItems = computed(() => {
@@ -165,7 +165,7 @@ const goToProjects = async () => {
           </template>
           <v-btn
             class="bg-primary"
-            :disabled="isSavingProject || !linksValid || !hasUpdates"
+            :disabled="isSavingProject || !detailsValid || (activeLinkItems.length > 0 && !linksValid) || !hasUpdates"
             :loading="isSavingProject"
             @click="submitProject">
             Save

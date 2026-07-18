@@ -32,8 +32,8 @@ public class Project
         {
             Id = Guid.NewGuid(),
             Title = NormalizeRequired(title, nameof(title)),
-            Summary = NormalizeOptional(summary),
-            Body = NormalizeOptional(body),
+            Summary = NormalizeOptionalTrimmed(summary),
+            Body = NormalizeBody(body),
             CreatedAt = now,
             UpdatedAt = now,
             Status = status
@@ -53,8 +53,8 @@ public class Project
         string? body)
     {
         var normalizedTitle = NormalizeRequired(title, nameof(title));
-        var normalizedSummary = NormalizeOptional(summary);
-        var normalizedBody = NormalizeOptional(body);
+        var normalizedSummary = NormalizeOptionalTrimmed(summary);
+        var normalizedBody = NormalizeBody(body);
 
         if (Title == normalizedTitle &&
             Summary == normalizedSummary &&
@@ -147,10 +147,17 @@ public class Project
         return value.Trim();
     }
 
-    private static string? NormalizeOptional(string? value)
+    private static string? NormalizeOptionalTrimmed(string? value)
     {
         return string.IsNullOrWhiteSpace(value)
             ? null
             : value.Trim();
+    }
+
+    private static string? NormalizeBody(string? value)
+    {
+        return string.IsNullOrEmpty(value)
+            ? null
+            : value;
     }
 }

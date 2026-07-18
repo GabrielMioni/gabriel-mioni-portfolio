@@ -1,140 +1,89 @@
 import { useQuery } from '@urql/vue'
 import { useFragment } from '~/generated'
 import {
-  type CreateProjectInput,
-  type CreateProjectLinkInput,
-  type EditProjectImageInput,
-  type EditProjectInput,
-  type EditProjectLinkInput,
   type ProjectFragment,
+  type ProjectTagFragment,
   GetProjectByIdDocument,
-  ProjectFragmentDoc,
-  ProjectImageFragmentDoc,
-  ProjectLinkFragmentDoc,
-  ProjectTagFragmentDoc,
-  ProjectStatus
+  ProjectFragmentDoc
 } from '~/generated/graphql'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
-import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import type { TagEditorItem } from '~/types/tags'
+import { restoreEditorItem } from '~/utils/editorItems'
 import {
-  checkIfEditorItemsUpdated,
-  normalizeEditorItemsSortOrder,
-  restoreEditorItem
-} from '~/utils/editorItems'
-import { imageFragmentToEditorItem } from '~/utils/images/imageEditorItems'
-import { isLikelyValidHttpUrl } from '~/utils/links'
-import { linkFragmentToEditorItem } from '~/utils/links/linkEditorItems'
+  buildCreateProjectInput,
+  buildEditProjectInput,
+  cloneProjectEditorDraft,
+  createEmptyProjectEditorDraft,
+  isProjectEditorDraftDirty,
+  projectFragmentToEditorDraft,
+  type ProjectEditorDraft
+} from '~/utils/projects/projectEditor'
 
 export const useProjectEditor = () => {
   const route = useRoute()
   const router = useRouter()
-
-  const projectId = computed(() => {
-    const id = route.params?.id
-
-    return typeof id === 'string' && id.length > 0
-      ? id
-      : null
-  })
-
-  const isExistingProject = computed(() => Boolean(projectId.value))
-  const isNewProject = computed(() => !projectId.value)
-
-  const {
-    editing,
-    createProject,
-    editProject
-  } = useProjectMutations()
-
-  const {
-    isProcessingImages,
-    deleteImageUploads,
-    uploadImages
-  } = useProjectImageMutations()
-
   const { showSnackbar } = useSnackbarStore()
 
+  const routeProjectId = computed(() => {
+    const id = route.params?.id
+    return typeof id === 'string' && id.length > 0 ? id : null
+  })
+
+  // Retain a successfully created ID if a later image or tag step fails.
+  // A retry then edits the existing project instead of creating a duplicate.
+  const createdProjectId = ref<string | null>(null)
+  const projectId = computed(() => routeProjectId.value ?? createdProjectId.value)
+  const isNewProject = computed(() => !projectId.value)
+
+  const { createProject, editProject } = useProjectMutations()
   const {
-    data,
-    error,
-    fetching,
-    executeQuery
-  } = useQuery({
+    deleteImageUploads,
+    hasPendingImageOperations,
+    uploadImages
+  } = useProjectImageMutations()
+  const { createProjectTags, updateProjectTags } = useProjectTagMutations()
+
+  const { data, error, fetching, executeQuery } = useQuery({
     query: GetProjectByIdDocument,
-    variables: computed(() => ({
-      id: projectId.value ?? ''
-    })),
-    pause: computed(() => !projectId.value)
+    variables: computed(() => ({ id: routeProjectId.value ?? '' })),
+    pause: computed(() => !routeProjectId.value)
   })
 
   watch(error, (currentError) => {
-    if (currentError) {
-      console.error('Failed to fetch project data', currentError)
-      showSnackbar('Failed to load project data', 'error')
-    }
+    if (!currentError) return
+    console.error('Failed to fetch project data', currentError)
+    showSnackbar('Failed to load project data', 'error')
   })
 
-  const originalProject = ref<ProjectFragment | null>(null)
-  const originalImageItems = ref<ImageEditorItem[]>([])
-  const originalLinkItems = ref<LinkEditorItem[]>([])
-  const hasInitialized = ref(false)
+  const emptyDraft = createEmptyProjectEditorDraft()
+  const draft = reactive<ProjectEditorDraft>(cloneProjectEditorDraft(emptyDraft))
+  const baseline = ref<ProjectEditorDraft>(cloneProjectEditorDraft(emptyDraft))
 
-  const projectDetailsModel = reactive({
-    title: '',
-    summary: '',
-    body: '',
-    status: ProjectStatus.Draft
-  })
-
-  const { createProjectTags, updateProjectTags } = useProjectTagMutations()
-
-  const imageItems = ref<ImageEditorItem[]>([])
-  const linkItems = ref<LinkEditorItem[]>([])
-  const tagItems = ref<TagEditorItem[]>([])
-  const originalTagIds = ref<string[]>([])
+  const projectDetailsModel = draft.form
+  const imageItems = toRef(draft, 'imageItems')
+  const linkItems = toRef(draft, 'linkItems')
+  const tagItems = toRef(draft, 'tagItems')
 
   const project = computed(() => {
-    const ref = data.value?.projectById
-
-    return ref
-      ? useFragment(ProjectFragmentDoc, ref)
-      : null
+    const projectRef = data.value?.projectById
+    return projectRef ? useFragment(ProjectFragmentDoc, projectRef) : null
   })
 
   const isInitialLoading = computed(() =>
-    isExistingProject.value && fetching.value && !project.value
+    Boolean(routeProjectId.value) && fetching.value && !project.value
   )
 
-  const isSavingProject = computed(() =>
-    editing.value || isProcessingImages.value
-  )
+  const isSubmitting = ref(false)
+  const isSavingProject = computed(() => isSubmitting.value)
 
-  const activeImageItems = computed(() =>
-    imageItems.value.filter(item => !item.isRemoved)
-  )
-
-  const removedImageItems = computed(() =>
-    imageItems.value.filter(item => item.isRemoved)
-  )
+  const activeImageItems = computed(() => imageItems.value.filter(item => !item.isRemoved))
+  const removedImageItems = computed(() => imageItems.value.filter(item => item.isRemoved))
+  const activeLinkItems = computed(() => linkItems.value.filter(item => !item.isRemoved))
+  const removedLinkItems = computed(() => linkItems.value.filter(item => item.isRemoved))
 
   const uploadItems = computed(() =>
-    activeImageItems.value.filter((image): image is ImageEditorItem => !image.id)
-  )
-
-  const activeLinkItems = computed(() =>
-    linkItems.value.filter(item => !item.isRemoved)
-  )
-
-  const removedLinkItems = computed(() =>
-    linkItems.value.filter(item => item.isRemoved)
-  )
-
-  const newLinkItems = computed(() =>
-    activeLinkItems.value.filter((link): link is LinkEditorItem =>
-      !link.id &&
-      link.text.trim().length > 0 &&
-      isLikelyValidHttpUrl(link.url)
+    activeImageItems.value.filter((item): item is ImageEditorItem =>
+      !item.id
     )
   )
 
@@ -144,327 +93,150 @@ export const useProjectEditor = () => {
       .filter((id): id is string => Boolean(id))
   )
 
-  const createProjectInput = computed<CreateProjectInput | null>(() => {
-    return {
-      title: projectDetailsModel.title,
-      summary: projectDetailsModel.summary,
-      body: projectDetailsModel.body,
-      status: projectDetailsModel.status,
-      links: activeLinkItems.value
-        .filter((i): i is LinkEditorItem =>
-          i.text.trim().length > 0 && isLikelyValidHttpUrl(i.url)
-        )
-        .map((i): CreateProjectLinkInput => ({
-          linkText: i.text,
-          linkType: i.type,
-          sortOrder: i.sort,
-          url: i.url
-        }))
-    }
-  })
-
-  const editProjectInput = computed<EditProjectInput | null>(() => {
-    if (!projectId.value) return null
-
-    return {
-      id: projectId.value,
-      title: projectDetailsModel.title,
-      summary: projectDetailsModel.summary,
-      body: projectDetailsModel.body,
-      status: projectDetailsModel.status,
-      images: activeImageItems.value
-        .map((i) => ({
-          projectImageId: i.id,
-          altText: i.altText,
-          sortOrder: i.sort
-        }))
-        .filter((image): image is EditProjectImageInput =>
-          image.projectImageId != null
-        ),
-      links: activeLinkItems.value
-        .filter((i): i is LinkEditorItem =>
-          i.text.trim().length > 0 && isLikelyValidHttpUrl(i.url)
-        )
-        .map((i): EditProjectLinkInput => ({
-          id: i.id ?? null,
-          linkText: i.text,
-          linkType: i.type,
-          sortOrder: i.sort,
-          url: i.url
-        }))
-    }
-  })
-
-  const hasExistingImageUpdates = computed(() =>
-    checkIfEditorItemsUpdated(
-      originalImageItems.value,
-      activeImageItems.value,
-      item => ({
-        id: item.id!,
-        altText: item.altText,
-        sort: item.sort
-      })
-    )
-  )
-
-  const hasExistingLinkUpdates = computed(() =>
-    checkIfEditorItemsUpdated(
-      originalLinkItems.value,
-      activeLinkItems.value,
-      item => ({
-        id: item.id!,
-        text: item.text,
-        url: item.url,
-        type: item.type,
-        sort: item.sort
-      })
-    )
-  )
-
   const hasTagUpdates = computed(() => {
-    const hasPending = tagItems.value.some(t => !t.id)
-    const currentIds = tagItems.value.filter(t => t.id).map(t => t.id as string).sort().join(',')
-    const original = [...originalTagIds.value].sort().join(',')
-    return hasPending || currentIds !== original
+    const tagKey = (tag: TagEditorItem) => tag.id ?? tag.value ?? tag.name
+    const current = tagItems.value.map(tagKey).sort()
+    const original = baseline.value.tagItems.map(tagKey).sort()
+    return JSON.stringify(current) !== JSON.stringify(original)
   })
 
-  const hasFieldUpdates = computed(() => {
-    if (!originalProject.value) {
-      return (
-        projectDetailsModel.title.trim().length > 0 ||
-        projectDetailsModel.summary.trim().length > 0 ||
-        projectDetailsModel.body.trim().length > 0 ||
-        projectDetailsModel.status !== ProjectStatus.Draft
-      )
-    }
+  const hasUpdates = computed(() =>
+    isProjectEditorDraftDirty(draft, baseline.value)
+  )
 
-    return (
-      projectDetailsModel.title !== originalProject.value.title ||
-      projectDetailsModel.summary !== originalProject.value.summary ||
-      projectDetailsModel.body !== originalProject.value.body ||
-      projectDetailsModel.status !== originalProject.value.status
-    )
-  })
+  const syncFromProject = (currentProject: ProjectFragment) => {
+    const nextDraft = projectFragmentToEditorDraft(currentProject)
 
-  const hasUpdates = computed(() => {
-    if (isNewProject.value) {
-      return (
-        hasFieldUpdates.value ||
-        uploadItems.value.length > 0 ||
-        newLinkItems.value.length > 0 ||
-        tagItems.value.length > 0
-      )
-    }
-
-    if (!project.value || !originalProject.value) return false
-
-    return (
-      hasFieldUpdates.value ||
-      uploadItems.value.length > 0 ||
-      removedImageItems.value.length > 0 ||
-      hasExistingImageUpdates.value ||
-      hasExistingLinkUpdates.value ||
-      newLinkItems.value.length > 0 ||
-      hasTagUpdates.value
-    )
-  })
-
-  const syncFromProject = (
-    currentProject: ProjectFragment
-  ) => {
-    originalProject.value = currentProject
-
-    projectDetailsModel.title = currentProject.title ?? ''
-    projectDetailsModel.summary = currentProject.summary ?? ''
-    projectDetailsModel.body = currentProject.body ?? ''
-    projectDetailsModel.status = currentProject.status ?? ProjectStatus.Draft
-
-    const projectImageFragments = useFragment(
-      ProjectImageFragmentDoc,
-      currentProject.images
-    )
-
-    const mappedImageItems = normalizeEditorItemsSortOrder(
-      projectImageFragments
-        .map(imageFragmentToEditorItem)
-        .sort((a, b) => a.sort - b.sort)
-    )
-
-    imageItems.value = mappedImageItems
-    originalImageItems.value = mappedImageItems.map(item => ({ ...item }))
-
-    const projectLinkFragments = useFragment(
-      ProjectLinkFragmentDoc,
-      currentProject.links
-    )
-
-    const mappedLinkItems = normalizeEditorItemsSortOrder(
-      projectLinkFragments
-        .map(linkFragmentToEditorItem)
-        .sort((a, b) => a.sort - b.sort)
-    )
-
-    linkItems.value = mappedLinkItems
-    originalLinkItems.value = mappedLinkItems.map(item => ({ ...item }))
-
-    tagItems.value = useFragment(ProjectTagFragmentDoc, currentProject.tags)
-      .map(t => ({ id: t.id, name: t.name, value: t.value }))
-    originalTagIds.value = tagItems.value.map(t => t.id as string)
+    Object.assign(draft.form, nextDraft.form)
+    draft.imageItems = nextDraft.imageItems
+    draft.linkItems = nextDraft.linkItems
+    draft.tagItems = nextDraft.tagItems
+    baseline.value = cloneProjectEditorDraft(nextDraft)
   }
 
   const refreshProject = async () => {
-    if (!projectId.value) return false
+    if (!routeProjectId.value) return false
 
-    try {
-      const result = await executeQuery({
-        requestPolicy: 'network-only'
+    const result = await executeQuery({ requestPolicy: 'network-only' })
+    const refreshedRef = result.data?.value?.projectById
+
+    if (!refreshedRef) {
+      showSnackbar('Project saved, but failed to refresh project data.', 'warning')
+      return false
+    }
+
+    syncFromProject(useFragment(ProjectFragmentDoc, refreshedRef))
+    return true
+  }
+
+  const deleteRemovedImages = async (targetProjectId: string) => {
+    if (deleteImageIds.value.length === 0) return
+
+    await deleteImageUploads({
+      projectId: targetProjectId,
+      projectImageIds: deleteImageIds.value
+    })
+  }
+
+  const resolvePendingTags = async (): Promise<ProjectTagFragment[]> => {
+    const pending = tagItems.value.filter(tag => !tag.id)
+    if (pending.length === 0) return []
+
+    const resolved = await createProjectTags(pending)
+    tagItems.value = tagItems.value.map((tag) => {
+      if (tag.id) return tag
+      const match = resolved.find(item => item.value === tag.value)
+      return match
+        ? { id: match.id, name: match.name, value: match.value }
+        : tag
+    })
+
+    return resolved
+  }
+
+  const saveRelatedData = async (targetProjectId: string, updateTags: boolean) => {
+    if (uploadItems.value.length > 0 || hasPendingImageOperations.value) {
+      const uploadResult = await uploadImages({
+        uploadItems: uploadItems.value,
+        projectId: targetProjectId
       })
 
-      const refreshedProjectRef = result.data?.value?.projectById
-
-      if (!refreshedProjectRef) {
-        showSnackbar('Project saved, but failed to refresh project data.', 'warning')
-        return false
-      }
-
-      const refreshedProject = useFragment(ProjectFragmentDoc, refreshedProjectRef)
-      syncFromProject(refreshedProject)
-
-      return true
-    } catch (error) {
-      console.error('Failed to refresh project', error)
-      showSnackbar('Failed to refresh project', 'error')
-
-      return false
-    }
-  }
-
-  const deleteRemovedImages = async () => {
-    if (!projectId.value || deleteImageIds.value.length === 0) return true
-
-    try {
-      await deleteImageUploads({
-        projectId: projectId.value,
-        projectImageIds: deleteImageIds.value
+      const uploadedIdByClientId = new Map(
+        uploadResult.succeededItems.map(item => [item.clientId, item.projectImageId])
+      )
+      imageItems.value = imageItems.value.map((item) => {
+        const uploadedId = uploadedIdByClientId.get(item.clientId)
+        return uploadedId ? { ...item, id: uploadedId } : item
       })
 
-      return true
-    } catch (error) {
-      console.error('Failed to delete removed images', error)
-      showSnackbar(`Failed to delete remove ${deleteImageIds.value.length} images`, 'error')
+      if (uploadResult.error) throw uploadResult.error
 
-      return false
+      if (uploadResult.failedClientIds.length > 0) {
+        throw new Error(`Failed to upload ${uploadResult.failedClientIds.length} images.`)
+      }
+    }
+
+    await deleteRemovedImages(targetProjectId)
+
+    if (updateTags) {
+      await resolvePendingTags()
+      await updateProjectTags(targetProjectId, tagItems.value)
     }
   }
 
-  const resolvePendingTags = async (): Promise<boolean> => {
-    const pending = tagItems.value.filter(t => !t.id)
-    if (pending.length === 0) return true
+  const submitEditProject = async (targetProjectId: string): Promise<boolean> => {
+    await editProject(buildEditProjectInput(targetProjectId, draft))
 
-    try {
-      const resolved = await createProjectTags(pending)
+    await saveRelatedData(targetProjectId, hasTagUpdates.value)
 
-      tagItems.value = tagItems.value.map(t => {
-        if (t.id) return t
-        const match = resolved.find(r => r.value === t.value)
-        return match ? { id: match.id, name: match.name, value: match.value } : t
-      })
-
-      return true
-    } catch (error) {
-      console.error('Failed to create new tags', error)
-      showSnackbar('Failed to create new tags', 'error')
-      return false
+    if (routeProjectId.value) {
+      return refreshProject()
     }
+
+    await router.replace(`/projects/${targetProjectId}`)
+    return true
   }
 
-  const submitEditProject = async () => {
-    if (!projectId.value || !editProjectInput.value || !hasUpdates.value) return false
+  const submitCreateProject = async (): Promise<boolean> => {
+    const result = await createProject(buildCreateProjectInput(draft))
+    const newProjectId = result?.id
 
-    try {
-      await editProject(editProjectInput.value)
-
-      if (uploadItems.value.length > 0) {
-        await uploadImages({
-          uploadItems: uploadItems.value,
-          projectId: projectId.value
-        })
-      }
-
-      const imagesDeleted = await deleteRemovedImages()
-      if (!imagesDeleted) return false
-
-      if (hasTagUpdates.value) {
-        const tagsResolved = await resolvePendingTags()
-        if (!tagsResolved) return false
-
-        await updateProjectTags(projectId.value, tagItems.value)
-      }
-
-      const projectRefreshed = await refreshProject()
-      if (!projectRefreshed) return false
-
-      showSnackbar('Project saved.', 'success')
-      return true
-    } catch (error) {
-      console.error('Failed to edit project', error)
-      showSnackbar('Failed to save project', 'error')
-      return false
+    if (!newProjectId) {
+      throw new Error('Project was created without returning an ID.')
     }
-  }
 
-  const submitCreateProject = async () => {
-    if (!hasUpdates.value || !createProjectInput.value) return false
-
-    try {
-      const result = await createProject(createProjectInput.value)
-      const newProjectId = result?.id
-
-      if (!newProjectId) {
-        console.error('Project created but no project ID was returned.', result)
-        showSnackbar('Project created, but failed to retrieve the new project ID.', 'error')
-
-        return false
-      }
-
-      if (uploadItems.value.length > 0) {
-        await uploadImages({
-          uploadItems: uploadItems.value,
-          projectId: newProjectId
-        })
-      }
-
-      if (tagItems.value.length > 0) {
-        const tagsResolved = await resolvePendingTags()
-        if (!tagsResolved) return false
-
-        await updateProjectTags(newProjectId, tagItems.value)
-      }
-
-      await router.push(`/projects/${newProjectId}`)
-
-      showSnackbar('Project created.', 'success')
-
-      return true
-    } catch (error) {
-      console.error('Failed to create project', error)
-      showSnackbar('Failed to create project', 'error')
-
-      return false
-    }
+    createdProjectId.value = newProjectId
+    await saveRelatedData(newProjectId, tagItems.value.length > 0)
+    await router.replace(`/projects/${newProjectId}`)
+    return true
   }
 
   const submitProject = async () => {
+    if (isSubmitting.value || !hasUpdates.value) return
+
+    const wasNewProject = isNewProject.value
+    isSubmitting.value = true
+
     try {
-      if (isNewProject.value) {
-        await submitCreateProject()
-        return
+      let saveCompleted: boolean
+
+      if (projectId.value) {
+        saveCompleted = await submitEditProject(projectId.value)
+      } else {
+        saveCompleted = await submitCreateProject()
       }
 
-      await submitEditProject()
-    } catch (error) {
-      console.error('Failed to save project', error)
-      showSnackbar('Failed to save project', 'error')
+      if (saveCompleted) {
+        showSnackbar(wasNewProject ? 'Project created.' : 'Project saved.', 'success')
+      }
+    } catch (err) {
+      console.error('Failed to save project', err)
+      const message = wasNewProject && createdProjectId.value
+        ? 'Project created, but some related data failed to save. Retry to continue.'
+        : 'Failed to save project.'
+      showSnackbar(message, 'error')
+    } finally {
+      isSubmitting.value = false
     }
   }
 
@@ -476,25 +248,22 @@ export const useProjectEditor = () => {
     linkItems.value = restoreEditorItem(clientId, linkItems.value)
   }
 
+  const syncedProjectId = ref<string | null>(null)
   watch(
     project,
     (currentProject) => {
-      if (!currentProject || hasInitialized.value) return
-
+      if (!currentProject || syncedProjectId.value === currentProject.id) return
       syncFromProject(currentProject)
-      hasInitialized.value = true
+      syncedProjectId.value = currentProject.id
     },
     { immediate: true }
   )
 
   return {
-    // refs
     projectDetailsModel,
     imageItems,
     linkItems,
     tagItems,
-
-    // computed
     activeImageItems,
     activeLinkItems,
     removedImageItems,
@@ -504,8 +273,6 @@ export const useProjectEditor = () => {
     hasUpdates,
     isInitialLoading,
     projectId,
-
-    // methods
     restoreImageItem,
     restoreLinkItem,
     submitProject

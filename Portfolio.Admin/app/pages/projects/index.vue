@@ -90,7 +90,7 @@ provide('projectActions', {
           @update:options="updateTableOptions" />
       </v-col>
     </v-row>
-    <ProjectDialog
+    <QuickEditDialog
       v-model="editDialog"
       :project="selectedEditProject" />
     <DeleteProjectDialog

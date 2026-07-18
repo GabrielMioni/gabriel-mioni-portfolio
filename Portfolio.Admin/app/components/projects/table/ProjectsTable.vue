@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Project } from '~/generated/graphql'
 import type { Header, TableOptions } from '~/types/ui/datatable'
-import type { MenuItem } from '~/types/ui/MenuItem'
 
 type ProjectKey = keyof Project
 type ActionKey = 'action'
@@ -16,8 +15,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:options', options: TableOptions): void
-  (e: 'new-draft'): void
+  'update:options': [options: TableOptions]
 }>()
 
 const search = defineModel<string>('search', {
@@ -51,21 +49,6 @@ const headers: ProjectHeader[] = [
   }
 ]
 
-const menuItems: MenuItem[] = [
-  {
-    title: 'New Draft',
-    icon: 'mdi-pencil',
-    action: () => {
-      emit('new-draft')
-    }
-  },
-  {
-    title: 'Create Project',
-    icon: 'mdi-plus',
-    route: '/projects/create'
-  }
-]
-
 const expanded = ref<string[]>([])
 </script>
 
@@ -95,7 +78,13 @@ const expanded = ref<string[]>([])
             cols="auto"
             align-self="center"
             justify="end">
-            <BaseMenu :items="menuItems" />
+            <v-btn
+              color="primary"
+              prepend-icon="mdi-plus"
+              variant="flat"
+              to="/projects/create">
+              Add Project
+            </v-btn>
           </v-col>
         </v-row>
       </v-container>

@@ -11,7 +11,6 @@ const {
 
 const editDialogId = ref<string | null>(null)
 const deleteDialogId = ref<string | null>(null)
-const newDraft = ref(false)
 
 const queryVars = computed<GetProjectsQueryVariables>(() => {
   const options = tableOptions.value
@@ -37,12 +36,9 @@ const {
 } = useProjectQueries(queryVars)
 
 const editDialog = computed({
-  get: () => !!editDialogId.value || newDraft.value,
+  get: () => !!editDialogId.value,
   set: (val) => {
-    if (!val) {
-      editDialogId.value = null
-      newDraft.value = false
-    }
+    if (!val) editDialogId.value = null
   }
 })
 
@@ -84,15 +80,14 @@ provide('projectActions', {
 <template>
   <v-container>
     <v-row>
-      <v-col class="px-0">
+      <v-col>
         <ProjectsTable
           v-model:search="search"
           :options="tableOptions"
           :projects="projects"
           :total-count="totalCount"
           :page-info="pageInfo"
-          @update:options="updateTableOptions"
-          @new-draft="newDraft = true" />
+          @update:options="updateTableOptions" />
       </v-col>
     </v-row>
     <ProjectDialog
@@ -107,7 +102,3 @@ provide('projectActions', {
       @deleted="refetchProjects" />
   </v-container>
 </template>
-
-<style scoped>
-
-</style>

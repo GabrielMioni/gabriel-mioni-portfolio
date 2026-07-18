@@ -2,29 +2,17 @@
 import { type Project, ProjectStatus } from '~/generated/graphql'
 import { formatDate } from '~/utils/formatters'
 
-type UiStatus = 'DRAFT' | 'UNPUBLISHED' | 'PUBLISHED' | 'ARCHIVED'
-
-const statusMeta: Record<UiStatus, { label: string; icon: string; color: string; }> = {
-  DRAFT: { label: 'Draft', icon: 'mdi-pencil', color: 'grey' },
-  UNPUBLISHED: { label: 'Unpublished', icon: 'mdi-eye-off-outline', color: 'warning' },
-  PUBLISHED: { label: 'Published', icon: 'mdi-check-circle-outline', color: 'success' },
-  ARCHIVED: { label: 'Archived', icon: 'mdi-archive-outline', color: 'secondary' }
+const statusMeta: Record<ProjectStatus, { label: string; icon: string; color: string }> = {
+  [ProjectStatus.Draft]: { label: 'Draft', icon: 'mdi-pencil', color: 'grey' },
+  [ProjectStatus.Published]: { label: 'Published', icon: 'mdi-check-circle-outline', color: 'success' },
+  [ProjectStatus.Archived]: { label: 'Archived', icon: 'mdi-archive-outline', color: 'secondary' }
 }
-
-const getUiStatus = (p: Project): UiStatus => {
-  if (!p.status) return 'UNPUBLISHED'
-  if (p.status === ProjectStatus.Archived) return 'ARCHIVED'
-  if (p.publishedAt) return 'PUBLISHED'
-  if (p.status === ProjectStatus.Draft) return 'DRAFT'
-  return 'UNPUBLISHED'
-}
-
 
 const props = defineProps<{
   project: Project
 }>()
 
-const meta = computed(() => statusMeta[getUiStatus(props.project)])
+const meta = computed(() => statusMeta[props.project.status ?? ProjectStatus.Draft])
 
 const view = computed(() => ({
   createdAt: props.project.createdAt ? formatDate(props.project.createdAt) : null,

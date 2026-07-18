@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import {
   type Project,
-  type CreateProjectInput,
   type EditProjectInput,
   ProjectStatus
 } from '~/generated/graphql'
 import type { ProjectForm } from '~/types/ui/form'
 
-const {
-  creating,
-  createProject,
-  editing,
-  editProject
-} = useProjectMutations()
+const { editing, editProject } = useProjectMutations()
 
 const dialog = defineModel<boolean>()
 
@@ -24,19 +18,9 @@ const form = reactive<ProjectForm>({
   body: '',
   status: ProjectStatus.Draft
 })
-
 const props = defineProps<{
   project?: Project | null
 }>()
-
-const createInput = computed<CreateProjectInput>(() => ({
-  title: form.title,
-  summary: form.summary,
-  body: form.body,
-  status: form.status
-}))
-
-const title = computed(() => form.id ? 'Edit Project' : 'New Draft')
 
 const updateInput = computed<EditProjectInput>(() => ({
   id: form.id,
@@ -46,44 +30,25 @@ const updateInput = computed<EditProjectInput>(() => ({
   status: form.status
 }))
 
-
 watch(
   () => dialog.value,
   (isOpen) => {
     if (!isOpen) return
-
     const project = props.project
-
     form.id = project?.id ?? ''
     form.title = project?.title ?? ''
     form.summary = project?.summary ?? ''
     form.body = project?.body ?? ''
+    form.status = project?.status ?? ProjectStatus.Draft
   },
   { immediate: true }
 )
 
-
-const submitCreateProject = async () => {
-  try {
-    await createProject(createInput.value)
-  } catch (error) {
-    console.error('Failed to create project', error)
-  }
-}
-
-const submitEditProject = async () => {
+const submit = async () => {
   try {
     await editProject(updateInput.value)
   } catch (error) {
     console.error('Failed to save project', error)
-  }
-}
-
-const submit = async () => {
-  if (props.project) {
-    await submitEditProject()
-  } else {
-    await submitCreateProject()
   }
   dialog.value = false
 }
@@ -94,11 +59,12 @@ const submit = async () => {
   <BaseDialog
     v-model="dialog"
     divider
-    :title="title"
-    :persistent="editing || creating">
+    title="Edit Project"
+    :persistent="editing">
     <ProjectDetails
       v-model:form="form"
-      v-model:is-valid="isValid" />
+      v-model:is-valid="isValid"
+      :show-tags="false" />
     <template #actions>
       <v-spacer />
       <v-btn
@@ -109,8 +75,8 @@ const submit = async () => {
       <v-btn
         variant="flat"
         color="primary"
-        :disabled="!isValid || creating || editing"
-        :loading="creating || editing"
+        :disabled="!isValid || editing"
+        :loading="editing"
         @click="submit">
         Save
       </v-btn>

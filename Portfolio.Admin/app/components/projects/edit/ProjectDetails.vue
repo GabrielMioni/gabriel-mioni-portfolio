@@ -8,6 +8,9 @@ const form = defineModel<ProjectBaseForm>('form', { required: true })
 const isValid = defineModel<boolean>('is-valid', { default: false })
 const assignedTags = defineModel<TagEditorItem[]>('assignedTags', { default: () => [] })
 
+const props = defineProps<{ showTags?: boolean }>()
+const showTags = computed(() => props.showTags ?? true)
+
 const statusOptions = [
   { label: 'Draft', value: ProjectStatus.Draft },
   { label: 'Archived', value: ProjectStatus.Archived },
@@ -59,7 +62,9 @@ const statusOptions = [
         no-gutters
         class="mb-3">
         <v-col>
-          <TagsCombobox v-model:assigned-tags="assignedTags" />
+          <TagsCombobox
+            v-if="showTags"
+            v-model:assigned-tags="assignedTags" />
         </v-col>
       </v-row>
       <v-row no-gutters>

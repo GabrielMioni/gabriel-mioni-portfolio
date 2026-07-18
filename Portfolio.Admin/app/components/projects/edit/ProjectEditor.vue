@@ -22,7 +22,7 @@ const {
   hasUpdates,
   isInitialLoading,
   projectId,
-  projectLinksIsValid,
+  // projectLinksIsValid,
 
   // methods
   restoreImageItem,
@@ -37,6 +37,8 @@ const { smAndDown } = useDisplay()
 const tab = ref<string>(tabValues.details)
 const removedDialog = ref(false)
 const deleteProjectDialog = ref<boolean>(false)
+const linksValid = ref<boolean>(false)
+const detailsValid = ref<boolean>(false)
 
 const hasRemovedItems = computed(() => {
   if (tab.value === tabValues.images) {
@@ -164,7 +166,7 @@ const goToProjects = async () => {
           </template>
           <v-btn
             class="bg-primary"
-            :disabled="isSavingProject || !projectLinksIsValid || !hasUpdates"
+            :disabled="isSavingProject || !linksValid || !hasUpdates"
             :loading="isSavingProject"
             @click="submitProject">
             Save
@@ -178,7 +180,7 @@ const goToProjects = async () => {
             <v-tabs-window-item :value="tabValues.details">
               <ProjectDetails
                 v-model:form="projectDetailsModel"
-                v-model:is-valid="projectLinksIsValid"
+                v-model:is-valid="detailsValid"
                 v-model:assigned-tags="tagItems" />
             </v-tabs-window-item>
             <v-tabs-window-item :value="tabValues.images">
@@ -187,7 +189,7 @@ const goToProjects = async () => {
             </v-tabs-window-item>
             <v-tabs-window-item :value="tabValues.links">
               <ProjectLinks
-                v-model:is-valid="projectLinksIsValid"
+                v-model:is-valid="linksValid"
                 v-model:items="linkItems" />
             </v-tabs-window-item>
           </div>

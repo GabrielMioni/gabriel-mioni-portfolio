@@ -75,7 +75,6 @@ export const useProjectEditor = () => {
     }
   })
 
-  const projectLinksIsValid = ref(false)
   const originalProject = ref<ProjectFragment | null>(null)
   const originalImageItems = ref<ImageEditorItem[]>([])
   const originalLinkItems = ref<LinkEditorItem[]>([])
@@ -505,7 +504,6 @@ export const useProjectEditor = () => {
     hasUpdates,
     isInitialLoading,
     projectId,
-    projectLinksIsValid,
 
     // methods
     restoreImageItem,

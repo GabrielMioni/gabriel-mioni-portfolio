@@ -4,7 +4,7 @@ import { ProjectLinkType } from '~/generated/graphql'
 import { removeEditorItem } from '~/utils/editorItems'
 
 const linkItems = defineModel<LinkEditorItem[]>('items', { required: true })
-const isValid = defineModel<boolean | null>('isValid', { required: true })
+const isValid = defineModel<boolean>('isValid', { required: true })
 
 const createLink = (): LinkEditorItem => ({
   clientId: crypto.randomUUID(),

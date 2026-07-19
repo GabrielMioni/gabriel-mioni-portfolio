@@ -49,7 +49,7 @@ public class ProjectService
         return newProject;
     }
 
-    public async Task<Guid> DeleteProjectAsync(
+    public async Task<Guid?> DeleteProjectAsync(
         Guid projectId,
         CancellationToken ct)
     {
@@ -60,10 +60,7 @@ public class ProjectService
             .FirstOrDefaultAsync(p => p.Id == projectId, ct);
 
         if (project is null)
-        {
-            throw new InvalidOperationException(
-                $"No project for '{projectId}' found.");
-        }
+            return null;
 
         var deleteKeys = ProjectImageStorageKeyHelper.GetStorageKeys(project.Images);
 

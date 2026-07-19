@@ -23,7 +23,21 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
         {
             var projectId = await projects.DeleteProjectAsync(input.ProjectId, ct);
 
-            return new DeleteProjectPayload(projectId);
+            if (projectId is null)
+            {
+                return new DeleteProjectPayload(
+                    DeletedProjectId: null,
+                    UserErrors:
+                    [
+                        new UserError(
+                            UserErrorCode.NotFound,
+                            $"Project '{input.ProjectId}' was not found.")
+                    ]);
+            }
+
+            return new DeleteProjectPayload(
+                DeletedProjectId: projectId,
+                UserErrors: []);
         }
         public Task<Project?> EditProject(
             EditProjectInput input,

@@ -37,7 +37,10 @@ export const useProjectMutations = () => {
 
     if (response.error) throw response.error
 
-    return response.data?.deleteProject
+    const payload = response.data?.deleteProject
+    if (!payload) throw new Error('Delete project returned no payload.')
+
+    return payload
   }
 
   const editProject = async (input: EditProjectInput) => {

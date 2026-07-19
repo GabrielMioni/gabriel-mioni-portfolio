@@ -29,12 +29,25 @@ const deleteProjectAsync = async () => {
     if (!projectId) {
       return
     }
-    await deleteProject({ projectId })
+    const result = await deleteProject({ projectId })
+
+    if (result.userErrors.length > 0) {
+      snackbarStore.showSnackbar(
+        result.userErrors[0]?.message ?? 'Failed to delete project.',
+        'error'
+      )
+      return
+    }
+
+    if (!result.deletedProjectId) {
+      throw new Error('Delete project returned no deleted project ID.')
+    }
+
     snackbarStore.showSnackbar('Project deleted successfully', 'success')
     dialog.value = false
     emit('deleted')
   } catch (err) {
-    snackbarStore.showSnackbar('Project deleted failed', 'error')
+    snackbarStore.showSnackbar('Failed to delete project.', 'error')
     console.error(err)
   }
 }

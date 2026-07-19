@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client.Extensions.Msal;
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
@@ -107,30 +106,7 @@ public class ProjectService
         if (!changed)
             return EditProjectResult.Success(project);
 
-        try
-        {
-            Console.WriteLine(db.ChangeTracker.DebugView.LongView);
-            await db.SaveChangesAsync(ct);
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            Console.WriteLine("Concurrency exception during EditProjectAsync");
-
-            foreach (var entry in ex.Entries)
-            {
-                Console.WriteLine($"Entity: {entry.Entity.GetType().Name}");
-                Console.WriteLine($"State: {entry.State}");
-
-                foreach (var prop in entry.Properties)
-                {
-                    Console.WriteLine(
-                        $"  {prop.Metadata.Name}: Current={prop.CurrentValue}, Original={prop.OriginalValue}"
-                    );
-                }
-            }
-
-            throw;
-        }
+        await db.SaveChangesAsync(ct);
 
         return EditProjectResult.Success(project);
     }

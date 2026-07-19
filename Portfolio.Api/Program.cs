@@ -8,6 +8,7 @@ using Portfolio.Api.Data;
 using Portfolio.Api.Infrastructure.Storage;
 using Portfolio.Api.Services;
 using Portfolio.Api.Services.Storage;
+using Portfolio.Api.GraphQL;
 using Portfolio.Api.GraphQL.Projects.Admin;
 using Portfolio.Api.GraphQL.Projects.Admin.Types;
 using Portfolio.Api.GraphQL.Projects.Public;
@@ -49,6 +50,7 @@ builder.Services.AddAuthorization();
 
 builder.Services
     .AddGraphQLServer()
+    .AddErrorFilter<UnexpectedGraphQlErrorFilter>()
     .AddQueryType(d => d.Name("Query"))
     .AddTypeExtension<PublicProjectQuery>()
     .AddProjections()
@@ -57,6 +59,7 @@ builder.Services
 
 builder.Services
     .AddGraphQLServer("admin")
+    .AddErrorFilter<UnexpectedGraphQlErrorFilter>()
     .AddQueryType(d => d.Name("Query"))
     .AddTypeExtension<AdminProjectQuery>()
     .AddTypeExtension<AdminProjectTagQuery>()

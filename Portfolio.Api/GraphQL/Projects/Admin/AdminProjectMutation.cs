@@ -99,20 +99,54 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
                 UserErrors: []);
         }
 
-        public Task<Project?> PublishProject(
-            Guid id,
+        public async Task<PublishProjectPayload> PublishProject(
+            PublishProjectInput input,
             [Service] ProjectService projects,
             CancellationToken ct = default)
         {
-            return projects.PublishAsync(id, ct);
+            var project = await projects.PublishAsync(input.Id, ct);
+
+            if (project is null)
+            {
+                return new PublishProjectPayload(
+                    Project: null,
+                    UserErrors:
+                    [
+                        new UserError(
+                            UserErrorCode.NotFound,
+                            $"Project '{input.Id}' was not found.",
+                            ["input", "id"])
+                    ]);
+            }
+
+            return new PublishProjectPayload(
+                Project: project,
+                UserErrors: []);
         }
 
-        public Task<Project?> ArchiveProject(
-            Guid id,
+        public async Task<ArchiveProjectPayload> ArchiveProject(
+            ArchiveProjectInput input,
             [Service] ProjectService projects,
             CancellationToken ct = default)
         {
-            return projects.ArchiveAsync(id, ct);
+            var project = await projects.ArchiveAsync(input.Id, ct);
+
+            if (project is null)
+            {
+                return new ArchiveProjectPayload(
+                    Project: null,
+                    UserErrors:
+                    [
+                        new UserError(
+                            UserErrorCode.NotFound,
+                            $"Project '{input.Id}' was not found.",
+                            ["input", "id"])
+                    ]);
+            }
+
+            return new ArchiveProjectPayload(
+                Project: project,
+                UserErrors: []);
         }
 
         private static UserError ToUserError(

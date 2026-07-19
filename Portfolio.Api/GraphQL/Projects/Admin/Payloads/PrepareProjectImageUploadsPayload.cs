@@ -15,6 +15,6 @@ public record ProjectImageUploadTarget(
 );
 
 public record PrepareProjectImageUploadsPayload(
-    Guid ProjectId,
-    IReadOnlyList<ProjectImageUploadInstruction> Items
+    IReadOnlyList<ProjectImageUploadInstruction>? Items,
+    IReadOnlyList<UserError> UserErrors
 );

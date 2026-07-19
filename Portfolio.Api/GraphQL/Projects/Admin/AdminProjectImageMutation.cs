@@ -12,9 +12,35 @@ public class AdminProjectImageMutation
         [Service] ProjectImageService images,
         CancellationToken ct)
     {
-        var instructions = await images.PrepareImageUploadAsync(input, ct);
+        var userErrors = ProjectImageInputValidator.ValidatePrepare(input);
 
-        return new PrepareProjectImageUploadsPayload(input.ProjectId, instructions);
+        if (userErrors.Count > 0)
+        {
+            return new PrepareProjectImageUploadsPayload(
+                Items: null,
+                UserErrors: userErrors);
+        }
+
+        var result = await images.PrepareImageUploadAsync(input, ct);
+
+        if (result.ProjectWasNotFound)
+        {
+            return new PrepareProjectImageUploadsPayload(
+                Items: null,
+                UserErrors:
+                [
+                    UserError.NotFound(
+                        $"Project '{input.ProjectId}' was not found.",
+                        "input", "projectId")
+                ]);
+        }
+
+        if (result.Items is null)
+            throw new InvalidOperationException("Successful upload preparation returned no instructions.");
+
+        return new PrepareProjectImageUploadsPayload(
+            Items: result.Items,
+            UserErrors: []);
     }
 
     public async Task<FinalizeProjectImageUploadsPayload> FinalizeProjectImageUploads(

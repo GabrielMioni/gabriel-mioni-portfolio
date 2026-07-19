@@ -4,6 +4,7 @@ using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
 using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 using Portfolio.Api.Services.Helpers;
+using Portfolio.Api.Services.Results;
 using Portfolio.Api.Services.Storage;
 
 namespace Portfolio.Api.Services;
@@ -27,7 +28,7 @@ public class ProjectImageService
         _ => throw new ArgumentOutOfRangeException(nameof(contentType), $"Unsupported content type: {contentType}")
     };
 
-    public async Task<IReadOnlyList<ProjectImageUploadInstruction>> PrepareImageUploadAsync(
+    public async Task<PrepareProjectImageUploadsResult> PrepareImageUploadAsync(
         PrepareProjectImageUploadsInput input,
         CancellationToken ct)
     {
@@ -35,21 +36,12 @@ public class ProjectImageService
 
         var projectId = input.ProjectId;
 
-        var project = await GetProjectAsync(db, projectId, ct);
+        var project = await db.Projects
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
 
-        var requestedClientIds = input.Items
-            .Select(item => item.ClientId.Trim())
-            .ToArray();
-
-        var duplicateClientId = requestedClientIds
-            .GroupBy(clientId => clientId)
-            .FirstOrDefault(group => group.Count() > 1)
-            ?.Key;
-
-        if (duplicateClientId is not null)
-            throw new ArgumentException(
-                $"Client ID '{duplicateClientId}' appears more than once.",
-                nameof(input));
+        if (project is null)
+            return PrepareProjectImageUploadsResult.NotFound();
 
         var imagesByClientId = project.Images
             .Where(image => image.ClientId is not null)
@@ -96,7 +88,7 @@ public class ProjectImageService
 
         await db.SaveChangesAsync(ct);
 
-        return instructions;
+        return PrepareProjectImageUploadsResult.Success(instructions);
     }
 
     private ProjectImageUploadInstruction CreateUploadInstruction(

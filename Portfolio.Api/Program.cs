@@ -120,7 +120,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGraphQL("/graphql").RequireCors("public");
-app.MapGraphQL("/graphql/admin", schemaName: "admin").RequireCors("client");
+var adminGraphQl = app
+    .MapGraphQL("/graphql/admin", schemaName: "admin")
+    .RequireCors("client");
+
+if (!app.Environment.IsDevelopment())
+{
+    adminGraphQl.RequireAuthorization();
+}
 
 app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 

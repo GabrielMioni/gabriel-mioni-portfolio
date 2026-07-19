@@ -150,16 +150,42 @@ public class ProjectImageService
         if (invalidReferences.Length > 0)
             return FinalizeProjectImageUploadsResult.InvalidReference(invalidReferences);
 
-        var targetIds = input.ProjectImageIds.ToHashSet();
-
-        foreach (var image in project.Images)
-        {
-            if (targetIds.Contains(image.Id))
+        var requestedImages = input.ProjectImageIds
+            .Select((id, index) => new { Id = id, InputIndex = index })
+            .DistinctBy(reference => reference.Id)
+            .Select(reference => new
             {
-                image.MarkUploaded();
-            }
-        }
-        await db.SaveChangesAsync(ct);
+                reference.InputIndex,
+                Image = project.Images.Single(image => image.Id == reference.Id)
+            })
+            .Where(request => !request.Image.IsUploaded)
+            .ToArray();
+
+        var uploadChecks = requestedImages.Select(async request =>
+        {
+            var objectExists = await Task.WhenAll(
+                _storage.ObjectExistsAsync(request.Image.FullKey, ct),
+                _storage.ObjectExistsAsync(request.Image.ThumbKey, ct));
+
+            return new IncompleteProjectImageUpload(
+                request.InputIndex,
+                request.Image.Id,
+                FullImageWasMissing: !objectExists[0],
+                ThumbnailWasMissing: !objectExists[1]);
+        });
+
+        var incompleteUploads = (await Task.WhenAll(uploadChecks))
+            .Where(upload => upload.FullImageWasMissing || upload.ThumbnailWasMissing)
+            .ToArray();
+
+        if (incompleteUploads.Length > 0)
+            return FinalizeProjectImageUploadsResult.IncompleteUpload(incompleteUploads);
+
+        foreach (var request in requestedImages)
+            request.Image.MarkUploaded();
+
+        if (requestedImages.Length > 0)
+            await db.SaveChangesAsync(ct);
 
         return FinalizeProjectImageUploadsResult.Success(project);
     }

@@ -1,6 +1,7 @@
 ﻿using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
 using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 using Portfolio.Api.Services;
+using Portfolio.Api.Services.Results;
 
 namespace Portfolio.Api.GraphQL.Projects.Admin;
 
@@ -73,12 +74,34 @@ public class AdminProjectImageMutation
                     .ToArray());
         }
 
+        if (result.IncompleteUploads.Count > 0)
+        {
+            return new FinalizeProjectImageUploadsPayload(
+                Project: null,
+                UserErrors: result.IncompleteUploads
+                    .Select(upload => UserError.InvalidState(
+                        MissingUploadMessage(upload),
+                        "input", "projectImageIds", upload.InputIndex.ToString()))
+                    .ToArray());
+        }
+
         if (result.Project is null)
             throw new InvalidOperationException("Successful upload finalization returned no project.");
 
         return new FinalizeProjectImageUploadsPayload(
             Project: result.Project,
             UserErrors: []);
+    }
+
+    private static string MissingUploadMessage(IncompleteProjectImageUpload upload)
+    {
+        if (upload.FullImageWasMissing && upload.ThumbnailWasMissing)
+            return $"Project image '{upload.Id}' is missing its full-size image and thumbnail in storage.";
+
+        if (upload.FullImageWasMissing)
+            return $"Project image '{upload.Id}' is missing its full-size image in storage.";
+
+        return $"Project image '{upload.Id}' is missing its thumbnail in storage.";
     }
 
     public async Task<DeleteProjectImagesPayload> DeleteProjectImages(

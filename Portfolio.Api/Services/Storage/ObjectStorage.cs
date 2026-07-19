@@ -2,6 +2,7 @@
 using Amazon.S3;
 using Microsoft.Extensions.Options;
 using Portfolio.Api.Infrastructure.Storage;
+using System.Net;
 
 namespace Portfolio.Api.Services.Storage;
 public sealed class ObjectStorage : IObjectStorage
@@ -50,6 +51,28 @@ public sealed class ObjectStorage : IObjectStorage
         };
 
         await _s3.DeleteObjectsAsync(req, ct);
+    }
+
+    public async Task<bool> ObjectExistsAsync(
+        string key,
+        CancellationToken ct = default)
+    {
+        var request = new GetObjectMetadataRequest
+        {
+            BucketName = _opts.Bucket,
+            Key = key
+        };
+
+        try
+        {
+            await _s3.GetObjectMetadataAsync(request, ct);
+            return true;
+        }
+        catch (AmazonS3Exception exception)
+            when (exception.StatusCode == HttpStatusCode.NotFound)
+        {
+            return false;
+        }
     }
 
     public string GetPublicUrl(string key)

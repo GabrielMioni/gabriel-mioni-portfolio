@@ -97,28 +97,67 @@ public class ProjectTagService
             .ToListAsync(ct);
     }
 
-    public async Task<List<ProjectTag>> CreateManyAsync(IReadOnlyList<string> names, CancellationToken ct = default)
+    public async Task<CreateProjectTagsResult> CreateManyAsync(
+        IReadOnlyList<string> names,
+        CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
-        var created = new List<ProjectTag>();
+        if (names.Count == 0)
+            return CreateProjectTagsResult.Success([]);
 
-        foreach (var name in names)
-        {
-            var value = ProjectTag.GenerateValue(name);
+        var candidates = names
+            .Select((name, index) => new
+            {
+                Index = index,
+                Name = name,
+                Value = ProjectTag.GenerateValue(name)
+            })
+            .ToArray();
 
-            var exists = await db.Tags.AnyAsync(t => t.Value == value, ct);
-            if (exists)
-                throw new InvalidOperationException($"A tag with the name '{name.Trim()}' already exists.");
+        var duplicateConflicts = candidates
+            .GroupBy(candidate => candidate.Value, StringComparer.Ordinal)
+            .SelectMany(group => group.Skip(1))
+            .Select(candidate => new CreateProjectTagConflict(
+                candidate.Index,
+                candidate.Name));
 
-            var tag = ProjectTag.Create(name);
-            db.Tags.Add(tag);
-            created.Add(tag);
-        }
+        var values = candidates
+            .Select(candidate => candidate.Value)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        var existingValueList = await db.Tags
+            .Where(tag => values.Contains(tag.Value))
+            .Select(tag => tag.Value)
+            .ToListAsync(ct);
+
+        var existingValues = existingValueList.ToHashSet(StringComparer.Ordinal);
+
+        var existingConflicts = candidates
+            .Where(candidate => existingValues.Contains(candidate.Value))
+            .Select(candidate => new CreateProjectTagConflict(
+                candidate.Index,
+                candidate.Name));
+
+        var conflicts = duplicateConflicts
+            .Concat(existingConflicts)
+            .DistinctBy(conflict => conflict.InputIndex)
+            .OrderBy(conflict => conflict.InputIndex)
+            .ToArray();
+
+        if (conflicts.Length > 0)
+            return CreateProjectTagsResult.Conflict(conflicts);
+
+        var created = names
+            .Select(ProjectTag.Create)
+            .ToArray();
+
+        db.Tags.AddRange(created);
 
         await db.SaveChangesAsync(ct);
 
-        return created;
+        return CreateProjectTagsResult.Success(created);
     }
 
     public async Task<Project?> UpdateProjectTagsAsync(

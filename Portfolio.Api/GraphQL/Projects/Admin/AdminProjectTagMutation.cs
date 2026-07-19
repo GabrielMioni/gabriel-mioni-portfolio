@@ -9,12 +9,39 @@ namespace Portfolio.Api.GraphQL.Projects.Admin;
 [ExtendObjectType(OperationTypeNames.Mutation)]
 public class AdminProjectTagMutation
 {
-    public Task<List<ProjectTag>> CreateProjectTags(
+    public async Task<CreateProjectTagsPayload> CreateProjectTags(
         CreateProjectTagsInput input,
         [Service] ProjectTagService tags,
         CancellationToken ct = default)
     {
-        return tags.CreateManyAsync(input.Names, ct);
+        var userErrors = ProjectTagInputValidator.ValidateNames(input.Names);
+
+        if (userErrors.Count > 0)
+        {
+            return new CreateProjectTagsPayload(
+                Tags: null,
+                UserErrors: userErrors);
+        }
+
+        var result = await tags.CreateManyAsync(input.Names, ct);
+
+        if (result.Conflicts.Count > 0)
+        {
+            return new CreateProjectTagsPayload(
+                Tags: null,
+                UserErrors: result.Conflicts
+                    .Select(conflict => UserError.Conflict(
+                        $"A tag with the name '{conflict.Name.Trim()}' already exists.",
+                        "input", "names", conflict.InputIndex.ToString()))
+                    .ToArray());
+        }
+
+        if (result.Tags is null)
+            throw new InvalidOperationException("Successful tag creation returned no tags.");
+
+        return new CreateProjectTagsPayload(
+            Tags: result.Tags,
+            UserErrors: []);
     }
 
     public Task<Project?> UpdateProjectTags(

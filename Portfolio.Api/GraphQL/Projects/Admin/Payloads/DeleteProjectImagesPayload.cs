@@ -2,4 +2,6 @@
 
 namespace Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 
-public sealed record DeleteProjectImagesPayload(Project Project);
+public sealed record DeleteProjectImagesPayload(
+    Project? Project,
+    IReadOnlyList<UserError> UserErrors);

@@ -86,8 +86,25 @@ public class AdminProjectImageMutation
         [Service] ProjectImageService images,
         CancellationToken ct)
     {
-        var project = await images.DeleteProjectImagesAsync(input, ct);
+        var result = await images.DeleteProjectImagesAsync(input, ct);
 
-        return new DeleteProjectImagesPayload(project);
+        if (result.ProjectWasNotFound)
+        {
+            return new DeleteProjectImagesPayload(
+                Project: null,
+                UserErrors:
+                [
+                    UserError.NotFound(
+                        $"Project '{input.ProjectId}' was not found.",
+                        "input", "projectId")
+                ]);
+        }
+
+        if (result.Project is null)
+            throw new InvalidOperationException("Successful image deletion returned no project.");
+
+        return new DeleteProjectImagesPayload(
+            Project: result.Project,
+            UserErrors: []);
     }
 }

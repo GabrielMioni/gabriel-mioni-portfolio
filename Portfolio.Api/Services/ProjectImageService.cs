@@ -164,13 +164,18 @@ public class ProjectImageService
         return FinalizeProjectImageUploadsResult.Success(project);
     }
 
-    public async Task<Project> DeleteProjectImagesAsync(
-    DeleteProjectImagesInput input,
-    CancellationToken ct)
+    public async Task<DeleteProjectImagesResult> DeleteProjectImagesAsync(
+        DeleteProjectImagesInput input,
+        CancellationToken ct)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
-        var project = await GetProjectAsync(db, input.ProjectId, ct);
+        var project = await db.Projects
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == input.ProjectId, ct);
+
+        if (project is null)
+            return DeleteProjectImagesResult.NotFound();
 
         var targetIds = input.ProjectImageIds.ToHashSet();
 
@@ -179,6 +184,8 @@ public class ProjectImageService
             .ToList();
 
         var deleteKeys = ProjectImageStorageKeyHelper.GetStorageKeys(imagesToDelete);
+
+        await _storage.DeleteImagesAsync(deleteKeys, ct);
 
         foreach (var image in imagesToDelete)
         {
@@ -194,25 +201,9 @@ public class ProjectImageService
             orderedRemainingImages[i].UpdateSortOrder(i);
         }
 
-        await db.SaveChangesAsync(ct);
+        if (imagesToDelete.Count > 0)
+            await db.SaveChangesAsync(ct);
 
-        await _storage.DeleteImagesAsync(deleteKeys, ct);
-
-        return project;
-    }
-
-    private static async Task<Project> GetProjectAsync(
-        AppDbContext db,
-        Guid projectId,
-        CancellationToken ct)
-    {
-        var project = await db.Projects
-            .Include(p => p.Images)
-            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
-
-        if (project == null)
-            throw new InvalidOperationException("Project not found");
-
-        return project;
+        return DeleteProjectImagesResult.Success(project);
     }
 }

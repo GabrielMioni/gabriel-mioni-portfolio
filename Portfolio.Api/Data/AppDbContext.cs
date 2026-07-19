@@ -44,9 +44,13 @@ namespace Portfolio.Api.Data
 
                 pi.Property(x => x.FullKey).IsRequired().HasMaxLength(512);
                 pi.Property(x => x.ThumbKey).IsRequired().HasMaxLength(512);
+                pi.Property(x => x.ClientId).HasMaxLength(ProjectImage.MaxClientIdLength);
 
                 pi.HasIndex(x => x.ProjectId);
                 pi.HasIndex(x => new { x.ProjectId, x.SortOrder });
+                pi.HasIndex(x => new { x.ProjectId, x.ClientId })
+                  .IsUnique()
+                  .HasFilter("[ClientId] IS NOT NULL");
             });
 
             modelBuilder.Entity<ProjectTag>(t =>

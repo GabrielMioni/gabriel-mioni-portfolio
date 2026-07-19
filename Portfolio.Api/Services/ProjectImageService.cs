@@ -37,6 +37,24 @@ public class ProjectImageService
 
         var project = await GetProjectAsync(db, projectId, ct);
 
+        var requestedClientIds = input.Items
+            .Select(item => item.ClientId.Trim())
+            .ToArray();
+
+        var duplicateClientId = requestedClientIds
+            .GroupBy(clientId => clientId)
+            .FirstOrDefault(group => group.Count() > 1)
+            ?.Key;
+
+        if (duplicateClientId is not null)
+            throw new ArgumentException(
+                $"Client ID '{duplicateClientId}' appears more than once.",
+                nameof(input));
+
+        var imagesByClientId = project.Images
+            .Where(image => image.ClientId is not null)
+            .ToDictionary(image => image.ClientId!);
+
         var instructions = new List<ProjectImageUploadInstruction>(input.Items.Count);
 
         var nextSortOrder = project.Images.Count == 0
@@ -45,6 +63,14 @@ public class ProjectImageService
 
         foreach (var item in input.Items)
         {
+            var clientId = item.ClientId.Trim();
+
+            if (imagesByClientId.TryGetValue(clientId, out var existingImage))
+            {
+                instructions.Add(CreateUploadInstruction(existingImage, item));
+                continue;
+            }
+
             var imageId = Guid.NewGuid();
 
             var fullKey = $"projects/{projectId}/{imageId:N}_full.{ExtFor(item.FullContentType)}";
@@ -52,6 +78,7 @@ public class ProjectImageService
 
             var projectImage = ProjectImage.CreatePending(
                 projectId: projectId,
+                clientId: clientId,
                 altText: item.AltText,
                 fullKey: fullKey,
                 thumbKey: thumbKey,
@@ -63,32 +90,45 @@ public class ProjectImageService
             );
 
             project.AddImage(projectImage);
-
-            var fullTarget = new ProjectImageUploadTarget(
-                fullKey,
-                _storage.CreatePresignedPutUrl(fullKey, item.FullContentType, TimeSpan.FromMinutes(5)),
-                _storage.GetPublicUrl(fullKey),
-                item.FullContentType
-            );
-
-            var thumbTarget = new ProjectImageUploadTarget(
-                thumbKey,
-                _storage.CreatePresignedPutUrl(thumbKey, item.ThumbContentType, TimeSpan.FromMinutes(5)),
-                _storage.GetPublicUrl(thumbKey),
-                item.ThumbContentType
-            );
-
-            instructions.Add(new ProjectImageUploadInstruction(
-                item.ClientId,
-                projectImage.Id,
-                fullTarget,
-                thumbTarget
-            ));
+            imagesByClientId.Add(clientId, projectImage);
+            instructions.Add(CreateUploadInstruction(projectImage, item));
         }
 
         await db.SaveChangesAsync(ct);
 
         return instructions;
+    }
+
+    private ProjectImageUploadInstruction CreateUploadInstruction(
+        ProjectImage image,
+        ProjectImagePrepareItem item)
+    {
+        var fullTarget = new ProjectImageUploadTarget(
+            image.FullKey,
+            _storage.CreatePresignedPutUrl(
+                image.FullKey,
+                item.FullContentType,
+                TimeSpan.FromMinutes(5)),
+            _storage.GetPublicUrl(image.FullKey),
+            item.FullContentType
+        );
+
+        var thumbTarget = new ProjectImageUploadTarget(
+            image.ThumbKey,
+            _storage.CreatePresignedPutUrl(
+                image.ThumbKey,
+                item.ThumbContentType,
+                TimeSpan.FromMinutes(5)),
+            _storage.GetPublicUrl(image.ThumbKey),
+            item.ThumbContentType
+        );
+
+        return new ProjectImageUploadInstruction(
+            item.ClientId,
+            image.Id,
+            fullTarget,
+            thumbTarget
+        );
     }
 
     public async Task<Project> FinalizeImageUploadAsync(

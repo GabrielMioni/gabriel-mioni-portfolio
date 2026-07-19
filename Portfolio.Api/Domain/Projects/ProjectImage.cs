@@ -2,10 +2,14 @@
 
 public class ProjectImage
 {
+    public const int MaxClientIdLength = 64;
+
     public Guid Id { get; private set; }
 
     public Guid ProjectId { get; private set; }
     public Project Project { get; private set; } = default!;
+
+    public string? ClientId { get; private set; }
 
     public string? AltText { get; private set; }
 
@@ -28,6 +32,7 @@ public class ProjectImage
 
     public static ProjectImage CreatePending(
         Guid projectId,
+        string clientId,
         string? altText,
         string fullKey,
         string thumbKey,
@@ -37,10 +42,21 @@ public class ProjectImage
         int height,
         int sortOrder)
     {
+        if (string.IsNullOrWhiteSpace(clientId))
+            throw new ArgumentException("Client ID is required.", nameof(clientId));
+
+        var normalizedClientId = clientId.Trim();
+
+        if (normalizedClientId.Length > MaxClientIdLength)
+            throw new ArgumentException(
+                $"Client ID cannot exceed {MaxClientIdLength} characters.",
+                nameof(clientId));
+
         return new ProjectImage
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
+            ClientId = normalizedClientId,
             AltText = string.IsNullOrWhiteSpace(altText) ? null : altText.Trim(),
             FullKey = fullKey,
             ThumbKey = thumbKey,

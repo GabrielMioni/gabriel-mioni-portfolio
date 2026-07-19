@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
+using Portfolio.Api.Services.Results;
 
 namespace Portfolio.Api.Services;
 
@@ -38,22 +39,26 @@ public class ProjectTagService
         return id;
     }
 
-    public async Task<ProjectTag?> RenameAsync(Guid id, string name, CancellationToken ct = default)
+    public async Task<RenameProjectTagResult> RenameAsync(
+        Guid id,
+        string name,
+        CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
         var tag = await db.Tags.FirstOrDefaultAsync(t => t.Id == id, ct);
-        if (tag is null) return null;
+        if (tag is null)
+            return RenameProjectTagResult.NotFound();
 
         var newValue = ProjectTag.GenerateValue(name);
         var conflict = await db.Tags.AnyAsync(t => t.Value == newValue && t.Id != id, ct);
         if (conflict)
-            throw new InvalidOperationException($"A tag with the name '{name.Trim()}' already exists.");
+            return RenameProjectTagResult.Conflict();
 
         tag.Rename(name);
         await db.SaveChangesAsync(ct);
 
-        return tag;
+        return RenameProjectTagResult.Success(tag);
     }
 
     public async Task RemoveTagFromProjectsAsync(Guid tagId, IReadOnlyList<Guid> projectIds, CancellationToken ct = default)

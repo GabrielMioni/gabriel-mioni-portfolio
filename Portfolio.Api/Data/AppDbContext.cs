@@ -57,8 +57,8 @@ namespace Portfolio.Api.Data
             {
                 t.HasKey(x => x.Id);
                 t.Property(x => x.Id).ValueGeneratedNever();
-                t.Property(x => x.Name).IsRequired().HasMaxLength(50);
-                t.Property(x => x.Value).IsRequired().HasMaxLength(50);
+                t.Property(x => x.Name).IsRequired().HasMaxLength(ProjectTag.MaxNameLength);
+                t.Property(x => x.Value).IsRequired().HasMaxLength(ProjectTag.MaxValueLength);
                 t.HasIndex(x => x.Value).IsUnique();
             });
 

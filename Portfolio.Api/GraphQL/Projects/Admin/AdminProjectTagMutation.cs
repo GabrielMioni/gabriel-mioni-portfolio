@@ -1,6 +1,8 @@
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
+using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 using Portfolio.Api.Services;
+using Portfolio.Api.Services.Results;
 
 namespace Portfolio.Api.GraphQL.Projects.Admin;
 
@@ -31,12 +33,54 @@ public class AdminProjectTagMutation
         return tags.DeleteAsync(input.Id, ct);
     }
 
-    public Task<ProjectTag?> RenameProjectTag(
+    public async Task<RenameProjectTagPayload> RenameProjectTag(
         RenameProjectTagInput input,
         [Service] ProjectTagService tags,
         CancellationToken ct = default)
     {
-        return tags.RenameAsync(input.Id, input.Name, ct);
+        var userErrors = ProjectTagInputValidator.ValidateName(input.Name);
+
+        if (userErrors.Count > 0)
+        {
+            return new RenameProjectTagPayload(
+                Tag: null,
+                UserErrors: userErrors);
+        }
+
+        var result = await tags.RenameAsync(input.Id, input.Name, ct);
+
+        if (result.Outcome == RenameProjectTagOutcome.NotFound)
+        {
+            return new RenameProjectTagPayload(
+                Tag: null,
+                UserErrors:
+                [
+                    new UserError(
+                        UserErrorCode.NotFound,
+                        $"Project tag '{input.Id}' was not found.",
+                        ["input", "id"])
+                ]);
+        }
+
+        if (result.Outcome == RenameProjectTagOutcome.Conflict)
+        {
+            return new RenameProjectTagPayload(
+                Tag: null,
+                UserErrors:
+                [
+                    new UserError(
+                        UserErrorCode.Conflict,
+                        $"A tag with the name '{input.Name.Trim()}' already exists.",
+                        ["input", "name"])
+                ]);
+        }
+
+        if (result.Tag is null)
+            throw new InvalidOperationException("A successful tag rename returned no tag.");
+
+        return new RenameProjectTagPayload(
+            Tag: result.Tag,
+            UserErrors: []);
     }
 
     public async Task<IReadOnlyList<Guid>> RemoveTagFromProjects(

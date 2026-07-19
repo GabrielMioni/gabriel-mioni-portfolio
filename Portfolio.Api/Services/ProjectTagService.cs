@@ -61,22 +61,59 @@ public class ProjectTagService
         return RenameProjectTagResult.Success(tag);
     }
 
-    public async Task RemoveTagFromProjectsAsync(Guid tagId, IReadOnlyList<Guid> projectIds, CancellationToken ct = default)
+    public async Task<RemoveTagFromProjectsResult> RemoveTagFromProjectsAsync(
+        Guid tagId,
+        IReadOnlyList<Guid> projectIds,
+        CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
+        var tagExists = await db.Tags.AnyAsync(tag => tag.Id == tagId, ct);
+
+        if (!tagExists)
+            return RemoveTagFromProjectsResult.NotFound();
+
+        var distinctProjectIds = projectIds
+            .Distinct()
+            .ToArray();
+
+        if (distinctProjectIds.Length == 0)
+            return RemoveTagFromProjectsResult.Success([]);
+
         var projects = await db.Projects
-            .Include(p => p.Tags)
-            .Where(p => projectIds.Contains(p.Id))
+            .Include(project => project.Tags)
+            .Where(project => distinctProjectIds.Contains(project.Id))
             .ToListAsync(ct);
+
+        var foundProjectIds = projects
+            .Select(project => project.Id)
+            .ToHashSet();
+
+        var invalidReferences = projectIds
+            .Select((projectId, index) => new InvalidTagProjectReference(index, projectId))
+            .Where(reference => !foundProjectIds.Contains(reference.Id))
+            .ToArray();
+
+        if (invalidReferences.Length > 0)
+            return RemoveTagFromProjectsResult.InvalidReference(invalidReferences);
+
+        var changed = false;
 
         foreach (var project in projects)
         {
             var tag = project.Tags.FirstOrDefault(t => t.Id == tagId);
-            if (tag is not null) project.RemoveTag(tag);
+
+            if (tag is null)
+                continue;
+
+            project.RemoveTag(tag);
+            changed = true;
         }
 
-        await db.SaveChangesAsync(ct);
+        if (changed)
+            await db.SaveChangesAsync(ct);
+
+        return RemoveTagFromProjectsResult.Success(distinctProjectIds);
     }
 
     public async Task<List<Project>> GetProjectsByTagIdAsync(Guid tagId, CancellationToken ct = default)

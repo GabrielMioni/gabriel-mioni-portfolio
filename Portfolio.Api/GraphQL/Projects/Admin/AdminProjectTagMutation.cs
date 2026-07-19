@@ -157,12 +157,44 @@ public class AdminProjectTagMutation
             UserErrors: []);
     }
 
-    public async Task<IReadOnlyList<Guid>> RemoveTagFromProjects(
+    public async Task<RemoveTagFromProjectsPayload> RemoveTagFromProjects(
         RemoveTagFromProjectsInput input,
         [Service] ProjectTagService tags,
         CancellationToken ct = default)
     {
-        await tags.RemoveTagFromProjectsAsync(input.TagId, input.ProjectIds, ct);
-        return input.ProjectIds;
+        var result = await tags.RemoveTagFromProjectsAsync(
+            input.TagId,
+            input.ProjectIds,
+            ct);
+
+        if (result.TagWasNotFound)
+        {
+            return new RemoveTagFromProjectsPayload(
+                ProjectIds: null,
+                UserErrors:
+                [
+                    UserError.NotFound(
+                        $"Project tag '{input.TagId}' was not found.",
+                        "input", "tagId")
+                ]);
+        }
+
+        if (result.InvalidReferences.Count > 0)
+        {
+            return new RemoveTagFromProjectsPayload(
+                ProjectIds: null,
+                UserErrors: result.InvalidReferences
+                    .Select(reference => UserError.InvalidReference(
+                        $"Project '{reference.Id}' was not found.",
+                        "input", "projectIds", reference.InputIndex.ToString()))
+                    .ToArray());
+        }
+
+        if (result.ProjectIds is null)
+            throw new InvalidOperationException("Successful tag removal returned no project IDs.");
+
+        return new RemoveTagFromProjectsPayload(
+            ProjectIds: result.ProjectIds,
+            UserErrors: []);
     }
 }

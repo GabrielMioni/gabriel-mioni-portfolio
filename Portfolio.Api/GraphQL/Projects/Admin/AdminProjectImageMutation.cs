@@ -48,9 +48,37 @@ public class AdminProjectImageMutation
         [Service] ProjectImageService images,
         CancellationToken ct)
     {
-        var project = await images.FinalizeImageUploadAsync(input, ct);
+        var result = await images.FinalizeImageUploadAsync(input, ct);
 
-        return new FinalizeProjectImageUploadsPayload(project);
+        if (result.ProjectWasNotFound)
+        {
+            return new FinalizeProjectImageUploadsPayload(
+                Project: null,
+                UserErrors:
+                [
+                    UserError.NotFound(
+                        $"Project '{input.ProjectId}' was not found.",
+                        "input", "projectId")
+                ]);
+        }
+
+        if (result.InvalidReferences.Count > 0)
+        {
+            return new FinalizeProjectImageUploadsPayload(
+                Project: null,
+                UserErrors: result.InvalidReferences
+                    .Select(reference => UserError.InvalidReference(
+                        $"Project image '{reference.Id}' was not found on this project.",
+                        "input", "projectImageIds", reference.InputIndex.ToString()))
+                    .ToArray());
+        }
+
+        if (result.Project is null)
+            throw new InvalidOperationException("Successful upload finalization returned no project.");
+
+        return new FinalizeProjectImageUploadsPayload(
+            Project: result.Project,
+            UserErrors: []);
     }
 
     public async Task<DeleteProjectImagesPayload> DeleteProjectImages(

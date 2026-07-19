@@ -123,7 +123,7 @@ public class ProjectImageService
         );
     }
 
-    public async Task<Project> FinalizeImageUploadAsync(
+    public async Task<FinalizeProjectImageUploadsResult> FinalizeImageUploadAsync(
         FinalizeProjectImageUploadsInput input,
         CancellationToken ct)
     {
@@ -131,7 +131,24 @@ public class ProjectImageService
 
         var projectId = input.ProjectId;
 
-        var project = await GetProjectAsync(db, projectId, ct);
+        var project = await db.Projects
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
+
+        if (project is null)
+            return FinalizeProjectImageUploadsResult.NotFound();
+
+        var knownImageIds = project.Images
+            .Select(image => image.Id)
+            .ToHashSet();
+
+        var invalidReferences = input.ProjectImageIds
+            .Select((id, index) => new InvalidProjectImageReference(index, id))
+            .Where(reference => !knownImageIds.Contains(reference.Id))
+            .ToArray();
+
+        if (invalidReferences.Length > 0)
+            return FinalizeProjectImageUploadsResult.InvalidReference(invalidReferences);
 
         var targetIds = input.ProjectImageIds.ToHashSet();
 
@@ -144,7 +161,7 @@ public class ProjectImageService
         }
         await db.SaveChangesAsync(ct);
 
-        return project;
+        return FinalizeProjectImageUploadsResult.Success(project);
     }
 
     public async Task<Project> DeleteProjectImagesAsync(

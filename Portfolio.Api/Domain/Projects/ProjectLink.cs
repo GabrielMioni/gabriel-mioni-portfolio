@@ -8,6 +8,9 @@ public enum ProjectLinkType
 
 public class ProjectLink
 {
+    public const int MaxUrlLength = 2048;
+    public const int MaxLinkTextLength = 300;
+
     public Guid Id { get; private set; }
     public Guid ProjectId { get; private set; }
     public Project Project { get; private set; } = default!;
@@ -34,12 +37,28 @@ public class ProjectLink
             throw new ArgumentException("Invalid URL", nameof(url));
         }
 
+        if (normalized.Length > MaxUrlLength)
+        {
+            throw new ArgumentException(
+                $"URL cannot exceed {MaxUrlLength} characters.",
+                nameof(url));
+        }
+
+        var normalizedLinkText = linkText.Trim();
+
+        if (normalizedLinkText.Length > MaxLinkTextLength)
+        {
+            throw new ArgumentException(
+                $"Link text cannot exceed {MaxLinkTextLength} characters.",
+                nameof(linkText));
+        }
+
         return new ProjectLink
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
             Url = normalized,
-            LinkText = linkText.Trim(),
+            LinkText = normalizedLinkText,
             LinkType = linkType,
             CreatedAt = DateTime.UtcNow,
             SortOrder = sortOrder
@@ -72,7 +91,7 @@ public class ProjectLink
         return true;
     }
 
-    private static string NormalizeUrl(string url)
+    public static string NormalizeUrl(string url)
     {
         url = url.Trim();
 

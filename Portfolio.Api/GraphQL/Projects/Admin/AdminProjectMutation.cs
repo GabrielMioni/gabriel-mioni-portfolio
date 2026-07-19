@@ -8,12 +8,25 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
     [ExtendObjectType(OperationTypeNames.Mutation)]
     public class AdminProjectMutation
     {
-        public Task<Project> CreateProject(
+        public async Task<CreateProjectPayload> CreateProject(
             CreateProjectInput input,
             [Service] ProjectService projects,
             CancellationToken ct = default)
         {
-            return projects.CreateAsync(input, ct);
+            var userErrors = ProjectInputValidator.ValidateCreate(input);
+
+            if (userErrors.Count > 0)
+            {
+                return new CreateProjectPayload(
+                    Project: null,
+                    UserErrors: userErrors);
+            }
+
+            var project = await projects.CreateAsync(input, ct);
+
+            return new CreateProjectPayload(
+                Project: project,
+                UserErrors: []);
         }
 
         public async Task<DeleteProjectPayload> DeleteProject(

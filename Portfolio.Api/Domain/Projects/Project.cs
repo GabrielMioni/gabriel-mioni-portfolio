@@ -2,6 +2,8 @@
 
 public class Project
 {
+    public const int MaxTitleLength = 300;
+
     public Guid Id { get; private set; }
 
     public string Title { get; private set; } = default!;
@@ -31,7 +33,7 @@ public class Project
         var project = new Project
         {
             Id = Guid.NewGuid(),
-            Title = NormalizeRequired(title, nameof(title)),
+            Title = NormalizeTitle(title),
             Summary = NormalizeOptionalTrimmed(summary),
             Body = NormalizeBody(body),
             CreatedAt = now,
@@ -52,7 +54,7 @@ public class Project
         string? summary,
         string? body)
     {
-        var normalizedTitle = NormalizeRequired(title, nameof(title));
+        var normalizedTitle = NormalizeTitle(title);
         var normalizedSummary = NormalizeOptionalTrimmed(summary);
         var normalizedBody = NormalizeBody(body);
 
@@ -139,12 +141,19 @@ public class Project
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
-    private static string NormalizeRequired(string value, string paramName)
+    private static string NormalizeTitle(string title)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Value is required.", paramName);
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Value is required.", nameof(title));
 
-        return value.Trim();
+        var normalized = title.Trim();
+
+        if (normalized.Length > MaxTitleLength)
+            throw new ArgumentException(
+                $"Value cannot exceed {MaxTitleLength} characters.",
+                nameof(title));
+
+        return normalized;
     }
 
     private static string? NormalizeOptionalTrimmed(string? value)

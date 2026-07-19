@@ -4,6 +4,7 @@ using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
 using Portfolio.Api.Services.Helpers;
+using Portfolio.Api.Services.Results;
 using Portfolio.Api.Services.Storage;
 
 namespace Portfolio.Api.Services;
@@ -73,7 +74,7 @@ public class ProjectService
         return projectId;
     }
 
-    public async Task<Project?> EditProjectAsync(EditProjectInput input, CancellationToken ct = default)
+    public async Task<EditProjectResult> EditProjectAsync(EditProjectInput input, CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
@@ -83,7 +84,12 @@ public class ProjectService
             .FirstOrDefaultAsync(p => p.Id == input.Id, ct);
 
         if (project is null)
-            return null;
+            return EditProjectResult.NotFound();
+
+        var invalidReferences = GetInvalidEditReferences(project, input);
+
+        if (invalidReferences.Count > 0)
+            return EditProjectResult.InvalidReference(invalidReferences);
 
         var changed = false;
 
@@ -99,7 +105,7 @@ public class ProjectService
         }
 
         if (!changed)
-            return project;
+            return EditProjectResult.Success(project);
 
         try
         {
@@ -126,7 +132,7 @@ public class ProjectService
             throw;
         }
 
-        return project;
+        return EditProjectResult.Success(project);
     }
 
     public async Task<List<Project>> GetPublishedAsync(CancellationToken ct = default)
@@ -189,6 +195,47 @@ public class ProjectService
             title: input.Title ?? project.Title,
             summary: input.Summary ?? project.Summary,
             body: input.Body ?? project.Body);
+    }
+
+    private static IReadOnlyList<InvalidEditProjectReference> GetInvalidEditReferences(
+        Project project,
+        EditProjectInput input)
+    {
+        var invalidReferences = new List<InvalidEditProjectReference>();
+
+        if (input.Images is not null)
+        {
+            for (var index = 0; index < input.Images.Count; index++)
+            {
+                var imageId = input.Images[index].ProjectImageId;
+
+                if (project.Images.All(image => image.Id != imageId))
+                {
+                    invalidReferences.Add(new InvalidEditProjectReference(
+                        EditProjectReferenceKind.Image,
+                        index,
+                        imageId));
+                }
+            }
+        }
+
+        if (input.Links is not null)
+        {
+            for (var index = 0; index < input.Links.Count; index++)
+            {
+                var linkId = input.Links[index].Id;
+
+                if (linkId is Guid id && project.Links.All(link => link.Id != id))
+                {
+                    invalidReferences.Add(new InvalidEditProjectReference(
+                        EditProjectReferenceKind.Link,
+                        index,
+                        id));
+                }
+            }
+        }
+
+        return invalidReferences;
     }
 
     private static bool UpdateProjectStatus(Project project, EditProjectInput input)

@@ -36,11 +36,7 @@ export const useProjectEditor = () => {
   const isNewProject = computed(() => !projectId.value)
 
   const { createProject, editProject } = useProjectMutations()
-  const {
-    deleteImageUploads,
-    hasPendingImageOperations,
-    uploadImages
-  } = useProjectImageMutations()
+  const { deleteImageUploads, uploadImages } = useProjectImageMutations()
   const { createProjectTags, updateProjectTags } = useProjectTagMutations()
 
   const { data, error, fetching, executeQuery } = useQuery({
@@ -155,7 +151,7 @@ export const useProjectEditor = () => {
   }
 
   const saveRelatedData = async (targetProjectId: string, updateTags: boolean) => {
-    if (uploadItems.value.length > 0 || hasPendingImageOperations.value) {
+    if (uploadItems.value.length > 0) {
       const uploadResult = await uploadImages({
         uploadItems: uploadItems.value,
         projectId: targetProjectId
@@ -168,8 +164,6 @@ export const useProjectEditor = () => {
         const uploadedId = uploadedIdByClientId.get(item.clientId)
         return uploadedId ? { ...item, id: uploadedId } : item
       })
-
-      if (uploadResult.error) throw uploadResult.error
 
       if (uploadResult.failedClientIds.length > 0) {
         throw new Error(`Failed to upload ${uploadResult.failedClientIds.length} images.`)

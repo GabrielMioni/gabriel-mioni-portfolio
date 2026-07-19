@@ -25,12 +25,28 @@ public class AdminProjectTagMutation
         return tags.UpdateProjectTagsAsync(input.ProjectId, input.TagIds, ct);
     }
 
-    public Task<Guid?> DeleteProjectTag(
+    public async Task<DeleteProjectTagPayload> DeleteProjectTag(
         DeleteProjectTagInput input,
         [Service] ProjectTagService tags,
         CancellationToken ct = default)
     {
-        return tags.DeleteAsync(input.Id, ct);
+        var deletedTagId = await tags.DeleteAsync(input.Id, ct);
+
+        if (deletedTagId is null)
+        {
+            return new DeleteProjectTagPayload(
+                DeletedTagId: null,
+                UserErrors:
+                [
+                    UserError.NotFound(
+                        $"Project tag '{input.Id}' was not found.",
+                        "input", "id")
+                ]);
+        }
+
+        return new DeleteProjectTagPayload(
+            DeletedTagId: deletedTagId,
+            UserErrors: []);
     }
 
     public async Task<RenameProjectTagPayload> RenameProjectTag(

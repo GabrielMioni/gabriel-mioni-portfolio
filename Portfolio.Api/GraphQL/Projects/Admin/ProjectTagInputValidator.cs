@@ -10,7 +10,9 @@ internal static class ProjectTagInputValidator
         {
             return
             [
-                ValidationError("Tag name is required.")
+                UserError.Validation(
+                    "Tag name is required.",
+                    "input", "name")
             ];
         }
 
@@ -20,8 +22,9 @@ internal static class ProjectTagInputValidator
         {
             return
             [
-                ValidationError(
-                    $"Tag name cannot exceed {ProjectTag.MaxNameLength} characters.")
+                UserError.Validation(
+                    $"Tag name cannot exceed {ProjectTag.MaxNameLength} characters.",
+                    "input", "name")
             ];
         }
 
@@ -29,18 +32,12 @@ internal static class ProjectTagInputValidator
         {
             return
             [
-                ValidationError("Tag name must produce a usable value.")
+                UserError.Validation(
+                    "Tag name must produce a usable value.",
+                    "input", "name")
             ];
         }
 
         return [];
-    }
-
-    private static UserError ValidationError(string message)
-    {
-        return new UserError(
-            UserErrorCode.Validation,
-            message,
-            ["input", "name"]);
     }
 }

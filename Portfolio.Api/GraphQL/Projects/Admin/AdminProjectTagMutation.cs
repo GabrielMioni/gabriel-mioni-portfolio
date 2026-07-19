@@ -55,10 +55,9 @@ public class AdminProjectTagMutation
                 Tag: null,
                 UserErrors:
                 [
-                    new UserError(
-                        UserErrorCode.NotFound,
+                    UserError.NotFound(
                         $"Project tag '{input.Id}' was not found.",
-                        ["input", "id"])
+                        "input", "id")
                 ]);
         }
 
@@ -68,10 +67,9 @@ public class AdminProjectTagMutation
                 Tag: null,
                 UserErrors:
                 [
-                    new UserError(
-                        UserErrorCode.Conflict,
+                    UserError.Conflict(
                         $"A tag with the name '{input.Name.Trim()}' already exists.",
-                        ["input", "name"])
+                        "input", "name")
                 ]);
         }
 

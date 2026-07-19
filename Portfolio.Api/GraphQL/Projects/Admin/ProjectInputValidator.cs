@@ -31,7 +31,7 @@ internal static class ProjectInputValidator
     {
         if (string.IsNullOrWhiteSpace(title))
         {
-            userErrors.Add(ValidationError(
+            userErrors.Add(UserError.Validation(
                 "Title is required.",
                 "input", "title"));
             return;
@@ -39,7 +39,7 @@ internal static class ProjectInputValidator
 
         if (title.Trim().Length > Project.MaxTitleLength)
         {
-            userErrors.Add(ValidationError(
+            userErrors.Add(UserError.Validation(
                 $"Title cannot exceed {Project.MaxTitleLength} characters.",
                 "input", "title"));
         }
@@ -88,27 +88,22 @@ internal static class ProjectInputValidator
 
         if (!Uri.TryCreate(normalizedUrl, UriKind.Absolute, out _))
         {
-            userErrors.Add(ValidationError(
+            userErrors.Add(UserError.Validation(
                 "Link URL must be a valid absolute URL.",
                 [.. fieldPrefix, "url"]));
         }
         else if (normalizedUrl.Length > ProjectLink.MaxUrlLength)
         {
-            userErrors.Add(ValidationError(
+            userErrors.Add(UserError.Validation(
                 $"Link URL cannot exceed {ProjectLink.MaxUrlLength} characters.",
                 [.. fieldPrefix, "url"]));
         }
 
         if (linkText.Trim().Length > ProjectLink.MaxLinkTextLength)
         {
-            userErrors.Add(ValidationError(
+            userErrors.Add(UserError.Validation(
                 $"Link text cannot exceed {ProjectLink.MaxLinkTextLength} characters.",
                 [.. fieldPrefix, "linkText"]));
         }
-    }
-
-    private static UserError ValidationError(string message, params string[] field)
-    {
-        return new UserError(UserErrorCode.Validation, message, field);
     }
 }

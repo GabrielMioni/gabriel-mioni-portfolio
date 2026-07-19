@@ -43,8 +43,7 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
                     DeletedProjectId: null,
                     UserErrors:
                     [
-                        new UserError(
-                            UserErrorCode.NotFound,
+                        UserError.NotFound(
                             $"Project '{input.ProjectId}' was not found.")
                     ]);
             }
@@ -75,10 +74,9 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
                     Project: null,
                     UserErrors:
                     [
-                        new UserError(
-                            UserErrorCode.NotFound,
+                        UserError.NotFound(
                             $"Project '{input.Id}' was not found.",
-                            ["input", "id"])
+                            "input", "id")
                     ]);
             }
 
@@ -112,10 +110,9 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
                     Project: null,
                     UserErrors:
                     [
-                        new UserError(
-                            UserErrorCode.NotFound,
+                        UserError.NotFound(
                             $"Project '{input.Id}' was not found.",
-                            ["input", "id"])
+                            "input", "id")
                     ]);
             }
 
@@ -137,10 +134,9 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
                     Project: null,
                     UserErrors:
                     [
-                        new UserError(
-                            UserErrorCode.NotFound,
+                        UserError.NotFound(
                             $"Project '{input.Id}' was not found.",
-                            ["input", "id"])
+                            "input", "id")
                     ]);
             }
 
@@ -155,14 +151,12 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
         {
             return reference.Kind switch
             {
-                EditProjectReferenceKind.Image => new UserError(
-                    UserErrorCode.InvalidReference,
+                EditProjectReferenceKind.Image => UserError.InvalidReference(
                     $"Project image '{reference.Id}' does not belong to project '{projectId}'.",
-                    ["input", "images", reference.InputIndex.ToString(), "projectImageId"]),
-                EditProjectReferenceKind.Link => new UserError(
-                    UserErrorCode.InvalidReference,
+                    "input", "images", reference.InputIndex.ToString(), "projectImageId"),
+                EditProjectReferenceKind.Link => UserError.InvalidReference(
                     $"Project link '{reference.Id}' does not belong to project '{projectId}'.",
-                    ["input", "links", reference.InputIndex.ToString(), "id"]),
+                    "input", "links", reference.InputIndex.ToString(), "id"),
                 _ => throw new ArgumentOutOfRangeException(
                     nameof(reference),
                     reference.Kind,

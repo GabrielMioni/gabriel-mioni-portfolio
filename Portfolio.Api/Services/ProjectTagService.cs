@@ -160,7 +160,7 @@ public class ProjectTagService
         return CreateProjectTagsResult.Success(created);
     }
 
-    public async Task<Project?> UpdateProjectTagsAsync(
+    public async Task<UpdateProjectTagsResult> UpdateProjectTagsAsync(
         Guid projectId,
         IReadOnlyList<Guid> tagIds,
         CancellationToken ct = default)
@@ -172,20 +172,47 @@ public class ProjectTagService
             .FirstOrDefaultAsync(p => p.Id == projectId, ct);
 
         if (project is null)
-            return null;
+            return UpdateProjectTagsResult.NotFound();
+
+        var desiredTagIds = tagIds.ToHashSet();
 
         var tags = await db.Tags
-            .Where(t => tagIds.Contains(t.Id))
+            .Where(tag => desiredTagIds.Contains(tag.Id))
             .ToListAsync(ct);
 
-        foreach (var tag in project.Tags.ToList())
+        var foundTagIds = tags
+            .Select(tag => tag.Id)
+            .ToHashSet();
+
+        var invalidReferences = tagIds
+            .Select((tagId, index) => new InvalidProjectTagReference(index, tagId))
+            .Where(reference => !foundTagIds.Contains(reference.Id))
+            .ToArray();
+
+        if (invalidReferences.Length > 0)
+            return UpdateProjectTagsResult.InvalidReference(invalidReferences);
+
+        var changed = false;
+
+        foreach (var tag in project.Tags.Where(tag => !desiredTagIds.Contains(tag.Id)).ToList())
+        {
             project.RemoveTag(tag);
+            changed = true;
+        }
 
-        foreach (var tag in tags)
+        var currentTagIds = project.Tags
+            .Select(tag => tag.Id)
+            .ToHashSet();
+
+        foreach (var tag in tags.Where(tag => !currentTagIds.Contains(tag.Id)))
+        {
             project.AddTag(tag);
+            changed = true;
+        }
 
-        await db.SaveChangesAsync(ct);
+        if (changed)
+            await db.SaveChangesAsync(ct);
 
-        return project;
+        return UpdateProjectTagsResult.Success(project);
     }
 }

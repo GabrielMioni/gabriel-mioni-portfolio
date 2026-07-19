@@ -44,12 +44,45 @@ public class AdminProjectTagMutation
             UserErrors: []);
     }
 
-    public Task<Project?> UpdateProjectTags(
+    public async Task<UpdateProjectTagsPayload> UpdateProjectTags(
         UpdateProjectTagsInput input,
         [Service] ProjectTagService tags,
         CancellationToken ct = default)
     {
-        return tags.UpdateProjectTagsAsync(input.ProjectId, input.TagIds, ct);
+        var result = await tags.UpdateProjectTagsAsync(
+            input.ProjectId,
+            input.TagIds,
+            ct);
+
+        if (result.ProjectWasNotFound)
+        {
+            return new UpdateProjectTagsPayload(
+                Project: null,
+                UserErrors:
+                [
+                    UserError.NotFound(
+                        $"Project '{input.ProjectId}' was not found.",
+                        "input", "projectId")
+                ]);
+        }
+
+        if (result.InvalidReferences.Count > 0)
+        {
+            return new UpdateProjectTagsPayload(
+                Project: null,
+                UserErrors: result.InvalidReferences
+                    .Select(reference => UserError.InvalidReference(
+                        $"Project tag '{reference.Id}' was not found.",
+                        "input", "tagIds", reference.InputIndex.ToString()))
+                    .ToArray());
+        }
+
+        if (result.Project is null)
+            throw new InvalidOperationException("A successful tag update returned no project.");
+
+        return new UpdateProjectTagsPayload(
+            Project: result.Project,
+            UserErrors: []);
     }
 
     public async Task<DeleteProjectTagPayload> DeleteProjectTag(

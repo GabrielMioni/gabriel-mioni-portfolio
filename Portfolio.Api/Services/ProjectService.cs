@@ -135,16 +135,6 @@ public class ProjectService
         return EditProjectResult.Success(project);
     }
 
-    public async Task<List<Project>> GetPublishedAsync(CancellationToken ct = default)
-    {
-        await using var db = await _dbFactory.CreateDbContextAsync(ct);
-
-        return await db.Projects
-            .Where(p => p.Status == ProjectStatus.Published)
-            .OrderByDescending(p => p.PublishedAt)
-            .ToListAsync(ct);
-    }
-
     public IQueryable<Project> QueryProjects(AppDbContext db, bool includeUnpublished)
     {
         var q = db.Projects.AsQueryable();

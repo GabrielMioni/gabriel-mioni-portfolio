@@ -227,7 +227,9 @@ export const useProjectEditor = () => {
       console.error('Failed to save project', err)
       const message = wasNewProject && createdProjectId.value
         ? 'Project created, but some related data failed to save. Retry to continue.'
-        : 'Failed to save project.'
+        : err instanceof Error
+          ? err.message
+          : 'Failed to save project.'
       showSnackbar(message, 'error')
     } finally {
       isSubmitting.value = false

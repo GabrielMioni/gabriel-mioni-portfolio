@@ -1,4 +1,3 @@
-import { useMutation } from '@urql/vue'
 import { useFragment } from '~/generated'
 import type {
   DeleteProjectImagesInput,
@@ -38,17 +37,29 @@ export const useProjectImageMutations = () => {
   const {
     executeMutation: prepareImagesUploadMutation,
     fetching: preparingImages
-  } = useMutation(PrepareProjectImageUploadsDocument)
+  } = useApiMutation(
+    PrepareProjectImageUploadsDocument,
+    data => data.prepareProjectImageUploads,
+    'Failed to prepare image uploads.'
+  )
 
   const {
     executeMutation: finalizeImagesUploadMutation,
     fetching: finalizingImages
-  } = useMutation(FinalizeProjectImageUploadsDocument)
+  } = useApiMutation(
+    FinalizeProjectImageUploadsDocument,
+    data => data.finalizeProjectImageUploads,
+    'Failed to finalize image uploads.'
+  )
 
   const {
     executeMutation: deleteProjectImagesMutation,
     fetching: deletingImages
-  } = useMutation(DeleteProjectImagesDocument)
+  } = useApiMutation(
+    DeleteProjectImagesDocument,
+    data => data.deleteProjectImages,
+    'Failed to delete project images.'
+  )
 
   const isProcessingImages = computed(() =>
     preparingImages.value ||
@@ -57,11 +68,8 @@ export const useProjectImageMutations = () => {
   )
 
   const prepareImageUploads = async (input: PrepareProjectImageUploadsInput) => {
-    const response = await prepareImagesUploadMutation({ input })
-
-    if (response.error) throw response.error
-
-    const items = response.data?.prepareProjectImageUploads.items
+    const payload = await prepareImagesUploadMutation({ input })
+    const items = payload.items
 
     if (!items?.length) {
       throw new Error('No upload instructions returned.')
@@ -73,11 +81,8 @@ export const useProjectImageMutations = () => {
   const finalizeImageUploads = async (
     input: FinalizeProjectImageUploadsInput
   ): Promise<ProjectFragment> => {
-    const response = await finalizeImagesUploadMutation({ input })
-
-    if (response.error) throw response.error
-
-    const project = response.data?.finalizeProjectImageUploads.project ?? null
+    const payload = await finalizeImagesUploadMutation({ input })
+    const project = payload.project
 
     if (!project) {
       throw new Error('Image uploads were finalized without returning the project.')
@@ -89,11 +94,8 @@ export const useProjectImageMutations = () => {
   const deleteImageUploads = async (
     input: DeleteProjectImagesInput
   ): Promise<ProjectFragment> => {
-    const response = await deleteProjectImagesMutation({ input })
-
-    if (response.error) throw response.error
-
-    const project = response.data?.deleteProjectImages.project ?? null
+    const payload = await deleteProjectImagesMutation({ input })
+    const project = payload.project
 
     if (!project) {
       throw new Error('Images were deleted without returning the project.')

@@ -1,7 +1,10 @@
 mutation FinalizeProjectImageUploads($input: FinalizeProjectImageUploadsInput!) {
-    finalizeProjectImageUploads(input: $input) {
-        project {
-            ...Project
-        }
+  finalizeProjectImageUploads(input: $input) {
+    project {
+      ...Project
     }
+    userErrors {
+      ...MutationUserError
+    }
+  }
 }

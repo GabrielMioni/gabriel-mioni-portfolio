@@ -1,3 +1,8 @@
 mutation DeleteProjectTag($input: DeleteProjectTagInput!) {
-    deleteProjectTag(input: $input)
+  deleteProjectTag(input: $input) {
+    deletedTagId
+    userErrors {
+      ...MutationUserError
+    }
+  }
 }

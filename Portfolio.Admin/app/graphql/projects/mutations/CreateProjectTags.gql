@@ -1,5 +1,10 @@
 mutation CreateProjectTags($input: CreateProjectTagsInput!) {
-    createProjectTags(input: $input) {
+  createProjectTags(input: $input) {
+    tags {
         ...projectTag
     }
+    userErrors {
+      ...MutationUserError
+    }
+  }
 }

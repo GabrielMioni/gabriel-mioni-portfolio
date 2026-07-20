@@ -1,0 +1,5 @@
+fragment MutationUserError on UserError {
+  code
+  message
+  field
+}

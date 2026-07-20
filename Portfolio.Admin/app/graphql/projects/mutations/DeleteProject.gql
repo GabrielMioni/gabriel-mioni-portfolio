@@ -2,9 +2,7 @@ mutation deleteProject($input: DeleteProjectInput!) {
   deleteProject(input: $input) {
     deletedProjectId
     userErrors {
-      code
-      message
-      field
+      ...MutationUserError
     }
   }
 }

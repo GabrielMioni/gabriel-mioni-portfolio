@@ -1,5 +1,10 @@
 mutation RenameProjectTag($input: RenameProjectTagInput!) {
-    renameProjectTag(input: $input) {
+  renameProjectTag(input: $input) {
+    tag {
         ...projectTag
     }
+    userErrors {
+      ...MutationUserError
+    }
+  }
 }

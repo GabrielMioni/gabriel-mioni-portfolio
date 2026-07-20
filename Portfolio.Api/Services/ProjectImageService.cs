@@ -4,6 +4,7 @@ using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
 using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 using Portfolio.Api.Services.Helpers;
+using Portfolio.Api.Services.Results;
 using Portfolio.Api.Services.Storage;
 
 namespace Portfolio.Api.Services;
@@ -27,7 +28,7 @@ public class ProjectImageService
         _ => throw new ArgumentOutOfRangeException(nameof(contentType), $"Unsupported content type: {contentType}")
     };
 
-    public async Task<IReadOnlyList<ProjectImageUploadInstruction>> PrepareImageUploadAsync(
+    public async Task<PrepareProjectImageUploadsResult> PrepareImageUploadAsync(
         PrepareProjectImageUploadsInput input,
         CancellationToken ct)
     {
@@ -35,21 +36,12 @@ public class ProjectImageService
 
         var projectId = input.ProjectId;
 
-        var project = await GetProjectAsync(db, projectId, ct);
+        var project = await db.Projects
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
 
-        var requestedClientIds = input.Items
-            .Select(item => item.ClientId.Trim())
-            .ToArray();
-
-        var duplicateClientId = requestedClientIds
-            .GroupBy(clientId => clientId)
-            .FirstOrDefault(group => group.Count() > 1)
-            ?.Key;
-
-        if (duplicateClientId is not null)
-            throw new ArgumentException(
-                $"Client ID '{duplicateClientId}' appears more than once.",
-                nameof(input));
+        if (project is null)
+            return PrepareProjectImageUploadsResult.NotFound();
 
         var imagesByClientId = project.Images
             .Where(image => image.ClientId is not null)
@@ -96,7 +88,7 @@ public class ProjectImageService
 
         await db.SaveChangesAsync(ct);
 
-        return instructions;
+        return PrepareProjectImageUploadsResult.Success(instructions);
     }
 
     private ProjectImageUploadInstruction CreateUploadInstruction(
@@ -131,7 +123,7 @@ public class ProjectImageService
         );
     }
 
-    public async Task<Project> FinalizeImageUploadAsync(
+    public async Task<FinalizeProjectImageUploadsResult> FinalizeImageUploadAsync(
         FinalizeProjectImageUploadsInput input,
         CancellationToken ct)
     {
@@ -139,29 +131,77 @@ public class ProjectImageService
 
         var projectId = input.ProjectId;
 
-        var project = await GetProjectAsync(db, projectId, ct);
+        var project = await db.Projects
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
 
-        var targetIds = input.ProjectImageIds.ToHashSet();
+        if (project is null)
+            return FinalizeProjectImageUploadsResult.NotFound();
 
-        foreach (var image in project.Images)
-        {
-            if (targetIds.Contains(image.Id))
+        var knownImageIds = project.Images
+            .Select(image => image.Id)
+            .ToHashSet();
+
+        var invalidReferences = input.ProjectImageIds
+            .Select((id, index) => new InvalidProjectImageReference(index, id))
+            .Where(reference => !knownImageIds.Contains(reference.Id))
+            .ToArray();
+
+        if (invalidReferences.Length > 0)
+            return FinalizeProjectImageUploadsResult.InvalidReference(invalidReferences);
+
+        var requestedImages = input.ProjectImageIds
+            .Select((id, index) => new { Id = id, InputIndex = index })
+            .DistinctBy(reference => reference.Id)
+            .Select(reference => new
             {
-                image.MarkUploaded();
-            }
-        }
-        await db.SaveChangesAsync(ct);
+                reference.InputIndex,
+                Image = project.Images.Single(image => image.Id == reference.Id)
+            })
+            .Where(request => !request.Image.IsUploaded)
+            .ToArray();
 
-        return project;
+        var uploadChecks = requestedImages.Select(async request =>
+        {
+            var objectExists = await Task.WhenAll(
+                _storage.ObjectExistsAsync(request.Image.FullKey, ct),
+                _storage.ObjectExistsAsync(request.Image.ThumbKey, ct));
+
+            return new IncompleteProjectImageUpload(
+                request.InputIndex,
+                request.Image.Id,
+                FullImageWasMissing: !objectExists[0],
+                ThumbnailWasMissing: !objectExists[1]);
+        });
+
+        var incompleteUploads = (await Task.WhenAll(uploadChecks))
+            .Where(upload => upload.FullImageWasMissing || upload.ThumbnailWasMissing)
+            .ToArray();
+
+        if (incompleteUploads.Length > 0)
+            return FinalizeProjectImageUploadsResult.IncompleteUpload(incompleteUploads);
+
+        foreach (var request in requestedImages)
+            request.Image.MarkUploaded();
+
+        if (requestedImages.Length > 0)
+            await db.SaveChangesAsync(ct);
+
+        return FinalizeProjectImageUploadsResult.Success(project);
     }
 
-    public async Task<Project> DeleteProjectImagesAsync(
-    DeleteProjectImagesInput input,
-    CancellationToken ct)
+    public async Task<DeleteProjectImagesResult> DeleteProjectImagesAsync(
+        DeleteProjectImagesInput input,
+        CancellationToken ct)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
-        var project = await GetProjectAsync(db, input.ProjectId, ct);
+        var project = await db.Projects
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == input.ProjectId, ct);
+
+        if (project is null)
+            return DeleteProjectImagesResult.NotFound();
 
         var targetIds = input.ProjectImageIds.ToHashSet();
 
@@ -170,6 +210,8 @@ public class ProjectImageService
             .ToList();
 
         var deleteKeys = ProjectImageStorageKeyHelper.GetStorageKeys(imagesToDelete);
+
+        await _storage.DeleteImagesAsync(deleteKeys, ct);
 
         foreach (var image in imagesToDelete)
         {
@@ -185,25 +227,9 @@ public class ProjectImageService
             orderedRemainingImages[i].UpdateSortOrder(i);
         }
 
-        await db.SaveChangesAsync(ct);
+        if (imagesToDelete.Count > 0)
+            await db.SaveChangesAsync(ct);
 
-        await _storage.DeleteImagesAsync(deleteKeys, ct);
-
-        return project;
-    }
-
-    private static async Task<Project> GetProjectAsync(
-        AppDbContext db,
-        Guid projectId,
-        CancellationToken ct)
-    {
-        var project = await db.Projects
-            .Include(p => p.Images)
-            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
-
-        if (project == null)
-            throw new InvalidOperationException("Project not found");
-
-        return project;
+        return DeleteProjectImagesResult.Success(project);
     }
 }

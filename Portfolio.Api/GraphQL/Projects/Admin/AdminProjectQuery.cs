@@ -12,11 +12,6 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
             return projects.GetByIdAsync(id, ct);
         }
 
-        public Task<List<Project>> GetPublsihedProjects([Service] ProjectService projects, CancellationToken ct = default)
-        {
-            return projects.GetPublishedAsync(ct);
-        }
-
         [UseOffsetPaging(IncludeTotalCount = true)]
         [UseSorting]
         [UseFiltering]

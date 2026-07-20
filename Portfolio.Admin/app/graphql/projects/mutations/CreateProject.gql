@@ -1,8 +1,13 @@
-mutation createProject($input: CreateProjectInput! ) {
-    createProject(input: $input) {
+mutation createProject($input: CreateProjectInput!) {
+  createProject(input: $input) {
+    project {
         id
         title
         body
         summary
     }
+    userErrors {
+      ...MutationUserError
+    }
+  }
 }

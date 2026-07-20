@@ -1,8 +1,13 @@
 mutation UpdateProjectTags($input: UpdateProjectTagsInput!) {
-    updateProjectTags(input: $input) {
-        id
-        tags {
-            ...projectTag
-        }
+  updateProjectTags(input: $input) {
+    project {
+      id
+      tags {
+        ...projectTag
+      }
     }
+    userErrors {
+      ...MutationUserError
+    }
+  }
 }

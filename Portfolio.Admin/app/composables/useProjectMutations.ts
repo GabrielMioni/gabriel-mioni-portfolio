@@ -1,4 +1,3 @@
-import { useMutation } from '@urql/vue'
 import {
   type CreateProjectInput,
   type DeleteProjectInput,
@@ -12,40 +11,58 @@ export const useProjectMutations = () => {
   const {
     executeMutation: executeCreateProject,
     fetching: creating
-  } = useMutation(CreateProjectDocument)
+  } = useApiMutation(
+    CreateProjectDocument,
+    data => data.createProject,
+    'Failed to create project.'
+  )
 
   const {
     executeMutation: executeEditProject,
     fetching: editing
-  } = useMutation(EditProjectDocument)
+  } = useApiMutation(
+    EditProjectDocument,
+    data => data.editProject,
+    'Failed to save project.'
+  )
 
   const {
     executeMutation: executeDeleteProject,
     fetching: deleting
-  } = useMutation(DeleteProjectDocument)
+  } = useApiMutation(
+    DeleteProjectDocument,
+    data => data.deleteProject,
+    'Failed to delete project.'
+  )
 
   const createProject = async (input: CreateProjectInput) => {
-    const response = await executeCreateProject({ input })
+    const payload = await executeCreateProject({ input })
 
-    if (response.error) throw response.error
+    if (!payload.project) {
+      throw new Error('Project creation returned no project.')
+    }
 
-    return response.data?.createProject
+    return payload.project
   }
 
   const deleteProject = async (input: DeleteProjectInput) => {
-    const response = await executeDeleteProject({ input })
+    const payload = await executeDeleteProject({ input })
 
-    if (response.error) throw response.error
+    if (!payload.deletedProjectId) {
+      throw new Error('Project deletion returned no project ID.')
+    }
 
-    return response.data?.deleteProject
+    return payload.deletedProjectId
   }
 
   const editProject = async (input: EditProjectInput) => {
-    const response = await executeEditProject({ input })
+    const payload = await executeEditProject({ input })
 
-    if (response.error) throw response.error
+    if (!payload.project) {
+      throw new Error('Project save returned no project.')
+    }
 
-    return response.data?.editProject
+    return payload.project
   }
 
   return {

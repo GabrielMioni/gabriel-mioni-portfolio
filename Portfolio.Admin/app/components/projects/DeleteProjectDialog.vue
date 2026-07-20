@@ -30,11 +30,15 @@ const deleteProjectAsync = async () => {
       return
     }
     await deleteProject({ projectId })
+
     snackbarStore.showSnackbar('Project deleted successfully', 'success')
     dialog.value = false
     emit('deleted')
   } catch (err) {
-    snackbarStore.showSnackbar('Project deleted failed', 'error')
+    const message = err instanceof Error
+      ? err.message
+      : 'Failed to delete project.'
+    snackbarStore.showSnackbar(message, 'error')
     console.error(err)
   }
 }

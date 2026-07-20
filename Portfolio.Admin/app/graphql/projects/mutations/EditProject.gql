@@ -1,5 +1,6 @@
-mutation editProject ($input: EditProjectInput!) {
-    editProject(input: $input) {
+mutation editProject($input: EditProjectInput!) {
+  editProject(input: $input) {
+    project {
         id
         title
         summary
@@ -9,4 +10,8 @@ mutation editProject ($input: EditProjectInput!) {
         createdAt
         updatedAt
     }
+    userErrors {
+      ...MutationUserError
+    }
+  }
 }

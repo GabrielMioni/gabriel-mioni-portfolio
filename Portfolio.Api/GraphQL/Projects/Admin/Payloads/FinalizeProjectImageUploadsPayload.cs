@@ -2,4 +2,6 @@
 
 namespace Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 
-public sealed record FinalizeProjectImageUploadsPayload(Project Project);
+public sealed record FinalizeProjectImageUploadsPayload(
+    Project? Project,
+    IReadOnlyList<UserError> UserErrors);

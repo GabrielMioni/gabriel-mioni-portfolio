@@ -1,4 +1,3 @@
-import { useMutation } from '@urql/vue'
 import {
   type ProjectTagFragment,
   CreateProjectTagsDocument,
@@ -15,47 +14,98 @@ export const useProjectTagMutations = () => {
   const {
     executeMutation: executeCreateMany,
     fetching: creatingTags
-  } = useMutation(CreateProjectTagsDocument)
+  } = useApiMutation(
+    CreateProjectTagsDocument,
+    data => data.createProjectTags,
+    'Failed to create project tags.'
+  )
 
   const {
     executeMutation: executeUpdateTags,
     fetching: updatingTags
-  } = useMutation(UpdateProjectTagsDocument)
+  } = useApiMutation(
+    UpdateProjectTagsDocument,
+    data => data.updateProjectTags,
+    'Failed to update project tags.'
+  )
 
-  const { executeMutation: executeRename, fetching: renamingTag } = useMutation(RenameProjectTagDocument)
-  const { executeMutation: executeRemoveFromProjects, fetching: removingFromProjects } = useMutation(RemoveTagFromProjectsDocument)
-  const { executeMutation: executeDelete, fetching: deletingTag } = useMutation(DeleteProjectTagDocument)
+  const {
+    executeMutation: executeRename,
+    fetching: renamingTag
+  } = useApiMutation(
+    RenameProjectTagDocument,
+    data => data.renameProjectTag,
+    'Failed to rename project tag.'
+  )
+
+  const {
+    executeMutation: executeRemoveFromProjects,
+    fetching: removingFromProjects
+  } = useApiMutation(
+    RemoveTagFromProjectsDocument,
+    data => data.removeTagFromProjects,
+    'Failed to remove the tag from projects.'
+  )
+
+  const {
+    executeMutation: executeDelete,
+    fetching: deletingTag
+  } = useApiMutation(
+    DeleteProjectTagDocument,
+    data => data.deleteProjectTag,
+    'Failed to delete project tag.'
+  )
 
   const createProjectTags = async (tagItems: TagEditorItem[]): Promise<ProjectTagFragment[]> => {
-    const response = await executeCreateMany({ input: { names: tagItems.map(t => t.name) } })
-    if (response.error) throw response.error
-    return (response.data?.createProjectTags ?? [])
+    const payload = await executeCreateMany({
+      input: { names: tagItems.map(tag => tag.name) }
+    })
+
+    if (!payload.tags) {
+      throw new Error('Tag creation returned no tags.')
+    }
+
+    return payload.tags
       .map(t => useFragment(ProjectTagFragmentDoc, t))
   }
 
   const updateProjectTags = async (projectId: string, tagItems: TagEditorItem[]): Promise<void> => {
     const tagIds = tagItems.map(t => t.id).filter((id): id is string => Boolean(id))
-    const response = await executeUpdateTags({ input: { projectId, tagIds } })
-    if (response.error) throw response.error
+    const payload = await executeUpdateTags({ input: { projectId, tagIds } })
+
+    if (!payload.project) {
+      throw new Error('Tag update returned no project.')
+    }
   }
 
-  const renameProjectTag = async (id: string, name: string): Promise<ProjectTagFragment | null> => {
-    const response = await executeRename({ input: { id, name } })
-    if (response.error) throw response.error
-    const data = response.data?.renameProjectTag
-    return data ? useFragment(ProjectTagFragmentDoc, data) : null
+  const renameProjectTag = async (id: string, name: string): Promise<ProjectTagFragment> => {
+    const payload = await executeRename({ input: { id, name } })
+
+    if (!payload.tag) {
+      throw new Error('Tag rename returned no tag.')
+    }
+
+    return useFragment(ProjectTagFragmentDoc, payload.tag)
   }
 
   const removeTagFromProjects = async (tagId: string, projectIds: string[]): Promise<string[]> => {
-    const response = await executeRemoveFromProjects({ input: { tagId, projectIds } })
-    if (response.error) throw response.error
-    return response.data?.removeTagFromProjects ?? []
+    const payload = await executeRemoveFromProjects({ input: { tagId, projectIds } })
+
+    if (!payload.projectIds) {
+      throw new Error('Tag removal returned no project IDs.')
+    }
+
+    return payload.projectIds
   }
 
-  const deleteProjectTag = async (id: string): Promise<string | null> => {
-    const response = await executeDelete({ input: { id } })
-    if (response.error) throw response.error
-    return response.data?.deleteProjectTag ?? null
+  const deleteProjectTag = async (id: string): Promise<string> => {
+    const payload = await executeDelete({ input: { id } })
+
+    if (!payload.deletedTagId) {
+      throw new Error('Tag deletion returned no tag ID.')
+    }
+
+    return payload.deletedTagId
   }
 
   return {

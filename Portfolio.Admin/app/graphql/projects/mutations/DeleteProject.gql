@@ -1,5 +1,8 @@
-mutation deleteProject($input: DeleteProjectInput! ) {
-    deleteProject(input: $input) {
-        projectId
+mutation deleteProject($input: DeleteProjectInput!) {
+  deleteProject(input: $input) {
+    deletedProjectId
+    userErrors {
+      ...MutationUserError
     }
+  }
 }

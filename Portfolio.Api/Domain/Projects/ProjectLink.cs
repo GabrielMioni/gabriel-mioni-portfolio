@@ -8,6 +8,9 @@ public enum ProjectLinkType
 
 public class ProjectLink
 {
+    public const int MaxUrlLength = 2048;
+    public const int MaxLinkTextLength = 300;
+
     public Guid Id { get; private set; }
     public Guid ProjectId { get; private set; }
     public Project Project { get; private set; } = default!;
@@ -27,19 +30,14 @@ public class ProjectLink
         ProjectLinkType linkType,
         int sortOrder)
     {
-        var normalized = NormalizeUrl(url);
-
-        if (!Uri.TryCreate(normalized, UriKind.Absolute, out _))
-        {
-            throw new ArgumentException("Invalid URL", nameof(url));
-        }
+        var (normalizedUrl, normalizedLinkText) = NormalizeAndValidate(url, linkText);
 
         return new ProjectLink
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
-            Url = normalized,
-            LinkText = linkText.Trim(),
+            Url = normalizedUrl,
+            LinkText = normalizedLinkText,
             LinkType = linkType,
             CreatedAt = DateTime.UtcNow,
             SortOrder = sortOrder
@@ -48,16 +46,17 @@ public class ProjectLink
 
     public bool Update(string url, string linkText, ProjectLinkType linkType)
     {
-        var normalized = NormalizeUrl(url);
-        var newText = linkText.Trim();
+        var (normalizedUrl, normalizedLinkText) = NormalizeAndValidate(url, linkText);
 
-        if (Url == normalized && LinkText == newText && LinkType == linkType)
+        if (Url == normalizedUrl &&
+            LinkText == normalizedLinkText &&
+            LinkType == linkType)
         {
             return false;
         }
 
-        Url = normalized;
-        LinkText = newText;
+        Url = normalizedUrl;
+        LinkText = normalizedLinkText;
         LinkType = linkType;
 
         return true;
@@ -72,7 +71,7 @@ public class ProjectLink
         return true;
     }
 
-    private static string NormalizeUrl(string url)
+    public static string NormalizeUrl(string url)
     {
         url = url.Trim();
 
@@ -83,5 +82,33 @@ public class ProjectLink
         }
 
         return url;
+    }
+
+    private static (string Url, string LinkText) NormalizeAndValidate(
+        string url,
+        string linkText)
+    {
+        var normalizedUrl = NormalizeUrl(url);
+
+        if (!Uri.TryCreate(normalizedUrl, UriKind.Absolute, out _))
+            throw new ArgumentException("Invalid URL", nameof(url));
+
+        if (normalizedUrl.Length > MaxUrlLength)
+        {
+            throw new ArgumentException(
+                $"URL cannot exceed {MaxUrlLength} characters.",
+                nameof(url));
+        }
+
+        var normalizedLinkText = linkText.Trim();
+
+        if (normalizedLinkText.Length > MaxLinkTextLength)
+        {
+            throw new ArgumentException(
+                $"Link text cannot exceed {MaxLinkTextLength} characters.",
+                nameof(linkText));
+        }
+
+        return (normalizedUrl, normalizedLinkText);
     }
 }

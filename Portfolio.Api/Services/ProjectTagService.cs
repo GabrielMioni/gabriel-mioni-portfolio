@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
+using Portfolio.Api.Services.Results;
 
 namespace Portfolio.Api.Services;
 
@@ -38,40 +39,81 @@ public class ProjectTagService
         return id;
     }
 
-    public async Task<ProjectTag?> RenameAsync(Guid id, string name, CancellationToken ct = default)
+    public async Task<RenameProjectTagResult> RenameAsync(
+        Guid id,
+        string name,
+        CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
         var tag = await db.Tags.FirstOrDefaultAsync(t => t.Id == id, ct);
-        if (tag is null) return null;
+        if (tag is null)
+            return RenameProjectTagResult.NotFound();
 
         var newValue = ProjectTag.GenerateValue(name);
         var conflict = await db.Tags.AnyAsync(t => t.Value == newValue && t.Id != id, ct);
         if (conflict)
-            throw new InvalidOperationException($"A tag with the name '{name.Trim()}' already exists.");
+            return RenameProjectTagResult.Conflict();
 
         tag.Rename(name);
         await db.SaveChangesAsync(ct);
 
-        return tag;
+        return RenameProjectTagResult.Success(tag);
     }
 
-    public async Task RemoveTagFromProjectsAsync(Guid tagId, IReadOnlyList<Guid> projectIds, CancellationToken ct = default)
+    public async Task<RemoveTagFromProjectsResult> RemoveTagFromProjectsAsync(
+        Guid tagId,
+        IReadOnlyList<Guid> projectIds,
+        CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
+        var tagExists = await db.Tags.AnyAsync(tag => tag.Id == tagId, ct);
+
+        if (!tagExists)
+            return RemoveTagFromProjectsResult.NotFound();
+
+        var distinctProjectIds = projectIds
+            .Distinct()
+            .ToArray();
+
+        if (distinctProjectIds.Length == 0)
+            return RemoveTagFromProjectsResult.Success([]);
+
         var projects = await db.Projects
-            .Include(p => p.Tags)
-            .Where(p => projectIds.Contains(p.Id))
+            .Include(project => project.Tags)
+            .Where(project => distinctProjectIds.Contains(project.Id))
             .ToListAsync(ct);
+
+        var foundProjectIds = projects
+            .Select(project => project.Id)
+            .ToHashSet();
+
+        var invalidReferences = projectIds
+            .Select((projectId, index) => new InvalidTagProjectReference(index, projectId))
+            .Where(reference => !foundProjectIds.Contains(reference.Id))
+            .ToArray();
+
+        if (invalidReferences.Length > 0)
+            return RemoveTagFromProjectsResult.InvalidReference(invalidReferences);
+
+        var changed = false;
 
         foreach (var project in projects)
         {
             var tag = project.Tags.FirstOrDefault(t => t.Id == tagId);
-            if (tag is not null) project.RemoveTag(tag);
+
+            if (tag is null)
+                continue;
+
+            project.RemoveTag(tag);
+            changed = true;
         }
 
-        await db.SaveChangesAsync(ct);
+        if (changed)
+            await db.SaveChangesAsync(ct);
+
+        return RemoveTagFromProjectsResult.Success(distinctProjectIds);
     }
 
     public async Task<List<Project>> GetProjectsByTagIdAsync(Guid tagId, CancellationToken ct = default)
@@ -92,31 +134,70 @@ public class ProjectTagService
             .ToListAsync(ct);
     }
 
-    public async Task<List<ProjectTag>> CreateManyAsync(IReadOnlyList<string> names, CancellationToken ct = default)
+    public async Task<CreateProjectTagsResult> CreateManyAsync(
+        IReadOnlyList<string> names,
+        CancellationToken ct = default)
     {
         await using var db = await _dbFactory.CreateDbContextAsync(ct);
 
-        var created = new List<ProjectTag>();
+        if (names.Count == 0)
+            return CreateProjectTagsResult.Success([]);
 
-        foreach (var name in names)
-        {
-            var value = ProjectTag.GenerateValue(name);
+        var candidates = names
+            .Select((name, index) => new
+            {
+                Index = index,
+                Name = name,
+                Value = ProjectTag.GenerateValue(name)
+            })
+            .ToArray();
 
-            var exists = await db.Tags.AnyAsync(t => t.Value == value, ct);
-            if (exists)
-                throw new InvalidOperationException($"A tag with the name '{name.Trim()}' already exists.");
+        var duplicateConflicts = candidates
+            .GroupBy(candidate => candidate.Value, StringComparer.Ordinal)
+            .SelectMany(group => group.Skip(1))
+            .Select(candidate => new CreateProjectTagConflict(
+                candidate.Index,
+                candidate.Name));
 
-            var tag = ProjectTag.Create(name);
-            db.Tags.Add(tag);
-            created.Add(tag);
-        }
+        var values = candidates
+            .Select(candidate => candidate.Value)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        var existingValueList = await db.Tags
+            .Where(tag => values.Contains(tag.Value))
+            .Select(tag => tag.Value)
+            .ToListAsync(ct);
+
+        var existingValues = existingValueList.ToHashSet(StringComparer.Ordinal);
+
+        var existingConflicts = candidates
+            .Where(candidate => existingValues.Contains(candidate.Value))
+            .Select(candidate => new CreateProjectTagConflict(
+                candidate.Index,
+                candidate.Name));
+
+        var conflicts = duplicateConflicts
+            .Concat(existingConflicts)
+            .DistinctBy(conflict => conflict.InputIndex)
+            .OrderBy(conflict => conflict.InputIndex)
+            .ToArray();
+
+        if (conflicts.Length > 0)
+            return CreateProjectTagsResult.Conflict(conflicts);
+
+        var created = names
+            .Select(ProjectTag.Create)
+            .ToArray();
+
+        db.Tags.AddRange(created);
 
         await db.SaveChangesAsync(ct);
 
-        return created;
+        return CreateProjectTagsResult.Success(created);
     }
 
-    public async Task<Project?> UpdateProjectTagsAsync(
+    public async Task<UpdateProjectTagsResult> UpdateProjectTagsAsync(
         Guid projectId,
         IReadOnlyList<Guid> tagIds,
         CancellationToken ct = default)
@@ -128,20 +209,47 @@ public class ProjectTagService
             .FirstOrDefaultAsync(p => p.Id == projectId, ct);
 
         if (project is null)
-            return null;
+            return UpdateProjectTagsResult.NotFound();
+
+        var desiredTagIds = tagIds.ToHashSet();
 
         var tags = await db.Tags
-            .Where(t => tagIds.Contains(t.Id))
+            .Where(tag => desiredTagIds.Contains(tag.Id))
             .ToListAsync(ct);
 
-        foreach (var tag in project.Tags.ToList())
+        var foundTagIds = tags
+            .Select(tag => tag.Id)
+            .ToHashSet();
+
+        var invalidReferences = tagIds
+            .Select((tagId, index) => new InvalidProjectTagReference(index, tagId))
+            .Where(reference => !foundTagIds.Contains(reference.Id))
+            .ToArray();
+
+        if (invalidReferences.Length > 0)
+            return UpdateProjectTagsResult.InvalidReference(invalidReferences);
+
+        var changed = false;
+
+        foreach (var tag in project.Tags.Where(tag => !desiredTagIds.Contains(tag.Id)).ToList())
+        {
             project.RemoveTag(tag);
+            changed = true;
+        }
 
-        foreach (var tag in tags)
+        var currentTagIds = project.Tags
+            .Select(tag => tag.Id)
+            .ToHashSet();
+
+        foreach (var tag in tags.Where(tag => !currentTagIds.Contains(tag.Id)))
+        {
             project.AddTag(tag);
+            changed = true;
+        }
 
-        await db.SaveChangesAsync(ct);
+        if (changed)
+            await db.SaveChangesAsync(ct);
 
-        return project;
+        return UpdateProjectTagsResult.Success(project);
     }
 }

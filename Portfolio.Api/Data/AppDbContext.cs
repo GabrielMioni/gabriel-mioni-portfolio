@@ -27,7 +27,7 @@ namespace Portfolio.Api.Data
 
                 p.Property(x => x.Title)
                   .IsRequired()
-                  .HasMaxLength(300);
+                  .HasMaxLength(Project.MaxTitleLength);
             });
 
             modelBuilder.Entity<ProjectImage>(pi =>
@@ -57,8 +57,8 @@ namespace Portfolio.Api.Data
             {
                 t.HasKey(x => x.Id);
                 t.Property(x => x.Id).ValueGeneratedNever();
-                t.Property(x => x.Name).IsRequired().HasMaxLength(50);
-                t.Property(x => x.Value).IsRequired().HasMaxLength(50);
+                t.Property(x => x.Name).IsRequired().HasMaxLength(ProjectTag.MaxNameLength);
+                t.Property(x => x.Value).IsRequired().HasMaxLength(ProjectTag.MaxValueLength);
                 t.HasIndex(x => x.Value).IsUnique();
             });
 
@@ -79,8 +79,8 @@ namespace Portfolio.Api.Data
                   .HasForeignKey(x => x.ProjectId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-                pl.Property(x => x.Url).IsRequired().HasMaxLength(2048);
-                pl.Property(x => x.LinkText).IsRequired().HasMaxLength(300);
+                pl.Property(x => x.Url).IsRequired().HasMaxLength(ProjectLink.MaxUrlLength);
+                pl.Property(x => x.LinkText).IsRequired().HasMaxLength(ProjectLink.MaxLinkTextLength);
                 pl.Property(x => x.LinkType).IsRequired();
                 pl.Property(x => x.SortOrder).IsRequired();
 

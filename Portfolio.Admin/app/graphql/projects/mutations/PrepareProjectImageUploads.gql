@@ -16,10 +16,12 @@ fragment ProjectImageUploadInstruction on ProjectImageUploadInstruction {
 }
 
 mutation prepareProjectImageUploads($input: PrepareProjectImageUploadsInput!) {
-    prepareProjectImageUploads(input: $input) {
-        projectId
-        items {
-            ...ProjectImageUploadInstruction
-        }
+  prepareProjectImageUploads(input: $input) {
+    items {
+      ...ProjectImageUploadInstruction
     }
+    userErrors {
+      ...MutationUserError
+    }
+  }
 }

@@ -8,7 +8,7 @@ namespace Portfolio.Api.IntegrationTests.Infrastructure;
 public sealed class SqlServerFixture : IAsyncLifetime
 {
     private readonly MsSqlContainer _container = new MsSqlBuilder(
-        "mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04")
+        "mcr.microsoft.com/mssql/server:2022-CU26-ubuntu-22.04")
         .Build();
 
     public string ConnectionString => _container.GetConnectionString();

@@ -1,0 +1,6 @@
+# Match the repository's existing Windows convention for .NET files.
+*.cs text eol=crlf
+*.csproj text eol=crlf
+*.sln text eol=crlf
+*.props text eol=crlf
+*.targets text eol=crlf

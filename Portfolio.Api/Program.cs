@@ -181,3 +181,5 @@ await IdentitySeed.SeedAdminAsync(app);
 await ProjectTagSeed.SeedAsync(app);
 
 app.Run();
+
+public partial class Program;

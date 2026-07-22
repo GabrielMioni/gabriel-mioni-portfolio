@@ -82,4 +82,63 @@ public sealed class DeleteProjectTests(SqlServerFixture database)
 
         Assert.False(await verificationDb.Projects.AnyAsync(p => p.Id == project.Id));
     }
+
+    [Fact]
+    public async Task DeleteProject_WhenProjectDoesNotExist_ReturnsNullAndNotFoundErrorCode()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var missingProjectId = Guid.NewGuid();
+
+        // Act
+        using var response = await client.PostAsJsonAsync(
+            "/graphql/admin",
+            new
+            {
+                query = """
+                    mutation DeleteProject($input: DeleteProjectInput!) {
+                      deleteProject(input: $input) {
+                        deletedProjectId
+                        userErrors {
+                          code
+                          field
+                        }
+                      }
+                    }
+                    """,
+                variables = new
+                {
+                    input = new
+                    {
+                        projectId = missingProjectId
+                    }
+                }
+            });
+
+        // Assert: public GraphQL contract
+        response.EnsureSuccessStatusCode();
+
+        await using var responseStream = await response.Content.ReadAsStreamAsync();
+        using var document = await JsonDocument.ParseAsync(responseStream);
+        var root = document.RootElement;
+
+        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
+
+        var payload = root
+            .GetProperty("data")
+            .GetProperty("deleteProject");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("deletedProjectId").ValueKind);
+
+        var userError = Assert.Single(
+            payload.GetProperty("userErrors").EnumerateArray());
+
+        Assert.Equal(
+            "NOT_FOUND",
+            userError.GetProperty("code").GetString());
+    }
 }

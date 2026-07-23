@@ -12,6 +12,39 @@ namespace Portfolio.Api.IntegrationTests.GraphQL.Projects;
 [Collection(IntegrationTestCollection.Name)]
 public sealed class DeleteProjectTests(SqlServerFixture database)
 {
+    private const string DeleteProjectMutation =
+        """
+        mutation DeleteProject($input: DeleteProjectInput!) {
+          deleteProject(input: $input) {
+            deletedProjectId
+            userErrors {
+              code
+              message
+              field
+            }
+          }
+        }
+        """;
+
+    private static Task<HttpResponseMessage> SendDeleteProjectAsync(
+        HttpClient client,
+        Guid projectId)
+    {
+        return client.PostAsJsonAsync(
+            "/graphql/admin",
+            new
+            {
+                query = DeleteProjectMutation,
+                variables = new
+                {
+                    input = new
+                    {
+                        projectId
+                    }
+                }
+            });
+    }
+
     [Fact]
     public async Task DeleteProject_WhenProjectExists_ReturnsIdAndDeletesProject()
     {
@@ -32,30 +65,7 @@ public sealed class DeleteProjectTests(SqlServerFixture database)
         }
 
         // Act
-        using var response = await client.PostAsJsonAsync(
-            "/graphql/admin",
-            new
-            {
-                query = """
-                    mutation DeleteProject($input: DeleteProjectInput!) {
-                      deleteProject(input: $input) {
-                        deletedProjectId
-                        userErrors {
-                          code
-                          message
-                          field
-                        }
-                      }
-                    }
-                    """,
-                variables = new
-                {
-                    input = new
-                    {
-                        projectId = project.Id
-                    }
-                }
-            });
+        using var response = await SendDeleteProjectAsync(client, project.Id);
 
         // Assert: public GraphQL contract
         response.EnsureSuccessStatusCode();
@@ -93,29 +103,7 @@ public sealed class DeleteProjectTests(SqlServerFixture database)
         var missingProjectId = Guid.NewGuid();
 
         // Act
-        using var response = await client.PostAsJsonAsync(
-            "/graphql/admin",
-            new
-            {
-                query = """
-                    mutation DeleteProject($input: DeleteProjectInput!) {
-                      deleteProject(input: $input) {
-                        deletedProjectId
-                        userErrors {
-                          code
-                          field
-                        }
-                      }
-                    }
-                    """,
-                variables = new
-                {
-                    input = new
-                    {
-                        projectId = missingProjectId
-                    }
-                }
-            });
+        using var response = await SendDeleteProjectAsync(client, missingProjectId);
 
         // Assert: public GraphQL contract
         response.EnsureSuccessStatusCode();

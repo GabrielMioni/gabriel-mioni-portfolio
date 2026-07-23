@@ -146,4 +146,62 @@ public sealed class EditProjectTests(SqlServerFixture database)
         Assert.Equal(newBody, persistedProject.Body);
         Assert.Equal(ProjectStatus.Published, persistedProject.Status);
     }
+
+    [Fact]
+    public async Task EditProject_WhenProjectDoesNotExist_ReturnsNullAndNotFoundErrorCode()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var missingProjectId = Guid.NewGuid();
+        var newTitle = $"updated-project-title-{missingProjectId}";
+        var newSummary = $"updated-project-summary-{missingProjectId}";
+        var newBody = $"updated-project-body-{missingProjectId}";
+
+        // Act
+        using var response = await SendEditProjectAsync(
+            client,
+            projectId: missingProjectId,
+            title: newTitle,
+            summary: newSummary,
+            body: newBody);
+
+        // Assert: public GraphQL contract
+        response.EnsureSuccessStatusCode();
+
+        await using var responseStream = await response.Content.ReadAsStreamAsync();
+        using var document = await JsonDocument.ParseAsync(responseStream);
+        var root = document.RootElement;
+
+        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
+
+        var payload = root
+            .GetProperty("data")
+            .GetProperty("editProject");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        var userError = Assert.Single(
+            payload.GetProperty("userErrors").EnumerateArray());
+
+        Assert.Equal(
+            "NOT_FOUND",
+            userError.GetProperty("code").GetString());
+
+        Assert.Equal(
+            $"Project '{missingProjectId}' was not found.",
+            userError.GetProperty("message").GetString());
+
+        var field = userError
+            .GetProperty("field")
+            .EnumerateArray();
+
+        Assert.Collection(
+            field,
+            item => Assert.Equal("input", item.GetString()),
+            item => Assert.Equal("id", item.GetString()));
+    }
 }

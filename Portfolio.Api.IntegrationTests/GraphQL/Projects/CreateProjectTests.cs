@@ -113,4 +113,69 @@ public sealed class CreateProjectTests(SqlServerFixture database)
         Assert.Equal(projectBody, persistedProject.Body);
         Assert.Equal(ProjectStatus.Draft, persistedProject.Status);
     }
+
+    [Fact]
+    public async Task CreateProject_WithWhitespaceTitle_ReturnsValidationErrorAndDoesNotPersistProject()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var invalidTitle = "   ";
+        var projectSummary = $"invalid-project-{Guid.NewGuid()}";
+        var projectBody = "This is the body of the new project.";
+        const string projectStatus = "DRAFT";
+
+        // Act
+        using var response = await SendCreateProjectAsync(
+            client,
+            invalidTitle,
+            projectSummary,
+            projectBody,
+            projectStatus);
+
+        // Assert: public GraphQL contract
+        response.EnsureSuccessStatusCode();
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        Assert.False(await verificationDb.Projects
+            .AnyAsync(p => p.Summary == projectSummary));
+
+        await using var responseStream = await response.Content.ReadAsStreamAsync();
+        using var document = await JsonDocument.ParseAsync(responseStream);
+        var root = document.RootElement;
+        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
+
+        var payload = root
+            .GetProperty("data")
+            .GetProperty("createProject");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        var userError = Assert.Single(
+            payload.GetProperty("userErrors").EnumerateArray());
+
+        Assert.Equal(
+            "VALIDATION",
+            userError.GetProperty("code").GetString());
+
+        Assert.Equal(
+            "Title is required.",
+            userError.GetProperty("message").GetString());
+
+        var field = userError
+            .GetProperty("field")
+            .EnumerateArray();
+
+        Assert.Collection(
+            field,
+            item => Assert.Equal("input", item.GetString()),
+            item => Assert.Equal("title", item.GetString()));
+    }
 }

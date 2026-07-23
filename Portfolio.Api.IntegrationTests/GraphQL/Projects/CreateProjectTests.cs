@@ -12,6 +12,51 @@ namespace Portfolio.Api.IntegrationTests.GraphQL.Projects;
 [Collection(IntegrationTestCollection.Name)]
 public sealed class CreateProjectTests(SqlServerFixture database)
 {
+    private const string CreateProjectMutation =
+        """
+        mutation CreateProject($input: CreateProjectInput!) {
+          createProject(input: $input) {
+            project {
+              id
+              title
+              summary
+              body
+              status
+            }
+            userErrors {
+              code
+              message
+              field
+            }
+          }
+        }
+        """;
+
+    private static Task<HttpResponseMessage> SendCreateProjectAsync(
+        HttpClient client,
+        string title,
+        string? summary,
+        string? body,
+        string status = "DRAFT")
+    {
+        return client.PostAsJsonAsync(
+            "/graphql/admin",
+            new
+            {
+                query = CreateProjectMutation,
+                variables = new
+                {
+                    input = new
+                    {
+                        title,
+                        summary,
+                        body,
+                        status
+                    }
+                }
+            });
+    }
+
     [Fact]
     public async Task CreateProject_WithValidInput_ReturnsAndPersistsProject()
     {
@@ -25,39 +70,12 @@ public sealed class CreateProjectTests(SqlServerFixture database)
         const string projectStatus = "DRAFT";
 
         // Act
-        using var response = await client.PostAsJsonAsync(
-            "/graphql/admin",
-            new
-            {
-                query = """
-                    mutation createProject($input: CreateProjectInput!) {
-                      createProject(input: $input) {
-                        project {
-                            id
-                            title
-                            body
-                            summary
-                            status
-                        }
-                        userErrors {
-                          code
-                          message
-                          field
-                        }
-                      }
-                    }
-                    """,
-                variables = new
-                {
-                    input = new
-                    {
-                        title = projectTitle,
-                        summary = projectSummary,
-                        body = projectBody,
-                        status = projectStatus
-                    }
-                }
-            });
+        using var response = await SendCreateProjectAsync(
+            client,
+            projectTitle,
+            projectSummary,
+            projectBody,
+            projectStatus);
 
         // Assert: public GraphQL contract
         response.EnsureSuccessStatusCode();

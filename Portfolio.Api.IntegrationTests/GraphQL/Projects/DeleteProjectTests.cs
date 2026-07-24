@@ -102,11 +102,8 @@ public sealed class DeleteProjectTests(SqlServerFixture database)
             JsonValueKind.Null,
             payload.GetProperty("deletedProjectId").ValueKind);
 
-        var userError = Assert.Single(
-            payload.GetProperty("userErrors").EnumerateArray());
-
-        Assert.Equal(
-            "NOT_FOUND",
-            userError.GetProperty("code").GetString());
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.NotFound,
+            message: $"Project '{missingProjectId}' was not found.");
     }
 }

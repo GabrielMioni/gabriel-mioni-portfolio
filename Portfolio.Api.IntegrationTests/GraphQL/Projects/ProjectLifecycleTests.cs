@@ -200,21 +200,9 @@ public sealed class ProjectLifecycleTests(SqlServerFixture database)
             JsonValueKind.Null,
             payload.GetProperty("project").ValueKind);
 
-        var userError = Assert.Single(
-            payload.GetProperty("userErrors").EnumerateArray());
-
-        Assert.Equal("NOT_FOUND", userError.GetProperty("code").GetString());
-        Assert.Equal(
-            $"Project '{missingProjectId}' was not found.",
-            userError.GetProperty("message").GetString());
-
-        var field = userError
-            .GetProperty("field")
-            .EnumerateArray();
-
-        Assert.Collection(
-            field,
-            item => Assert.Equal("input", item.GetString()),
-            item => Assert.Equal("id", item.GetString()));
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.NotFound,
+            message: $"Project '{missingProjectId}' was not found.",
+            field: ["input", "id"]);
     }
 }

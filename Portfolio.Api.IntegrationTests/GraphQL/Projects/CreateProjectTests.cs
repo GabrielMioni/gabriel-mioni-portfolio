@@ -139,24 +139,9 @@ public sealed class CreateProjectTests(SqlServerFixture database)
             JsonValueKind.Null,
             payload.GetProperty("project").ValueKind);
 
-        var userError = Assert.Single(
-            payload.GetProperty("userErrors").EnumerateArray());
-
-        Assert.Equal(
-            "VALIDATION",
-            userError.GetProperty("code").GetString());
-
-        Assert.Equal(
-            "Title is required.",
-            userError.GetProperty("message").GetString());
-
-        var field = userError
-            .GetProperty("field")
-            .EnumerateArray();
-
-        Assert.Collection(
-            field,
-            item => Assert.Equal("input", item.GetString()),
-            item => Assert.Equal("title", item.GetString()));
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.Validation,
+            message: "Title is required.",
+            field: ["input", "title"]);
     }
 }

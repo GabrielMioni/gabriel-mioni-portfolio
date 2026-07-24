@@ -66,14 +66,15 @@ public sealed class UpdateProjectTagsTests(SqlServerFixture database)
         using var client = factory.CreateAuthenticatedClient();
 
         // Arrange
+        var suffix = TestData.NewSuffix();
         var project = Project.Create(
-            title: $"Project with replaceable tags {Guid.NewGuid()}",
+            title: $"Project with replaceable tags {suffix}",
             summary: null,
             body: null);
 
-        var tagA = ProjectTag.Create($"Tag A {Guid.NewGuid()}");
-        var tagB = ProjectTag.Create($"Tag B {Guid.NewGuid()}");
-        var tagC = ProjectTag.Create($"Tag C {Guid.NewGuid()}");
+        var tagA = ProjectTag.Create($"Tag A {suffix}");
+        var tagB = ProjectTag.Create($"Tag B {suffix}");
+        var tagC = ProjectTag.Create($"Tag C {suffix}");
 
         project.AddTag(tagA);
         project.AddTag(tagB);
@@ -148,13 +149,14 @@ public sealed class UpdateProjectTagsTests(SqlServerFixture database)
         using var client = factory.CreateAuthenticatedClient();
 
         // Arrange
+        var suffix = TestData.NewSuffix();
         var project = Project.Create(
-            title: $"Project with unchanged tags {Guid.NewGuid()}",
+            title: $"Project with unchanged tags {suffix}",
             summary: null,
             body: null);
 
-        var originalTag = ProjectTag.Create($"Original tag {Guid.NewGuid()}");
-        var availableTag = ProjectTag.Create($"Available tag {Guid.NewGuid()}");
+        var originalTag = ProjectTag.Create($"Original tag {suffix}");
+        var availableTag = ProjectTag.Create($"Available tag {suffix}");
 
         project.AddTag(originalTag);
 

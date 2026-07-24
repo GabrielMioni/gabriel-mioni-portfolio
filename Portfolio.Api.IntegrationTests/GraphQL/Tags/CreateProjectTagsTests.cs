@@ -61,7 +61,7 @@ public sealed class CreateProjectTagsTests(SqlServerFixture database)
         using var client = factory.CreateAuthenticatedClient();
 
         // Arrange
-        var suffix = Guid.NewGuid().ToString("N")[..8];
+        var suffix = TestData.NewSuffix();
         var names = new[]
         {
             $"  First Tag {suffix}  ",
@@ -131,7 +131,7 @@ public sealed class CreateProjectTagsTests(SqlServerFixture database)
         using var client = factory.CreateAuthenticatedClient();
 
         // Arrange
-        var suffix = Guid.NewGuid().ToString("N")[..8];
+        var suffix = TestData.NewSuffix();
         var existingTag = ProjectTag.Create($"Existing Tag {suffix}");
 
         await using (var scope = factory.Services.CreateAsyncScope())

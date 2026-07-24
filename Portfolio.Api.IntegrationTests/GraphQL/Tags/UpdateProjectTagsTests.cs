@@ -7,7 +7,7 @@ using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.IntegrationTests.Infrastructure;
 using Xunit;
 
-namespace Portfolio.Api.IntegrationTests.GraphQL.Projects;
+namespace Portfolio.Api.IntegrationTests.GraphQL.Tags;
 
 [Collection(IntegrationTestCollection.Name)]
 public sealed class UpdateProjectTagsTests(SqlServerFixture database)

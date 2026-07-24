@@ -204,4 +204,96 @@ public sealed class EditProjectTests(SqlServerFixture database)
             item => Assert.Equal("input", item.GetString()),
             item => Assert.Equal("id", item.GetString()));
     }
+
+    [Fact]
+    public async Task EditProject_WithWhitespaceTitle_ReturnsValidationErrorAndDoesNotChangeProject()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var originalGuid = Guid.NewGuid();
+        var originalTitle = $"original-project-title-{originalGuid}";
+        var originalSummary = $"original-project-summary-{originalGuid}";
+        var originalBody = $"original-project-body-{originalGuid}";
+
+        var project = Project.Create(
+            title: originalTitle,
+            summary: originalSummary,
+            body: originalBody);
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        var updatedGuid = Guid.NewGuid();
+        var newTitle = "   ";
+        var newSummary = $"updated-project-summary-{updatedGuid}";
+        var newBody = $"updated-project-body-{updatedGuid}";
+        var newStatus = "PUBLISHED";
+
+        // Act
+        using var response = await SendEditProjectAsync(
+            client,
+            projectId: project.Id,
+            title: newTitle,
+            summary: newSummary,
+            body: newBody,
+            status: newStatus);
+
+        // Assert: public GraphQL contract
+        response.EnsureSuccessStatusCode();
+
+        await using var responseStream = await response.Content.ReadAsStreamAsync();
+        using var document = await JsonDocument.ParseAsync(responseStream);
+        var root = document.RootElement;
+
+        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
+
+        var payload = root
+            .GetProperty("data")
+            .GetProperty("editProject");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        var userError = Assert.Single(
+            payload.GetProperty("userErrors").EnumerateArray());
+
+        Assert.Equal(
+            "VALIDATION",
+            userError.GetProperty("code").GetString());
+
+        Assert.Equal(
+            "Title is required.",
+            userError.GetProperty("message").GetString());
+
+        var field = userError
+            .GetProperty("field")
+            .EnumerateArray();
+
+        Assert.Collection(
+            field,
+            item => Assert.Equal("input", item.GetString()),
+            item => Assert.Equal("title", item.GetString()));
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedProject = await verificationDb.Projects
+            .AsNoTracking()
+            .SingleAsync(p => p.Id == project.Id);
+
+        Assert.Equal(originalTitle, persistedProject.Title);
+        Assert.Equal(originalSummary, persistedProject.Summary);
+        Assert.Equal(originalBody, persistedProject.Body);
+        Assert.Equal(ProjectStatus.Draft, persistedProject.Status);
+        Assert.Null(persistedProject.PublishedAt);
+    }
 }

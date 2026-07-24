@@ -68,17 +68,7 @@ public sealed class DeleteProjectTests(SqlServerFixture database)
         using var response = await SendDeleteProjectAsync(client, project.Id);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("deleteProject");
+        var payload = await response.ReadGraphQlPayloadAsync("deleteProject");
 
         Assert.Equal(
             project.Id,
@@ -106,27 +96,14 @@ public sealed class DeleteProjectTests(SqlServerFixture database)
         using var response = await SendDeleteProjectAsync(client, missingProjectId);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("deleteProject");
+        var payload = await response.ReadGraphQlPayloadAsync("deleteProject");
 
         Assert.Equal(
             JsonValueKind.Null,
             payload.GetProperty("deletedProjectId").ValueKind);
 
-        var userError = Assert.Single(
-            payload.GetProperty("userErrors").EnumerateArray());
-
-        Assert.Equal(
-            "NOT_FOUND",
-            userError.GetProperty("code").GetString());
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.NotFound,
+            message: $"Project '{missingProjectId}' was not found.");
     }
 }

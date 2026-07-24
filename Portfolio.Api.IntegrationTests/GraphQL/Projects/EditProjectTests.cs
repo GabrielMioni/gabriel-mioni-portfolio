@@ -102,17 +102,7 @@ public sealed class EditProjectTests(SqlServerFixture database)
             status: newStatus);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("editProject");
+        var payload = await response.ReadGraphQlPayloadAsync("editProject");
 
         var payloadProject = payload.GetProperty("project");
         var returnedProjectId = payloadProject.GetProperty("id").GetGuid();
@@ -168,41 +158,16 @@ public sealed class EditProjectTests(SqlServerFixture database)
             body: newBody);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("editProject");
+        var payload = await response.ReadGraphQlPayloadAsync("editProject");
 
         Assert.Equal(
             JsonValueKind.Null,
             payload.GetProperty("project").ValueKind);
 
-        var userError = Assert.Single(
-            payload.GetProperty("userErrors").EnumerateArray());
-
-        Assert.Equal(
-            "NOT_FOUND",
-            userError.GetProperty("code").GetString());
-
-        Assert.Equal(
-            $"Project '{missingProjectId}' was not found.",
-            userError.GetProperty("message").GetString());
-
-        var field = userError
-            .GetProperty("field")
-            .EnumerateArray();
-
-        Assert.Collection(
-            field,
-            item => Assert.Equal("input", item.GetString()),
-            item => Assert.Equal("id", item.GetString()));
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.NotFound,
+            message: $"Project '{missingProjectId}' was not found.",
+            field: ["input", "id"]);
     }
 
     [Fact]
@@ -245,41 +210,16 @@ public sealed class EditProjectTests(SqlServerFixture database)
             status: newStatus);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("editProject");
+        var payload = await response.ReadGraphQlPayloadAsync("editProject");
 
         Assert.Equal(
             JsonValueKind.Null,
             payload.GetProperty("project").ValueKind);
 
-        var userError = Assert.Single(
-            payload.GetProperty("userErrors").EnumerateArray());
-
-        Assert.Equal(
-            "VALIDATION",
-            userError.GetProperty("code").GetString());
-
-        Assert.Equal(
-            "Title is required.",
-            userError.GetProperty("message").GetString());
-
-        var field = userError
-            .GetProperty("field")
-            .EnumerateArray();
-
-        Assert.Collection(
-            field,
-            item => Assert.Equal("input", item.GetString()),
-            item => Assert.Equal("title", item.GetString()));
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.Validation,
+            message: "Title is required.",
+            field: ["input", "title"]);
 
         // Assert: persisted state
         await using var verificationScope = factory.Services.CreateAsyncScope();

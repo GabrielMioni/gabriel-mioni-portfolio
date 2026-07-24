@@ -75,24 +75,6 @@ public sealed class ProjectLifecycleTests(SqlServerFixture database)
             });
     }
 
-    private static async Task<JsonElement> ReadPayloadAsync(
-        HttpResponseMessage response,
-        string payloadName)
-    {
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        return root
-            .GetProperty("data")
-            .GetProperty(payloadName)
-            .Clone();
-    }
-
     [Fact]
     public async Task PublishProject_WhenProjectExists_ReturnsAndPersistsPublishedProject()
     {
@@ -119,7 +101,7 @@ public sealed class ProjectLifecycleTests(SqlServerFixture database)
             project.Id);
 
         // Assert: public GraphQL contract
-        var payload = await ReadPayloadAsync(response, "publishProject");
+        var payload = await response.ReadGraphQlPayloadAsync("publishProject");
         var payloadProject = payload.GetProperty("project");
 
         Assert.Empty(payload.GetProperty("userErrors").EnumerateArray());
@@ -170,7 +152,7 @@ public sealed class ProjectLifecycleTests(SqlServerFixture database)
             project.Id);
 
         // Assert: public GraphQL contract
-        var payload = await ReadPayloadAsync(response, "archiveProject");
+        var payload = await response.ReadGraphQlPayloadAsync("archiveProject");
         var payloadProject = payload.GetProperty("project");
 
         Assert.Empty(payload.GetProperty("userErrors").EnumerateArray());
@@ -212,7 +194,7 @@ public sealed class ProjectLifecycleTests(SqlServerFixture database)
             missingProjectId);
 
         // Assert
-        var payload = await ReadPayloadAsync(response, payloadName);
+        var payload = await response.ReadGraphQlPayloadAsync(payloadName);
 
         Assert.Equal(
             JsonValueKind.Null,

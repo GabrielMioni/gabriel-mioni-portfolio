@@ -78,17 +78,7 @@ public sealed class CreateProjectTests(SqlServerFixture database)
             projectStatus);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("createProject");
+        var payload = await response.ReadGraphQlPayloadAsync("createProject");
 
         var payloadProject = payload.GetProperty("project");
         var projectId = payloadProject.GetProperty("id").GetGuid();
@@ -135,7 +125,7 @@ public sealed class CreateProjectTests(SqlServerFixture database)
             projectStatus);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
+        var payload = await response.ReadGraphQlPayloadAsync("createProject");
 
         // Assert: persisted state
         await using var verificationScope = factory.Services.CreateAsyncScope();
@@ -144,15 +134,6 @@ public sealed class CreateProjectTests(SqlServerFixture database)
 
         Assert.False(await verificationDb.Projects
             .AnyAsync(p => p.Summary == projectSummary));
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("createProject");
 
         Assert.Equal(
             JsonValueKind.Null,

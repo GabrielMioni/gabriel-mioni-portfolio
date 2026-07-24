@@ -102,17 +102,7 @@ public sealed class EditProjectTests(SqlServerFixture database)
             status: newStatus);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("editProject");
+        var payload = await response.ReadGraphQlPayloadAsync("editProject");
 
         var payloadProject = payload.GetProperty("project");
         var returnedProjectId = payloadProject.GetProperty("id").GetGuid();
@@ -168,17 +158,7 @@ public sealed class EditProjectTests(SqlServerFixture database)
             body: newBody);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("editProject");
+        var payload = await response.ReadGraphQlPayloadAsync("editProject");
 
         Assert.Equal(
             JsonValueKind.Null,
@@ -245,17 +225,7 @@ public sealed class EditProjectTests(SqlServerFixture database)
             status: newStatus);
 
         // Assert: public GraphQL contract
-        response.EnsureSuccessStatusCode();
-
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
-
-        var payload = root
-            .GetProperty("data")
-            .GetProperty("editProject");
+        var payload = await response.ReadGraphQlPayloadAsync("editProject");
 
         Assert.Equal(
             JsonValueKind.Null,

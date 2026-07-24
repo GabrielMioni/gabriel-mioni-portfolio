@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 using Portfolio.Api.IntegrationTests.Infrastructure;
 using Xunit;
 
@@ -47,15 +46,10 @@ public sealed class GraphQlAuthenticationTests(SqlServerFixture database)
 
         using var response = await SendQueryAsync(client, "/graphql");
 
-        response.EnsureSuccessStatusCode();
+        var data = await response.ReadGraphQlDataAsync();
 
-        await using var responseStream = await response.Content.ReadAsStreamAsync();
-        using var document = await JsonDocument.ParseAsync(responseStream);
-        var root = document.RootElement;
-
-        Assert.False(root.TryGetProperty("errors", out _), root.ToString());
         Assert.Equal(
             "Query",
-            root.GetProperty("data").GetProperty("__typename").GetString());
+            data.GetProperty("__typename").GetString());
     }
 }

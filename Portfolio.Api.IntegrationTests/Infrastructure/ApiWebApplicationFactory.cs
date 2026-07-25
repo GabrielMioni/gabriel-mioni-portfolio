@@ -12,6 +12,8 @@ namespace Portfolio.Api.IntegrationTests.Infrastructure;
 public sealed class ApiWebApplicationFactory(string connectionString)
     : WebApplicationFactory<Program>
 {
+    internal FakeObjectStorage ObjectStorage { get; } = new();
+
     public HttpClient CreateAuthenticatedClient()
     {
         var client = CreateClient();
@@ -39,7 +41,7 @@ public sealed class ApiWebApplicationFactory(string connectionString)
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<IObjectStorage>();
-            services.AddSingleton<IObjectStorage, FakeObjectStorage>();
+            services.AddSingleton<IObjectStorage>(ObjectStorage);
 
             services
                 .AddAuthentication(options =>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
@@ -33,13 +33,23 @@ builder.Services.AddCors(options =>
       .AllowAnyMethod());
 });
 
-var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContextPool<AppDbContext>((services, options) =>
+{
+    var connectionString = services
+        .GetRequiredService<IConfiguration>()
+        .GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContextPool<AppDbContext>(options =>
-  options.UseSqlServer(conn));
+    options.UseSqlServer(connectionString);
+});
 
-builder.Services.AddPooledDbContextFactory<AppDbContext>(options =>
-  options.UseSqlServer(conn));
+builder.Services.AddPooledDbContextFactory<AppDbContext>((services, options) =>
+{
+    var connectionString = services
+        .GetRequiredService<IConfiguration>()
+        .GetConnectionString("DefaultConnection");
+
+    options.UseSqlServer(connectionString);
+});
 
 builder.Services
   .AddIdentityApiEndpoints<IdentityUser>()

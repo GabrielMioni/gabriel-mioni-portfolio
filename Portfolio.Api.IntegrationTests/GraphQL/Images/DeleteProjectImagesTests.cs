@@ -168,6 +168,57 @@ public sealed class DeleteProjectImagesTests(SqlServerFixture database)
         Assert.Empty(factory.ObjectStorage.DeletedKeys);
     }
 
+    [Fact]
+    public async Task DeleteProjectImages_WithForeignImageId_ReturnsInvalidReferenceAndDeletesNothing()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var suffix = TestData.NewSuffix();
+        var project = Project.Create($"Project with retained image {suffix}", null, null);
+        var retainedImage = AddUploadedImage(project, $"retained-{suffix}", sortOrder: 0);
+        var missingImageId = Guid.NewGuid();
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        // Act
+        using var response = await SendDeleteProjectImagesAsync(
+            client,
+            projectId: project.Id,
+            projectImageIds: [retainedImage.Id, missingImageId]);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync("deleteProjectImages");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.InvalidReference,
+            message: $"Project image '{missingImageId}' was not found on this project.",
+            field: ["input", "projectImageIds", "1"]);
+
+        Assert.Empty(factory.ObjectStorage.DeletedKeys);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedImage = await verificationDb.ProjectImages
+            .AsNoTracking()
+            .SingleAsync(image => image.Id == retainedImage.Id);
+
+        Assert.Equal(0, persistedImage.SortOrder);
+    }
+
     private static ProjectImage AddUploadedImage(
         Project project,
         string clientId,

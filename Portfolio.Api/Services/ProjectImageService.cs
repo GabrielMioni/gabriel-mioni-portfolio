@@ -204,6 +204,18 @@ public class ProjectImageService
         if (project is null)
             return DeleteProjectImagesResult.NotFound();
 
+        var knownImageIds = project.Images
+            .Select(image => image.Id)
+            .ToHashSet();
+
+        var invalidReferences = input.ProjectImageIds
+            .Select((id, index) => new InvalidProjectImageReference(index, id))
+            .Where(reference => !knownImageIds.Contains(reference.Id))
+            .ToArray();
+
+        if (invalidReferences.Length > 0)
+            return DeleteProjectImagesResult.InvalidReference(invalidReferences);
+
         var targetIds = input.ProjectImageIds.ToHashSet();
 
         var imagesToDelete = project.Images

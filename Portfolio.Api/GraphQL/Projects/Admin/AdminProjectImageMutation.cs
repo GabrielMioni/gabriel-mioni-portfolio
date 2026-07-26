@@ -123,6 +123,17 @@ public class AdminProjectImageMutation
                 ]);
         }
 
+        if (result.InvalidReferences.Count > 0)
+        {
+            return new DeleteProjectImagesPayload(
+                Project: null,
+                UserErrors: result.InvalidReferences
+                    .Select(reference => UserError.InvalidReference(
+                        $"Project image '{reference.Id}' was not found on this project.",
+                        "input", "projectImageIds", reference.InputIndex.ToString()))
+                    .ToArray());
+        }
+
         if (result.Project is null)
             throw new InvalidOperationException("Successful image deletion returned no project.");
 

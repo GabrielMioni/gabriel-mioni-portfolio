@@ -214,4 +214,106 @@ public sealed class FinalizeProjectImageUploadsTests(SqlServerFixture database)
 
         Assert.False(persistedImage.IsUploaded);
     }
+
+    [Theory]
+    [InlineData(MissingStorageObject.FullImage)]
+    [InlineData(MissingStorageObject.Thumbnail)]
+    [InlineData(MissingStorageObject.FullImageAndThumbnail)]
+    public async Task FinalizeProjectImageUploads_WhenStorageObjectIsMissing_ReturnsInvalidStateAndChangesNothing(
+        MissingStorageObject missingObject)
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var suffix = TestData.NewSuffix();
+        var project = Project.Create($"Project with incomplete image {suffix}", null, null);
+        var projectImageId = Guid.NewGuid();
+        var fullKey = $"projects/{project.Id}/{projectImageId:N}_full.jpg";
+        var thumbKey = $"projects/{project.Id}/{projectImageId:N}_thumb.webp";
+
+        project.AddImage(ProjectImage.CreatePending(
+            id: projectImageId,
+            projectId: project.Id,
+            clientId: $"incomplete-{suffix}",
+            altText: "Incomplete image",
+            fullKey: fullKey,
+            thumbKey: thumbKey,
+            contentType: "image/jpeg",
+            sizeBytes: 120_000,
+            width: 1_200,
+            height: 800,
+            sortOrder: 0));
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        switch (missingObject)
+        {
+            case MissingStorageObject.FullImage:
+                factory.ObjectStorage.SetObjectMissing(fullKey);
+                break;
+            case MissingStorageObject.Thumbnail:
+                factory.ObjectStorage.SetObjectMissing(thumbKey);
+                break;
+            case MissingStorageObject.FullImageAndThumbnail:
+                factory.ObjectStorage.SetObjectMissing(fullKey);
+                factory.ObjectStorage.SetObjectMissing(thumbKey);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(missingObject));
+        }
+
+        var expectedMessage = missingObject switch
+        {
+            MissingStorageObject.FullImage =>
+                $"Project image '{projectImageId}' is missing its full-size image in storage.",
+            MissingStorageObject.Thumbnail =>
+                $"Project image '{projectImageId}' is missing its thumbnail in storage.",
+            MissingStorageObject.FullImageAndThumbnail =>
+                $"Project image '{projectImageId}' is missing its full-size image and thumbnail in storage.",
+            _ => throw new ArgumentOutOfRangeException(nameof(missingObject))
+        };
+
+        // Act
+        using var response = await SendFinalizeProjectImageUploadsAsync(
+            client,
+            projectId: project.Id,
+            projectImageIds: [projectImageId]);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync(
+            "finalizeProjectImageUploads");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.InvalidState,
+            message: expectedMessage,
+            field: ["input", "projectImageIds", "0"]);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedImage = await verificationDb.ProjectImages
+            .AsNoTracking()
+            .SingleAsync(image => image.Id == projectImageId);
+
+        Assert.False(persistedImage.IsUploaded);
+    }
+
+    public enum MissingStorageObject
+    {
+        FullImage,
+        Thumbnail,
+        FullImageAndThumbnail
+    }
 }

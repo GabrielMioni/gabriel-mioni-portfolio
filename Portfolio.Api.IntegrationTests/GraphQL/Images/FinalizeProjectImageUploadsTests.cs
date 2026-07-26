@@ -300,6 +300,99 @@ public sealed class FinalizeProjectImageUploadsTests(SqlServerFixture database)
         Assert.False(persistedImage.IsUploaded);
     }
 
+    [Fact]
+    public async Task FinalizeProjectImageUploads_WithIncompleteImage_FinalizesNothing()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var suffix = TestData.NewSuffix();
+        var project = Project.Create($"Project with mixed upload state {suffix}", null, null);
+        var completeImageId = Guid.NewGuid();
+        var incompleteImageId = Guid.NewGuid();
+        var incompleteThumbKey =
+            $"projects/{project.Id}/{incompleteImageId:N}_thumb.webp";
+
+        project.AddImage(ProjectImage.CreatePending(
+            id: completeImageId,
+            projectId: project.Id,
+            clientId: $"complete-{suffix}",
+            altText: "Complete image",
+            fullKey: $"projects/{project.Id}/{completeImageId:N}_full.jpg",
+            thumbKey: $"projects/{project.Id}/{completeImageId:N}_thumb.webp",
+            contentType: "image/jpeg",
+            sizeBytes: 120_000,
+            width: 1_200,
+            height: 800,
+            sortOrder: 0));
+
+        project.AddImage(ProjectImage.CreatePending(
+            id: incompleteImageId,
+            projectId: project.Id,
+            clientId: $"incomplete-{suffix}",
+            altText: "Incomplete image",
+            fullKey: $"projects/{project.Id}/{incompleteImageId:N}_full.jpg",
+            thumbKey: incompleteThumbKey,
+            contentType: "image/jpeg",
+            sizeBytes: 120_000,
+            width: 1_200,
+            height: 800,
+            sortOrder: 1));
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        factory.ObjectStorage.SetObjectMissing(incompleteThumbKey);
+
+        // Act
+        using var response = await SendFinalizeProjectImageUploadsAsync(
+            client,
+            projectId: project.Id,
+            projectImageIds: [completeImageId, incompleteImageId]);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync(
+            "finalizeProjectImageUploads");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.InvalidState,
+            message: $"Project image '{incompleteImageId}' is missing its thumbnail in storage.",
+            field: ["input", "projectImageIds", "1"]);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedImages = await verificationDb.ProjectImages
+            .AsNoTracking()
+            .Where(image => image.ProjectId == project.Id)
+            .OrderBy(image => image.SortOrder)
+            .ToArrayAsync();
+
+        Assert.Collection(
+            persistedImages,
+            image =>
+            {
+                Assert.Equal(completeImageId, image.Id);
+                Assert.False(image.IsUploaded);
+            },
+            image =>
+            {
+                Assert.Equal(incompleteImageId, image.Id);
+                Assert.False(image.IsUploaded);
+            });
+    }
+
     [Theory]
     [InlineData(MissingStorageObject.FullImage)]
     [InlineData(MissingStorageObject.Thumbnail)]

@@ -281,6 +281,56 @@ public sealed class PrepareProjectImageUploadsTests(SqlServerFixture database)
     }
 
     [Fact]
+    public async Task PrepareProjectImageUploads_WhenProjectDoesNotExist_ReturnsNotFoundAndCreatesNothing()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var missingProjectId = Guid.NewGuid();
+        var clientId = $"missing-project-{TestData.NewSuffix()}";
+        var items = new[]
+        {
+            new PrepareItem(
+                ClientId: clientId,
+                AltText: "Image for missing project",
+                FullContentType: "image/jpeg",
+                FullSizeBytes: 100,
+                ThumbContentType: "image/webp",
+                ThumbSizeBytes: 50,
+                Height: 100,
+                Width: 100)
+        };
+
+        // Act
+        using var response = await SendPrepareProjectImageUploadsAsync(
+            client,
+            projectId: missingProjectId,
+            items);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync(
+            "prepareProjectImageUploads");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("items").ValueKind);
+
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.NotFound,
+            message: $"Project '{missingProjectId}' was not found.",
+            field: ["input", "projectId"]);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        Assert.False(await verificationDb.ProjectImages
+            .AnyAsync(image => image.ClientId == clientId));
+    }
+
+    [Fact]
     public async Task PrepareProjectImageUploads_WithDuplicateClientIds_ReturnsConflictAndCreatesNothing()
     {
         await using var factory = new ApiWebApplicationFactory(database.ConnectionString);

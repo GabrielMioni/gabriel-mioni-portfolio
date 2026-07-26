@@ -1,0 +1,124 @@
+using System.Net.Http.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Portfolio.Api.Data;
+using Portfolio.Api.Domain.Projects;
+using Portfolio.Api.IntegrationTests.Infrastructure;
+using Xunit;
+
+namespace Portfolio.Api.IntegrationTests.GraphQL.Images;
+
+[Collection(IntegrationTestCollection.Name)]
+public sealed class FinalizeProjectImageUploadsTests(SqlServerFixture database)
+{
+    private const string FinalizeProjectImageUploadsMutation =
+        """
+        mutation FinalizeProjectImageUploads($input: FinalizeProjectImageUploadsInput!) {
+          finalizeProjectImageUploads(input: $input) {
+            project {
+              id
+              images {
+                id
+                fullKey
+                thumbKey
+                isUploaded
+              }
+            }
+            userErrors {
+              code
+              message
+              field
+            }
+          }
+        }
+        """;
+
+    private static Task<HttpResponseMessage> SendFinalizeProjectImageUploadsAsync(
+        HttpClient client,
+        Guid projectId,
+        IReadOnlyList<Guid> projectImageIds)
+    {
+        return client.PostAsJsonAsync(
+            "/graphql/admin",
+            new
+            {
+                query = FinalizeProjectImageUploadsMutation,
+                variables = new
+                {
+                    input = new
+                    {
+                        projectId,
+                        projectImageIds
+                    }
+                }
+            });
+    }
+
+    [Fact]
+    public async Task FinalizeProjectImageUploads_WhenObjectsExist_MarksImageUploaded()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var suffix = TestData.NewSuffix();
+        var project = Project.Create($"Project with uploaded image {suffix}", null, null);
+        var projectImageId = Guid.NewGuid();
+        var fullKey = $"projects/{project.Id}/{projectImageId:N}_full.jpg";
+        var thumbKey = $"projects/{project.Id}/{projectImageId:N}_thumb.webp";
+
+        project.AddImage(ProjectImage.CreatePending(
+            id: projectImageId,
+            projectId: project.Id,
+            clientId: $"uploaded-{suffix}",
+            altText: "Uploaded image",
+            fullKey: fullKey,
+            thumbKey: thumbKey,
+            contentType: "image/jpeg",
+            sizeBytes: 120_000,
+            width: 1_200,
+            height: 800,
+            sortOrder: 0));
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        // Act
+        using var response = await SendFinalizeProjectImageUploadsAsync(
+            client,
+            projectId: project.Id,
+            projectImageIds: [projectImageId]);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync(
+            "finalizeProjectImageUploads");
+
+        Assert.Empty(payload.GetProperty("userErrors").EnumerateArray());
+
+        var payloadProject = payload.GetProperty("project");
+        Assert.Equal(project.Id, payloadProject.GetProperty("id").GetGuid());
+
+        var payloadImage = Assert.Single(
+            payloadProject.GetProperty("images").EnumerateArray());
+
+        Assert.Equal(projectImageId, payloadImage.GetProperty("id").GetGuid());
+        Assert.Equal(fullKey, payloadImage.GetProperty("fullKey").GetString());
+        Assert.Equal(thumbKey, payloadImage.GetProperty("thumbKey").GetString());
+        Assert.True(payloadImage.GetProperty("isUploaded").GetBoolean());
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedImage = await verificationDb.ProjectImages
+            .AsNoTracking()
+            .SingleAsync(image => image.Id == projectImageId);
+
+        Assert.True(persistedImage.IsUploaded);
+    }
+}

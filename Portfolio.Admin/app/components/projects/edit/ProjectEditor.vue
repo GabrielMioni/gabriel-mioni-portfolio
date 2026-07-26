@@ -180,7 +180,8 @@ const goToProjects = async () => {
               <ProjectDetails
                 v-model:form="projectDetailsModel"
                 v-model:is-valid="detailsValid"
-                v-model:assigned-tags="tagItems" />
+                v-model:assigned-tags="tagItems"
+                show-tags />
             </v-tabs-window-item>
             <v-tabs-window-item :value="tabValues.images">
               <ProjectImageUpload

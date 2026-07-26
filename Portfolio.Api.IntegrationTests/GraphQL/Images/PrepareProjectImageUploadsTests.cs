@@ -331,6 +331,108 @@ public sealed class PrepareProjectImageUploadsTests(SqlServerFixture database)
     }
 
     [Fact]
+    public async Task PrepareProjectImageUploads_WithInvalidItem_ReturnsValidationErrorsAndCreatesNothing()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var project = Project.Create(
+            $"Project with invalid image {TestData.NewSuffix()}",
+            null,
+            null);
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        var items = new[]
+        {
+            new PrepareItem(
+                ClientId: " ",
+                AltText: "Invalid image",
+                FullContentType: "image/gif",
+                FullSizeBytes: 0,
+                ThumbContentType: "text/plain",
+                ThumbSizeBytes: -1,
+                Height: 0,
+                Width: -1)
+        };
+
+        // Act
+        using var response = await SendPrepareProjectImageUploadsAsync(
+            client,
+            projectId: project.Id,
+            items);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync(
+            "prepareProjectImageUploads");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("items").ValueKind);
+
+        var actualErrors = payload
+            .GetProperty("userErrors")
+            .EnumerateArray()
+            .Select(error => (
+                Code: error.GetProperty("code").GetString()!,
+                Message: error.GetProperty("message").GetString()!,
+                Field: string.Join(
+                    ".",
+                    error.GetProperty("field")
+                        .EnumerateArray()
+                        .Select(item => item.GetString()!))))
+            .ToArray();
+
+        var expectedErrors = new[]
+        {
+            (
+                Code: GraphQlUserErrorCodes.Validation,
+                Message: "Client ID is required.",
+                Field: "input.items.0.clientId"),
+            (
+                Code: GraphQlUserErrorCodes.Validation,
+                Message: "Content type must be image/jpeg, image/png, or image/webp.",
+                Field: "input.items.0.fullContentType"),
+            (
+                Code: GraphQlUserErrorCodes.Validation,
+                Message: "Content type must be image/jpeg, image/png, or image/webp.",
+                Field: "input.items.0.thumbContentType"),
+            (
+                Code: GraphQlUserErrorCodes.Validation,
+                Message: "Value must be greater than zero.",
+                Field: "input.items.0.fullSizeBytes"),
+            (
+                Code: GraphQlUserErrorCodes.Validation,
+                Message: "Value must be greater than zero.",
+                Field: "input.items.0.thumbSizeBytes"),
+            (
+                Code: GraphQlUserErrorCodes.Validation,
+                Message: "Value must be greater than zero.",
+                Field: "input.items.0.width"),
+            (
+                Code: GraphQlUserErrorCodes.Validation,
+                Message: "Value must be greater than zero.",
+                Field: "input.items.0.height")
+        };
+
+        Assert.Equal(expectedErrors, actualErrors);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        Assert.False(await verificationDb.ProjectImages
+            .AnyAsync(image => image.ProjectId == project.Id));
+    }
+
+    [Fact]
     public async Task PrepareProjectImageUploads_WithDuplicateClientIds_ReturnsConflictAndCreatesNothing()
     {
         await using var factory = new ApiWebApplicationFactory(database.ConnectionString);

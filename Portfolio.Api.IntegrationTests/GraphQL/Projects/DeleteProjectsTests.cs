@@ -179,6 +179,7 @@ public sealed class DeleteProjectsTests(SqlServerFixture database)
         var thumbKey = $"projects/{project.Id}/thumb/{clientId}.jpg";
 
         project.AddImage(ProjectImage.CreatePending(
+            id: Guid.NewGuid(),
             projectId: project.Id,
             clientId: clientId,
             altText: null,

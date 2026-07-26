@@ -31,6 +31,7 @@ public class ProjectImage
     private ProjectImage() { } // EF
 
     public static ProjectImage CreatePending(
+        Guid id,
         Guid projectId,
         string clientId,
         string? altText,
@@ -42,6 +43,9 @@ public class ProjectImage
         int height,
         int sortOrder)
     {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Project image ID is required.", nameof(id));
+
         if (string.IsNullOrWhiteSpace(clientId))
             throw new ArgumentException("Client ID is required.", nameof(clientId));
 
@@ -54,7 +58,7 @@ public class ProjectImage
 
         return new ProjectImage
         {
-            Id = Guid.NewGuid(),
+            Id = id,
             ProjectId = projectId,
             ClientId = normalizedClientId,
             AltText = string.IsNullOrWhiteSpace(altText) ? null : altText.Trim(),

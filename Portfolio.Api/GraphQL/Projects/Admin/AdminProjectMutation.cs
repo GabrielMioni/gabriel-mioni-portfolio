@@ -52,6 +52,33 @@ namespace Portfolio.Api.GraphQL.Projects.Admin
                 DeletedProjectId: projectId,
                 UserErrors: []);
         }
+
+        public async Task<DeleteProjectsPayload> DeleteProjects(
+            DeleteProjectsInput input,
+            [Service] ProjectService projects,
+            CancellationToken ct = default)
+        {
+            var result = await projects.DeleteProjectsAsync(input.ProjectIds, ct);
+
+            if (result.InvalidReferences.Count > 0)
+            {
+                return new DeleteProjectsPayload(
+                    DeletedProjectIds: null,
+                    UserErrors: result.InvalidReferences
+                        .Select(reference => UserError.InvalidReference(
+                            $"Project '{reference.Id}' was not found.",
+                            "input", "projectIds", reference.InputIndex.ToString()))
+                        .ToArray());
+            }
+
+            if (result.DeletedProjectIds is null)
+                throw new InvalidOperationException("Successful project deletion returned no project IDs.");
+
+            return new DeleteProjectsPayload(
+                DeletedProjectIds: result.DeletedProjectIds,
+                UserErrors: []);
+        }
+
         public async Task<EditProjectPayload> EditProject(
             EditProjectInput input,
             [Service] ProjectService projects,

@@ -57,6 +57,22 @@ public sealed class DeleteProjectTests(SqlServerFixture database)
             summary: "Created by an integration test.",
             body: null);
 
+        var fullKey = $"projects/{project.Id}/full/delete-test.jpg";
+        var thumbKey = $"projects/{project.Id}/thumb/delete-test.jpg";
+
+        project.AddImage(ProjectImage.CreatePending(
+            id: Guid.NewGuid(),
+            projectId: project.Id,
+            clientId: "delete-test-image",
+            altText: "Image belonging to the project being deleted.",
+            fullKey: fullKey,
+            thumbKey: thumbKey,
+            contentType: "image/jpeg",
+            sizeBytes: 1_024,
+            width: 1_200,
+            height: 800,
+            sortOrder: 0));
+
         await using (var scope = factory.Services.CreateAsyncScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -81,6 +97,10 @@ public sealed class DeleteProjectTests(SqlServerFixture database)
             .GetRequiredService<AppDbContext>();
 
         Assert.False(await verificationDb.Projects.AnyAsync(p => p.Id == project.Id));
+
+        Assert.Equal(
+            new[] { fullKey, thumbKey }.Order(),
+            factory.ObjectStorage.DeletedKeys.Order());
     }
 
     [Fact]

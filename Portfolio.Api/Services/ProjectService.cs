@@ -53,24 +53,56 @@ public class ProjectService
         Guid projectId,
         CancellationToken ct)
     {
-        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+        var result = await DeleteProjectsAsync([projectId], ct);
 
-        var project = await db.Projects
-            .Include(p => p.Images)
-            .FirstOrDefaultAsync(p => p.Id == projectId, ct);
-
-        if (project is null)
+        if (result.InvalidReferences.Count > 0)
             return null;
 
-        var deleteKeys = ProjectImageStorageKeyHelper.GetStorageKeys(project.Images);
+        if (result.DeletedProjectIds is null)
+            throw new InvalidOperationException("Successful project deletion returned no project IDs.");
 
-        db.Projects.Remove(project);
+        return result.DeletedProjectIds.Single();
+    }
 
-        await db.SaveChangesAsync(ct);
+    public async Task<DeleteProjectsResult> DeleteProjectsAsync(
+        IReadOnlyList<Guid> projectIds,
+        CancellationToken ct = default)
+    {
+        var distinctProjectIds = projectIds
+            .Distinct()
+            .ToArray();
+
+        if (distinctProjectIds.Length == 0)
+            return DeleteProjectsResult.Success([]);
+
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+
+        var projects = await db.Projects
+            .Include(project => project.Images)
+            .Where(project => distinctProjectIds.Contains(project.Id))
+            .ToListAsync(ct);
+
+        var foundProjectIds = projects
+            .Select(project => project.Id)
+            .ToHashSet();
+
+        var invalidReferences = projectIds
+            .Select((projectId, index) => new InvalidProjectReference(index, projectId))
+            .Where(reference => !foundProjectIds.Contains(reference.Id))
+            .ToArray();
+
+        if (invalidReferences.Length > 0)
+            return DeleteProjectsResult.InvalidReference(invalidReferences);
+
+        var deleteKeys = ProjectImageStorageKeyHelper.GetStorageKeys(
+            projects.SelectMany(project => project.Images));
 
         await _storage.DeleteImagesAsync(deleteKeys, ct);
 
-        return projectId;
+        db.Projects.RemoveRange(projects);
+        await db.SaveChangesAsync(ct);
+
+        return DeleteProjectsResult.Success(distinctProjectIds);
     }
 
     public async Task<EditProjectResult> EditProjectAsync(EditProjectInput input, CancellationToken ct = default)

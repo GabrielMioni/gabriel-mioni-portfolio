@@ -7,6 +7,8 @@ using System.Net;
 namespace Portfolio.Api.Services.Storage;
 public sealed class ObjectStorage : IObjectStorage
 {
+    private const int MaxDeleteKeysPerRequest = 1_000;
+
     private readonly IAmazonS3 _s3;
     private readonly R2Options _opts;
 
@@ -42,15 +44,18 @@ public sealed class ObjectStorage : IObjectStorage
             return;
         }
 
-        var req = new DeleteObjectsRequest
+        foreach (var keyBatch in keyList.Chunk(MaxDeleteKeysPerRequest))
         {
-            BucketName = _opts.Bucket,
-            Objects = keyList
-                .Select(k => new KeyVersion { Key = k })
-                .ToList()
-        };
+            var req = new DeleteObjectsRequest
+            {
+                BucketName = _opts.Bucket,
+                Objects = keyBatch
+                    .Select(k => new KeyVersion { Key = k })
+                    .ToList()
+            };
 
-        await _s3.DeleteObjectsAsync(req, ct);
+            await _s3.DeleteObjectsAsync(req, ct);
+        }
     }
 
     public async Task<bool> ObjectExistsAsync(

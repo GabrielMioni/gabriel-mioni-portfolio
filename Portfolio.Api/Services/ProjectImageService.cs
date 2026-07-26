@@ -63,12 +63,13 @@ public class ProjectImageService
                 continue;
             }
 
-            var imageId = Guid.NewGuid();
+            var projectImageId = Guid.NewGuid();
 
-            var fullKey = $"projects/{projectId}/{imageId:N}_full.{ExtFor(item.FullContentType)}";
-            var thumbKey = $"projects/{projectId}/{imageId:N}_thumb.{ExtFor(item.ThumbContentType)}";
+            var fullKey = $"projects/{projectId}/{projectImageId:N}_full.{ExtFor(item.FullContentType)}";
+            var thumbKey = $"projects/{projectId}/{projectImageId:N}_thumb.{ExtFor(item.ThumbContentType)}";
 
             var projectImage = ProjectImage.CreatePending(
+                id: projectImageId,
                 projectId: projectId,
                 clientId: clientId,
                 altText: item.AltText,

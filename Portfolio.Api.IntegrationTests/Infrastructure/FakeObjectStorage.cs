@@ -4,6 +4,10 @@ namespace Portfolio.Api.IntegrationTests.Infrastructure;
 
 internal sealed class FakeObjectStorage : IObjectStorage
 {
+    private readonly List<string> _deletedKeys = [];
+
+    public IReadOnlyList<string> DeletedKeys => _deletedKeys;
+
     public string CreatePresignedPutUrl(
         string key,
         string contentType,
@@ -16,5 +20,9 @@ internal sealed class FakeObjectStorage : IObjectStorage
         => Task.FromResult(true);
 
     public Task DeleteImagesAsync(IEnumerable<string> keys, CancellationToken ct)
-        => Task.CompletedTask;
+    {
+        _deletedKeys.AddRange(keys);
+
+        return Task.CompletedTask;
+    }
 }

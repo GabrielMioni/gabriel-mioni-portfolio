@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Portfolio.Api.Data;
@@ -135,6 +136,36 @@ public sealed class DeleteProjectImagesTests(SqlServerFixture database)
                 Assert.Equal(lastImage.Id, image.Id);
                 Assert.Equal(1, image.SortOrder);
             });
+    }
+
+    [Fact]
+    public async Task DeleteProjectImages_WhenProjectDoesNotExist_ReturnsNotFoundAndDeletesNothing()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var missingProjectId = Guid.NewGuid();
+
+        // Act
+        using var response = await SendDeleteProjectImagesAsync(
+            client,
+            projectId: missingProjectId,
+            projectImageIds: [Guid.NewGuid()]);
+
+        // Assert
+        var payload = await response.ReadGraphQlPayloadAsync("deleteProjectImages");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.NotFound,
+            message: $"Project '{missingProjectId}' was not found.",
+            field: ["input", "projectId"]);
+
+        Assert.Empty(factory.ObjectStorage.DeletedKeys);
     }
 
     private static ProjectImage AddUploadedImage(

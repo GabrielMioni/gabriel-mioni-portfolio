@@ -124,6 +124,91 @@ public sealed class FinalizeProjectImageUploadsTests(SqlServerFixture database)
     }
 
     [Fact]
+    public async Task FinalizeProjectImageUploads_WhenRetried_ReturnsAlreadyUploadedImageWithoutRecheckingStorage()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var suffix = TestData.NewSuffix();
+        var project = Project.Create($"Project with retried image finalization {suffix}", null, null);
+        var projectImageId = Guid.NewGuid();
+        var fullKey = $"projects/{project.Id}/{projectImageId:N}_full.jpg";
+        var thumbKey = $"projects/{project.Id}/{projectImageId:N}_thumb.webp";
+
+        project.AddImage(ProjectImage.CreatePending(
+            id: projectImageId,
+            projectId: project.Id,
+            clientId: $"retried-{suffix}",
+            altText: "Retried image",
+            fullKey: fullKey,
+            thumbKey: thumbKey,
+            contentType: "image/jpeg",
+            sizeBytes: 120_000,
+            width: 1_200,
+            height: 800,
+            sortOrder: 0));
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        using (var firstResponse = await SendFinalizeProjectImageUploadsAsync(
+            client,
+            projectId: project.Id,
+            projectImageIds: [projectImageId]))
+        {
+            var firstPayload = await firstResponse.ReadGraphQlPayloadAsync(
+                "finalizeProjectImageUploads");
+
+            Assert.Empty(firstPayload.GetProperty("userErrors").EnumerateArray());
+            Assert.True(firstPayload
+                .GetProperty("project")
+                .GetProperty("images")[0]
+                .GetProperty("isUploaded")
+                .GetBoolean());
+        }
+
+        factory.ObjectStorage.SetObjectMissing(fullKey);
+        factory.ObjectStorage.SetObjectMissing(thumbKey);
+
+        // Act
+        using var retryResponse = await SendFinalizeProjectImageUploadsAsync(
+            client,
+            projectId: project.Id,
+            projectImageIds: [projectImageId]);
+
+        // Assert: public GraphQL contract
+        var retryPayload = await retryResponse.ReadGraphQlPayloadAsync(
+            "finalizeProjectImageUploads");
+
+        Assert.Empty(retryPayload.GetProperty("userErrors").EnumerateArray());
+
+        var retryProject = retryPayload.GetProperty("project");
+        Assert.Equal(project.Id, retryProject.GetProperty("id").GetGuid());
+
+        var retryImage = Assert.Single(
+            retryProject.GetProperty("images").EnumerateArray());
+
+        Assert.Equal(projectImageId, retryImage.GetProperty("id").GetGuid());
+        Assert.True(retryImage.GetProperty("isUploaded").GetBoolean());
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedImage = await verificationDb.ProjectImages
+            .AsNoTracking()
+            .SingleAsync(image => image.Id == projectImageId);
+
+        Assert.True(persistedImage.IsUploaded);
+    }
+
+    [Fact]
     public async Task FinalizeProjectImageUploads_WhenProjectDoesNotExist_ReturnsNotFound()
     {
         await using var factory = new ApiWebApplicationFactory(database.ConnectionString);

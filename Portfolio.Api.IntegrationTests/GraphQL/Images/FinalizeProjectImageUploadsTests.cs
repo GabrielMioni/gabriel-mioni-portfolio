@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Portfolio.Api.Data;
@@ -120,5 +121,97 @@ public sealed class FinalizeProjectImageUploadsTests(SqlServerFixture database)
             .SingleAsync(image => image.Id == projectImageId);
 
         Assert.True(persistedImage.IsUploaded);
+    }
+
+    [Fact]
+    public async Task FinalizeProjectImageUploads_WhenProjectDoesNotExist_ReturnsNotFound()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var missingProjectId = Guid.NewGuid();
+
+        // Act
+        using var response = await SendFinalizeProjectImageUploadsAsync(
+            client,
+            projectId: missingProjectId,
+            projectImageIds: []);
+
+        // Assert
+        var payload = await response.ReadGraphQlPayloadAsync(
+            "finalizeProjectImageUploads");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.NotFound,
+            message: $"Project '{missingProjectId}' was not found.",
+            field: ["input", "projectId"]);
+    }
+
+    [Fact]
+    public async Task FinalizeProjectImageUploads_WithForeignImageId_ReturnsInvalidReferenceAndChangesNothing()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var suffix = TestData.NewSuffix();
+        var project = Project.Create($"Project with foreign image {suffix}", null, null);
+        var projectImageId = Guid.NewGuid();
+        var missingImageId = Guid.NewGuid();
+
+        project.AddImage(ProjectImage.CreatePending(
+            id: projectImageId,
+            projectId: project.Id,
+            clientId: $"pending-{suffix}",
+            altText: "Pending image",
+            fullKey: $"projects/{project.Id}/{projectImageId:N}_full.jpg",
+            thumbKey: $"projects/{project.Id}/{projectImageId:N}_thumb.webp",
+            contentType: "image/jpeg",
+            sizeBytes: 120_000,
+            width: 1_200,
+            height: 800,
+            sortOrder: 0));
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        // Act
+        using var response = await SendFinalizeProjectImageUploadsAsync(
+            client,
+            projectId: project.Id,
+            projectImageIds: [projectImageId, missingImageId]);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync(
+            "finalizeProjectImageUploads");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.InvalidReference,
+            message: $"Project image '{missingImageId}' was not found on this project.",
+            field: ["input", "projectImageIds", "1"]);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedImage = await verificationDb.ProjectImages
+            .AsNoTracking()
+            .SingleAsync(image => image.Id == projectImageId);
+
+        Assert.False(persistedImage.IsUploaded);
     }
 }

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildCreateProjectInput,
+  buildEditProjectInput,
   cloneProjectEditorDraft,
   createEmptyProjectEditorDraft,
   isProjectEditorDraftDirty
@@ -418,5 +420,152 @@ describe('isProjectEditorDraftDirty', () => {
     draft.tagItems.reverse()
 
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(false)
+  })
+})
+
+describe('buildCreateProjectInput', () => {
+  it('returns the form values without normalizing whitespace', () => {
+    const draft = createEmptyProjectEditorDraft()
+    draft.form.title = '  Portfolio project  '
+    draft.form.summary = '  Project summary  '
+    draft.form.body = '  Project body  '
+    draft.form.status = ProjectStatus.Published
+
+    expect(buildCreateProjectInput(draft)).toEqual({
+      title: '  Portfolio project  ',
+      summary: '  Project summary  ',
+      body: '  Project body  ',
+      status: ProjectStatus.Published,
+      links: []
+    })
+  })
+
+  it('returns only active links', () => {
+    const draft = createEmptyProjectEditorDraft()
+    draft.linkItems.push(
+      createLinkEditorItem({
+        id: 'existing-link-id',
+        clientId: 'active-link-client-id',
+        text: 'Active link',
+        type: ProjectLinkType.Repository,
+        url: 'https://github.com/example/project',
+        sort: 0
+      }),
+      createLinkEditorItem({
+        id: 'removed-link-id',
+        clientId: 'removed-link-client-id',
+        isRemoved: true,
+        text: 'Removed link',
+        sort: 1
+      })
+    )
+
+    expect(buildCreateProjectInput(draft).links).toEqual([
+      {
+        linkText: 'Active link',
+        linkType: ProjectLinkType.Repository,
+        sortOrder: 0,
+        url: 'https://github.com/example/project'
+      }
+    ])
+  })
+})
+
+describe('buildEditProjectInput', () => {
+  it('returns the project id and form values without normalizing whitespace', () => {
+    const draft = createEmptyProjectEditorDraft()
+    draft.form.title = '  Portfolio project  '
+    draft.form.summary = '  Project summary  '
+    draft.form.body = '  Project body  '
+    draft.form.status = ProjectStatus.Published
+
+    expect(buildEditProjectInput('project-id', draft)).toEqual({
+      id: 'project-id',
+      title: '  Portfolio project  ',
+      summary: '  Project summary  ',
+      body: '  Project body  ',
+      status: ProjectStatus.Published,
+      images: [],
+      links: []
+    })
+  })
+
+  it('returns only active persisted images', () => {
+    const draft = createEmptyProjectEditorDraft()
+    draft.imageItems.push(
+      createImageEditorItem({
+        id: 'active-image-id',
+        clientId: 'active-image-client-id',
+        altText: 'Active image',
+        sort: 0
+      }),
+      createImageEditorItem({
+        id: 'removed-image-id',
+        clientId: 'removed-image-client-id',
+        isRemoved: true,
+        altText: 'Removed image',
+        sort: 1
+      }),
+      createImageEditorItem({
+        id: null,
+        clientId: 'unsaved-image-client-id',
+        altText: 'Unsaved image',
+        sort: 2
+      })
+    )
+
+    expect(buildEditProjectInput('project-id', draft).images).toEqual([
+      {
+        projectImageId: 'active-image-id',
+        altText: 'Active image',
+        sortOrder: 0
+      }
+    ])
+  })
+
+  it('returns active existing and unsaved links with the expected ids', () => {
+    const draft = createEmptyProjectEditorDraft()
+    draft.linkItems.push(
+      createLinkEditorItem({
+        id: 'existing-link-id',
+        clientId: 'existing-link-client-id',
+        text: 'Existing link',
+        type: ProjectLinkType.Repository,
+        url: 'https://github.com/example/project',
+        sort: 0
+      }),
+      createLinkEditorItem({
+        id: null,
+        clientId: 'unsaved-link-client-id',
+        text: 'Unsaved link',
+        type: ProjectLinkType.Demo,
+        url: 'https://demo.example.com',
+        sort: 1
+      }),
+      createLinkEditorItem({
+        id: 'removed-link-id',
+        clientId: 'removed-link-client-id',
+        isRemoved: true,
+        text: 'Removed link',
+        sort: 2
+      })
+    )
+
+    expect(buildEditProjectInput('project-id', draft).links).toEqual([
+      {
+        id: 'existing-link-id',
+        linkText: 'Existing link',
+        linkType: ProjectLinkType.Repository,
+        sortOrder: 0,
+        url: 'https://github.com/example/project'
+      },
+      {
+        id: null,
+        linkText: 'Unsaved link',
+        linkType: ProjectLinkType.Demo,
+        sortOrder: 1,
+        url: 'https://demo.example.com'
+      }
+    ])
   })
 })

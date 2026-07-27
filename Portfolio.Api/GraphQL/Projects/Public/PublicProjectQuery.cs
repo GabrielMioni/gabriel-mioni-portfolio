@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
 using Portfolio.Api.GraphQL.Projects.Public.Payloads;
-using Portfolio.Api.Services;
+using Portfolio.Api.Services.Projects;
 
 namespace Portfolio.Api.GraphQL.Projects.Public
 {

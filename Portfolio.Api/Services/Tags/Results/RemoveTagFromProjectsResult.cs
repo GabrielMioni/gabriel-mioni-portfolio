@@ -1,4 +1,4 @@
-namespace Portfolio.Api.Services.Results;
+namespace Portfolio.Api.Services.Tags.Results;
 
 public sealed record InvalidTagProjectReference(
     int InputIndex,

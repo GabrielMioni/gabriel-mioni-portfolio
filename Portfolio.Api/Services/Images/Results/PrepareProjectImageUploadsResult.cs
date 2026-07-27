@@ -1,6 +1,6 @@
 using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 
-namespace Portfolio.Api.Services.Results;
+namespace Portfolio.Api.Services.Images.Results;
 
 public sealed record PrepareProjectImageUploadsResult(
     IReadOnlyList<ProjectImageUploadInstruction>? Items,

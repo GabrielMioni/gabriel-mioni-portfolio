@@ -55,6 +55,72 @@ const createTagEditorItem = (
   ...overrides
 })
 
+describe('createEmptyProjectEditorDraft', () => {
+  it('returns the expected default draft', () => {
+    expect(createEmptyProjectEditorDraft()).toEqual({
+      form: {
+        title: '',
+        summary: '',
+        body: '',
+        status: ProjectStatus.Draft
+      },
+      imageItems: [],
+      linkItems: [],
+      tagItems: []
+    })
+  })
+})
+
+describe('cloneProjectEditorDraft', () => {
+  it('returns an equal draft with independent references', () => {
+    const source = createEmptyProjectEditorDraft()
+    source.form.title = 'Portfolio project'
+    source.imageItems.push(createImageEditorItem({ id: 'image-id' }))
+    source.linkItems.push(createLinkEditorItem({ id: 'link-id' }))
+    source.tagItems.push(createTagEditorItem({ id: 'tag-id' }))
+
+    const clone = cloneProjectEditorDraft(source)
+
+    expect(clone).toEqual(source)
+    expect(clone).not.toBe(source)
+    expect(clone.form).not.toBe(source.form)
+    expect(clone.imageItems).not.toBe(source.imageItems)
+    expect(clone.imageItems[0]).not.toBe(source.imageItems[0])
+    expect(clone.linkItems).not.toBe(source.linkItems)
+    expect(clone.linkItems[0]).not.toBe(source.linkItems[0])
+    expect(clone.tagItems).not.toBe(source.tagItems)
+    expect(clone.tagItems[0]).not.toBe(source.tagItems[0])
+  })
+
+  it('does not change the source when the clone is mutated', () => {
+    const source = createEmptyProjectEditorDraft()
+    source.form.title = 'Original title'
+    source.imageItems.push(createImageEditorItem({
+      id: 'image-id',
+      altText: 'Original alt text'
+    }))
+    source.linkItems.push(createLinkEditorItem({
+      id: 'link-id',
+      text: 'Original link text'
+    }))
+    source.tagItems.push(createTagEditorItem({
+      id: 'tag-id',
+      name: 'Original tag name'
+    }))
+
+    const clone = cloneProjectEditorDraft(source)
+    clone.form.title = 'Updated title'
+    clone.imageItems[0]!.altText = 'Updated alt text'
+    clone.linkItems[0]!.text = 'Updated link text'
+    clone.tagItems[0]!.name = 'Updated tag name'
+
+    expect(source.form.title).toBe('Original title')
+    expect(source.imageItems[0]!.altText).toBe('Original alt text')
+    expect(source.linkItems[0]!.text).toBe('Original link text')
+    expect(source.tagItems[0]!.name).toBe('Original tag name')
+  })
+})
+
 describe('isProjectEditorDraftDirty', () => {
   it('returns false when the draft matches the baseline', () => {
     const baseline = createEmptyProjectEditorDraft()

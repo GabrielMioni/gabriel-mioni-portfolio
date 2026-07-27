@@ -33,7 +33,7 @@ describe('isProjectEditorDraftDirty', () => {
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(false)
   })
 
-  it('ignores surrounding whitespace in the title and summary', () => {
+  it('returns false when the title and summary differ only by surrounding whitespace', () => {
     const baseline = createEmptyProjectEditorDraft()
     baseline.form.title = 'Portfolio project'
     baseline.form.summary = 'Project summary'
@@ -48,7 +48,7 @@ describe('isProjectEditorDraftDirty', () => {
   it.each([
     { field: 'title', value: 'Updated title' },
     { field: 'summary', value: 'Updated summary' }
-  ] as const)('treats updated $field as a meaningful change', ({ field, value }) => {
+  ] as const)('returns true when $field changes', ({ field, value }) => {
     const baseline = createEmptyProjectEditorDraft()
     const draft = cloneProjectEditorDraft(baseline)
 
@@ -57,7 +57,7 @@ describe('isProjectEditorDraftDirty', () => {
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })
 
-  it('treats body whitespace as a meaningful change', () => {
+  it('returns true when body whitespace changes', () => {
     const baseline = createEmptyProjectEditorDraft()
     baseline.form.body = 'Project body'
 
@@ -67,7 +67,7 @@ describe('isProjectEditorDraftDirty', () => {
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })
 
-  it('treats updated body as a meaningful change', () => {
+  it('returns true when the body changes', () => {
     const baseline = createEmptyProjectEditorDraft()
     baseline.form.body = 'Project body'
 
@@ -77,7 +77,7 @@ describe('isProjectEditorDraftDirty', () => {
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })
 
-  it('treats updated status as a meaningful change', () => {
+  it('returns true when the status changes', () => {
     const baseline = createEmptyProjectEditorDraft()
 
     const draft = cloneProjectEditorDraft(baseline)
@@ -86,7 +86,7 @@ describe('isProjectEditorDraftDirty', () => {
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })
 
-  it('treats adding an unsaved image as a meaningful change', () => {
+  it('returns true when an unsaved image is added', () => {
     const baseline = createEmptyProjectEditorDraft()
     const draft = cloneProjectEditorDraft(baseline)
 
@@ -95,7 +95,7 @@ describe('isProjectEditorDraftDirty', () => {
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })
 
-  it('treats removing an existing image as a meaningful change', () => {
+  it('returns true when an existing image is removed', () => {
     const baseline = createEmptyProjectEditorDraft()
     baseline.imageItems.push(createImageEditorItem({ id: 'existing-image-id' }))
 
@@ -105,7 +105,7 @@ describe('isProjectEditorDraftDirty', () => {
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })
 
-  it('treats changes to image alt text as meaningful change', () => {
+  it('returns true when image alt text changes', () => {
     const baseline = createEmptyProjectEditorDraft()
     baseline.imageItems.push(createImageEditorItem({
       id: 'existing-image-id',
@@ -118,7 +118,7 @@ describe('isProjectEditorDraftDirty', () => {
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })
 
-  it('treats reordering images as a meaningful change', () => {
+  it('returns true when images are reordered', () => {
     const baseline = createEmptyProjectEditorDraft()
     baseline.imageItems.push(
       createImageEditorItem({

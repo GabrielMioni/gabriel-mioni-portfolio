@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { imageFragmentToEditorItem } from '~/utils/images/imageEditorItems'
+import {
+  imageEditorItemsToProjectImagePrepareItemInput,
+  imageFragmentToEditorItem
+} from '~/utils/images/imageEditorItems'
 import type { ProjectImageFragment } from '~/generated/graphql'
+import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
 const createImageFragment = (
   overrides: Partial<ProjectImageFragment> = {}
@@ -17,6 +21,31 @@ const createImageFragment = (
   height: 800,
   width: 1_200,
   sizeBytes: '120000',
+  ...overrides
+})
+
+const createUploadEditorItem = (
+  overrides: Partial<ImageEditorItem> = {}
+): ImageEditorItem => ({
+  id: null,
+  clientId: 'upload-client-id',
+  isRemoved: false,
+  sort: 0,
+  contentType: 'image/webp',
+  fileName: 'portfolio-project.webp',
+  sizeThumb: 999,
+  sizeFull: 999,
+  altText: 'Portfolio project',
+  height: 800,
+  width: 1_200,
+  fullFile: new Blob(
+    [new Uint8Array(120)],
+    { type: 'image/webp' }
+  ),
+  thumbFile: new Blob(
+    [new Uint8Array(30)],
+    { type: 'image/jpeg' }
+  ),
   ...overrides
 })
 
@@ -78,5 +107,47 @@ describe('imageFragmentToEditorItem', () => {
     const secondEditorItem = imageFragmentToEditorItem(imageFragment)
 
     expect(firstEditorItem.clientId).not.toBe(secondEditorItem.clientId)
+  })
+})
+
+describe('imageEditorItemsToProjectImagePrepareItemInput', () => {
+  it('maps image and file metadata to a preparation input', () => {
+    const uploadItem = createUploadEditorItem()
+
+    const inputs = imageEditorItemsToProjectImagePrepareItemInput([
+      uploadItem
+    ])
+
+    expect(inputs).toEqual([
+      {
+        altText: 'Portfolio project',
+        clientId: 'upload-client-id',
+        fullContentType: 'image/webp',
+        fullSizeBytes: 120,
+        height: 800,
+        width: 1_200,
+        thumbContentType: 'image/jpeg',
+        thumbSizeBytes: 30
+      }
+    ])
+  })
+
+  it.each([
+    {
+      missingFile: 'full file',
+      overrides: { fullFile: null }
+    },
+    {
+      missingFile: 'thumbnail file',
+      overrides: { thumbFile: null }
+    }
+  ])('excludes an item missing its $missingFile', ({ overrides }) => {
+    const uploadItem = createUploadEditorItem(overrides)
+
+    const inputs = imageEditorItemsToProjectImagePrepareItemInput([
+      uploadItem
+    ])
+
+    expect(inputs).toEqual([])
   })
 })

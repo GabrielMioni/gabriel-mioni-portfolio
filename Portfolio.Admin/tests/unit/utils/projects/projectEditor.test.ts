@@ -4,9 +4,17 @@ import {
   createEmptyProjectEditorDraft,
   isProjectEditorDraftDirty
 } from '~/utils/projects/projectEditor'
-import { normalizeEditorItemsSortOrder } from '~/utils/editorItems'
-import { ProjectStatus } from '~/generated/graphql'
+import {
+  normalizeEditorItemsSortOrder,
+  removeEditorItem
+} from '~/utils/editorItems'
+import {
+  ProjectLinkType,
+  ProjectStatus
+} from '~/generated/graphql'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
+import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
+import type { TagEditorItem } from '~/types/tags'
 
 const createImageEditorItem = (
   overrides: Partial<ImageEditorItem> = {}
@@ -22,6 +30,28 @@ const createImageEditorItem = (
   altText: 'Portfolio project',
   height: 800,
   width: 1_200,
+  ...overrides
+})
+
+const createLinkEditorItem = (
+  overrides: Partial<LinkEditorItem> = {}
+): LinkEditorItem => ({
+  id: null,
+  clientId: 'link-client-id',
+  isRemoved: false,
+  sort: 0,
+  url: 'https://example.com',
+  text: 'Example',
+  type: ProjectLinkType.External,
+  ...overrides
+})
+
+const createTagEditorItem = (
+  overrides: Partial<TagEditorItem> = {}
+): TagEditorItem => ({
+  id: null,
+  name: 'Design',
+  value: 'design',
   ...overrides
 })
 
@@ -140,5 +170,187 @@ describe('isProjectEditorDraftDirty', () => {
     ])
 
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('returns false when only the image array order changes', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.imageItems.push(
+      createImageEditorItem({
+        id: 'first-image-id',
+        clientId: 'first-image-client-id',
+        sort: 0
+      }),
+      createImageEditorItem({
+        id: 'second-image-id',
+        clientId: 'second-image-client-id',
+        sort: 1
+      })
+    )
+
+    const draft = cloneProjectEditorDraft(baseline)
+    draft.imageItems.reverse()
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(false)
+  })
+
+  it('returns false when an unsaved image is added and then removed', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    const draft = cloneProjectEditorDraft(baseline)
+    const unsavedImage = createImageEditorItem()
+
+    draft.imageItems.push(unsavedImage)
+    draft.imageItems = removeEditorItem(
+      unsavedImage.clientId,
+      draft.imageItems
+    )
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(false)
+  })
+
+  it('returns true when an unsaved link is added', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    const draft = cloneProjectEditorDraft(baseline)
+
+    draft.linkItems.push(createLinkEditorItem())
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('returns true when an existing link is removed', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.linkItems.push(createLinkEditorItem({ id: 'existing-link-id' }))
+
+    const draft = cloneProjectEditorDraft(baseline)
+    draft.linkItems[0]!.isRemoved = true
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it.each([
+    {
+      field: 'text',
+      update: (link: LinkEditorItem) => {
+        link.text = 'Updated text'
+      }
+    },
+    {
+      field: 'URL',
+      update: (link: LinkEditorItem) => {
+        link.url = 'https://updated.example.com'
+      }
+    },
+    {
+      field: 'type',
+      update: (link: LinkEditorItem) => {
+        link.type = ProjectLinkType.Repository
+      }
+    }
+  ])('returns true when link $field changes', ({ update }) => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.linkItems.push(createLinkEditorItem({ id: 'existing-link-id' }))
+
+    const draft = cloneProjectEditorDraft(baseline)
+    update(draft.linkItems[0]!)
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('returns true when links are reordered', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.linkItems.push(
+      createLinkEditorItem({
+        id: 'first-link-id',
+        clientId: 'first-link-client-id',
+        sort: 0
+      }),
+      createLinkEditorItem({
+        id: 'second-link-id',
+        clientId: 'second-link-client-id',
+        sort: 1
+      })
+    )
+
+    const draft = cloneProjectEditorDraft(baseline)
+    draft.linkItems = normalizeEditorItemsSortOrder([
+      draft.linkItems[1]!,
+      draft.linkItems[0]!
+    ])
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('returns false when only the link array order changes', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.linkItems.push(
+      createLinkEditorItem({
+        id: 'first-link-id',
+        clientId: 'first-link-client-id',
+        sort: 0
+      }),
+      createLinkEditorItem({
+        id: 'second-link-id',
+        clientId: 'second-link-client-id',
+        sort: 1
+      })
+    )
+
+    const draft = cloneProjectEditorDraft(baseline)
+    draft.linkItems.reverse()
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(false)
+  })
+
+  it('returns false when an unsaved link is added and then removed', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    const draft = cloneProjectEditorDraft(baseline)
+    const unsavedLink = createLinkEditorItem()
+
+    draft.linkItems.push(unsavedLink)
+    draft.linkItems = removeEditorItem(
+      unsavedLink.clientId,
+      draft.linkItems
+    )
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(false)
+  })
+
+  it('returns true when a tag is assigned', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    const draft = cloneProjectEditorDraft(baseline)
+
+    draft.tagItems.push(createTagEditorItem())
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('returns true when a tag is unassigned', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.tagItems.push(createTagEditorItem({ id: 'existing-tag-id' }))
+
+    const draft = cloneProjectEditorDraft(baseline)
+    draft.tagItems = []
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('returns false when only the tag array order changes', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.tagItems.push(
+      createTagEditorItem({
+        id: 'first-tag-id',
+        name: 'Design',
+        value: 'design'
+      }),
+      createTagEditorItem({
+        id: 'second-tag-id',
+        name: 'Development',
+        value: 'development'
+      })
+    )
+
+    const draft = cloneProjectEditorDraft(baseline)
+    draft.tagItems.reverse()
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(false)
   })
 })

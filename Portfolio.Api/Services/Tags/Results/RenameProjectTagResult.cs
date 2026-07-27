@@ -1,6 +1,6 @@
 using Portfolio.Api.Domain.Projects;
 
-namespace Portfolio.Api.Services.Results;
+namespace Portfolio.Api.Services.Tags.Results;
 
 public enum RenameProjectTagOutcome
 {

@@ -1,6 +1,6 @@
 ﻿using Portfolio.Api.Domain.Projects;
 
-namespace Portfolio.Api.Services.Helpers;
+namespace Portfolio.Api.Services.Images.Helpers;
 
 internal static class ProjectImageStorageKeyHelper
 {

@@ -1,8 +1,8 @@
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
 using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
-using Portfolio.Api.Services;
-using Portfolio.Api.Services.Results;
+using Portfolio.Api.Services.Tags;
+using Portfolio.Api.Services.Tags.Results;
 
 namespace Portfolio.Api.GraphQL.Projects.Admin;
 

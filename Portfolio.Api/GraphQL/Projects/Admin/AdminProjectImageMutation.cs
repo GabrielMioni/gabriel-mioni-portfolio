@@ -1,7 +1,7 @@
 ﻿using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
 using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
-using Portfolio.Api.Services;
-using Portfolio.Api.Services.Results;
+using Portfolio.Api.Services.Images;
+using Portfolio.Api.Services.Images.Results;
 
 namespace Portfolio.Api.GraphQL.Projects.Admin;
 
@@ -121,6 +121,17 @@ public class AdminProjectImageMutation
                         $"Project '{input.ProjectId}' was not found.",
                         "input", "projectId")
                 ]);
+        }
+
+        if (result.InvalidReferences.Count > 0)
+        {
+            return new DeleteProjectImagesPayload(
+                Project: null,
+                UserErrors: result.InvalidReferences
+                    .Select(reference => UserError.InvalidReference(
+                        $"Project image '{reference.Id}' was not found on this project.",
+                        "input", "projectImageIds", reference.InputIndex.ToString()))
+                    .ToArray());
         }
 
         if (result.Project is null)

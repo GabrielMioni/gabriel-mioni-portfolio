@@ -2,11 +2,11 @@
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
-using Portfolio.Api.Services.Helpers;
-using Portfolio.Api.Services.Results;
+using Portfolio.Api.Services.Images.Helpers;
+using Portfolio.Api.Services.Projects.Results;
 using Portfolio.Api.Services.Storage;
 
-namespace Portfolio.Api.Services;
+namespace Portfolio.Api.Services.Projects;
 
 public class ProjectService
 {

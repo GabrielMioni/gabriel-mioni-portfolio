@@ -1,6 +1,6 @@
 ﻿using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
-using Portfolio.Api.Services;
+using Portfolio.Api.Services.Projects;
 
 namespace Portfolio.Api.GraphQL.Projects.Admin
 {

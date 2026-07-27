@@ -1,4 +1,4 @@
-namespace Portfolio.Api.Services.Results;
+namespace Portfolio.Api.Services.Projects.Results;
 
 public sealed record InvalidProjectReference(
     int InputIndex,

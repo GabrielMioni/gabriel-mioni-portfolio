@@ -5,6 +5,24 @@ import {
   isProjectEditorDraftDirty
 } from '~/utils/projects/projectEditor'
 import { ProjectStatus } from '~/generated/graphql'
+import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
+
+const createImageEditorItem = (
+  overrides: Partial<ImageEditorItem> = {}
+): ImageEditorItem => ({
+  id: null,
+  clientId: 'image-client-id',
+  isRemoved: false,
+  sort: 0,
+  contentType: 'image/jpeg',
+  fileName: 'portfolio-project.jpg',
+  sizeThumb: 20_000,
+  sizeFull: 120_000,
+  altText: 'Portfolio project',
+  height: 800,
+  width: 1_200,
+  ...overrides
+})
 
 describe('isProjectEditorDraftDirty', () => {
   it('returns false when the draft matches the baseline', () => {
@@ -63,6 +81,25 @@ describe('isProjectEditorDraftDirty', () => {
 
     const draft = cloneProjectEditorDraft(baseline)
     draft.form.status = ProjectStatus.Published
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('treats adding an unsaved image as a meaningful change', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    const draft = cloneProjectEditorDraft(baseline)
+
+    draft.imageItems.push(createImageEditorItem())
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('treats removing an existing image as a meaningful change', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.imageItems.push(createImageEditorItem({ id: 'existing-image-id' }))
+
+    const draft = cloneProjectEditorDraft(baseline)
+    draft.imageItems[0]!.isRemoved = true
 
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   cloneProjectEditorDraft,
   createEmptyProjectEditorDraft,
-  isProjectEditorDraftDirty
+  isProjectEditorDraftDirty,
 } from '~/utils/projects/projectEditor'
 import { ProjectStatus } from '~/generated/graphql'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
@@ -100,6 +100,19 @@ describe('isProjectEditorDraftDirty', () => {
 
     const draft = cloneProjectEditorDraft(baseline)
     draft.imageItems[0]!.isRemoved = true
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('treats changes to image alt text as meaningful change', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.imageItems.push(createImageEditorItem({
+      id: 'existing-image-id',
+      altText: 'Unchanged alt text'
+    }))
+
+    const draft = cloneProjectEditorDraft(baseline)
+    draft.imageItems[0]!.altText = 'Updated alt text'
 
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })

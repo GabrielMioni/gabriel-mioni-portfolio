@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   cloneProjectEditorDraft,
   createEmptyProjectEditorDraft,
-  isProjectEditorDraftDirty,
+  isProjectEditorDraftDirty
 } from '~/utils/projects/projectEditor'
+import { normalizeEditorItemsSortOrder } from '~/utils/editorItems'
 import { ProjectStatus } from '~/generated/graphql'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 
@@ -113,6 +114,30 @@ describe('isProjectEditorDraftDirty', () => {
 
     const draft = cloneProjectEditorDraft(baseline)
     draft.imageItems[0]!.altText = 'Updated alt text'
+
+    expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
+  })
+
+  it('treats reordering images as a meaningful change', () => {
+    const baseline = createEmptyProjectEditorDraft()
+    baseline.imageItems.push(
+      createImageEditorItem({
+        id: 'first-image-id',
+        clientId: 'first-image-client-id',
+        sort: 0
+      }),
+      createImageEditorItem({
+        id: 'second-image-id',
+        clientId: 'second-image-client-id',
+        sort: 1
+      })
+    )
+
+    const draft = cloneProjectEditorDraft(baseline)
+    draft.imageItems = normalizeEditorItemsSortOrder([
+      draft.imageItems[1]!,
+      draft.imageItems[0]!
+    ])
 
     expect(isProjectEditorDraftDirty(draft, baseline)).toBe(true)
   })

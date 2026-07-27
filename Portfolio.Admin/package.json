@@ -9,7 +9,9 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "codegen": "graphql-codegen --config codegen.ts",
-    "codegen:watch": "graphql-codegen --config codegen.ts --watch"
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.11.3",
@@ -33,6 +35,7 @@
     "@vueuse/nuxt": "^14.2.1",
     "eslint": "^9.39.3",
     "graphql": "^16.12.0",
-    "sass": "^1.97.3"
+    "sass": "^1.97.3",
+    "vitest": "^3.2.7"
   }
 }

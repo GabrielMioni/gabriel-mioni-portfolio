@@ -1,12 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  components: {
-    dirs: [{ path: '~/components', pathPrefix: false }]
-  },
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui'
   ],
+  components: {
+    dirs: [{ path: '~/components', pathPrefix: false }]
+  },
   devtools: {
     enabled: true
   },

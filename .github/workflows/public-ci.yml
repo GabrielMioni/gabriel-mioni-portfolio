@@ -1,0 +1,73 @@
+name: Public CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-build:
+    name: Check and build Public
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore API dependencies
+        run: dotnet restore Portfolio.Api/Portfolio.Api.csproj
+
+      - name: Build API
+        run: dotnet build Portfolio.Api/Portfolio.Api.csproj --no-restore --configuration Release
+
+      - name: Export Public GraphQL schema
+        run: >-
+          dotnet run
+          --project Portfolio.Api/Portfolio.Api.csproj
+          --no-build
+          --no-launch-profile
+          --configuration Release
+          --
+          schema export
+          --output obj/public-schema.graphql
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Portfolio.Public/package-lock.json
+
+      - name: Install Public dependencies
+        working-directory: Portfolio.Public
+        run: npm ci
+
+      - name: Generate Public GraphQL client
+        working-directory: Portfolio.Public
+        env:
+          PUBLIC_GRAPHQL_SCHEMA: ../Portfolio.Api/obj/public-schema.graphql
+        run: npm run codegen
+
+      - name: Lint Public
+        working-directory: Portfolio.Public
+        run: npm run lint
+
+      - name: Type-check Public
+        working-directory: Portfolio.Public
+        run: npm run typecheck
+
+      - name: Build Public
+        working-directory: Portfolio.Public
+        run: npm run build

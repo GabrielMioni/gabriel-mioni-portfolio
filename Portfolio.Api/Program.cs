@@ -16,6 +16,8 @@ using Portfolio.Api.GraphQL.Projects.Admin.Types;
 using Portfolio.Api.GraphQL.Projects.Public;
 
 var builder = WebApplication.CreateBuilder(args);
+var isSchemaCommand = args.Length > 0
+    && string.Equals(args[0], "schema", StringComparison.OrdinalIgnoreCase);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -189,9 +191,12 @@ app.Use(async (ctx, next) =>
     await next();
 });
 
-await IdentitySeed.SeedAdminAsync(app);
-await ProjectTagSeed.SeedAsync(app);
+if (!isSchemaCommand)
+{
+    await IdentitySeed.SeedAdminAsync(app);
+    await ProjectTagSeed.SeedAsync(app);
+}
 
-app.Run();
+await app.RunWithGraphQLCommandsAsync(args);
 
 public partial class Program;

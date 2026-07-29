@@ -224,4 +224,41 @@ describe('useProjectQueries', () => {
 
     wrapper.unmount()
   })
+
+  it('replaces stale projects when the first filtered response arrives', async () => {
+    const firstPageProject = createProject('project-one', 'Project One')
+    const secondPageProject = createProject('project-two', 'Project Two')
+    const filteredProject = createProject('project-vue', 'Vue Project')
+    const tagValues = ref<string[]>([])
+    const {
+      projectQueries,
+      wrapper
+    } = mountProjectQueries({ tagValues })
+
+    setProjectPage({
+      projects: [firstPageProject],
+      hasNextPage: true,
+      totalCount: 2
+    })
+    await nextTick()
+    projectQueries.loadMore()
+    setProjectPage({
+      projects: [secondPageProject],
+      hasNextPage: false,
+      totalCount: 2
+    })
+    await nextTick()
+
+    tagValues.value = ['vue']
+    await nextTick()
+    setProjectPage({
+      projects: [filteredProject],
+      hasNextPage: false
+    })
+    await nextTick()
+
+    expect(projectQueries.projects.value).toEqual([filteredProject])
+
+    wrapper.unmount()
+  })
 })

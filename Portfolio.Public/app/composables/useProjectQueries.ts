@@ -6,7 +6,12 @@ import {
 } from '~/generated/graphql'
 import { useQuery } from '@urql/vue'
 import { useFragment } from '~/generated'
-import type { Ref } from 'vue'
+import {
+  computed,
+  ref,
+  watch,
+  type Ref
+} from 'vue'
 
 const PAGE_SIZE = 9
 

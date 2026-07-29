@@ -12,7 +12,8 @@ import {
   GetPublishedTagsDocument,
   type GetPublishedProjectsQuery,
   type GetPublishedProjectsQueryVariables,
-  type GetPublishedTagsQuery
+  type GetPublishedTagsQuery,
+  type PublicProjectFragment
 } from '~/generated/graphql'
 import { useProjectQueries } from '~/composables/useProjectQueries'
 
@@ -27,6 +28,47 @@ vi.mock('@urql/vue', () => ({
 const tagsData = ref<GetPublishedTagsQuery>()
 const projectsData = ref<GetPublishedProjectsQuery>()
 const fetchingProjects = ref(false)
+
+type PublishedProjectsPage = NonNullable<
+  GetPublishedProjectsQuery['publishedProjects']
+>
+
+const createProject = (
+  id: string,
+  title: string
+): PublicProjectFragment => ({
+  id,
+  title,
+  summary: null,
+  body: null,
+  publishedAt: null,
+  images: [],
+  links: [],
+  tags: []
+})
+
+type SetProjectPageOptions = {
+  projects: PublicProjectFragment[]
+  hasNextPage: boolean
+  totalCount?: number
+}
+
+const setProjectPage = ({
+  projects,
+  hasNextPage,
+  totalCount = projects.length
+}: SetProjectPageOptions) => {
+  projectsData.value = {
+    publishedProjects: {
+      totalCount,
+      items: projects as unknown as NonNullable<PublishedProjectsPage['items']>,
+      pageInfo: {
+        hasNextPage,
+        hasPreviousPage: false
+      }
+    }
+  }
+}
 
 type MountProjectQueriesOptions = {
   tagValues?: Ref<string[]>
@@ -123,6 +165,62 @@ describe('useProjectQueries', () => {
       take: 9,
       tagValues: ['vue', 'typescript']
     })
+
+    wrapper.unmount()
+  })
+
+  it('exposes the tags returned by the tags query', () => {
+    const { projectQueries, wrapper } = mountProjectQueries()
+    const tags = [
+      {
+        id: 'tag-vue',
+        name: 'Vue',
+        value: 'vue'
+      },
+      {
+        id: 'tag-typescript',
+        name: 'TypeScript',
+        value: 'typescript'
+      }
+    ]
+
+    tagsData.value = {
+      publishedTags: tags
+    }
+
+    expect(projectQueries.availableTags.value).toEqual(tags)
+
+    wrapper.unmount()
+  })
+
+  it('replaces the first project page and appends later pages', async () => {
+    const firstPageProject = createProject('project-one', 'Project One')
+    const secondPageProject = createProject('project-two', 'Project Two')
+    const { projectQueries, wrapper } = mountProjectQueries()
+
+    setProjectPage({
+      projects: [firstPageProject],
+      hasNextPage: true,
+      totalCount: 2
+    })
+    await nextTick()
+
+    expect(projectQueries.projects.value).toEqual([firstPageProject])
+    expect(projectQueries.hasNextPage.value).toBe(true)
+
+    projectQueries.loadMore()
+    setProjectPage({
+      projects: [secondPageProject],
+      hasNextPage: false,
+      totalCount: 2
+    })
+    await nextTick()
+
+    expect(projectQueries.projects.value).toEqual([
+      firstPageProject,
+      secondPageProject
+    ])
+    expect(projectQueries.hasNextPage.value).toBe(false)
 
     wrapper.unmount()
   })

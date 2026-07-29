@@ -68,6 +68,10 @@ jobs:
         working-directory: Portfolio.Public
         run: npm run typecheck
 
+      - name: Test Public
+        working-directory: Portfolio.Public
+        run: npm test
+
       - name: Build Public
         working-directory: Portfolio.Public
         run: npm run build

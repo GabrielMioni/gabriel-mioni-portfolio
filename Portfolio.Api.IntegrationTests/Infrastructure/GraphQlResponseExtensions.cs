@@ -8,7 +8,14 @@ internal static class GraphQlResponseExtensions
     public static async Task<JsonElement> ReadGraphQlDataAsync(
         this HttpResponseMessage response)
     {
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync();
+
+            Assert.Fail(
+                $"GraphQL request returned {(int)response.StatusCode} " +
+                $"({response.StatusCode}).{Environment.NewLine}{errorBody}");
+        }
 
         await using var responseStream = await response.Content.ReadAsStreamAsync();
         using var document = await JsonDocument.ParseAsync(responseStream);

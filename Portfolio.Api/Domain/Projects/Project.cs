@@ -3,6 +3,8 @@
 public class Project
 {
     public const int MaxTitleLength = 300;
+    public const int MaxImageCount = 15;
+    public const int MaxTagCount = 15;
 
     public Guid Id { get; private set; }
 
@@ -94,6 +96,12 @@ public class Project
     {
         ArgumentNullException.ThrowIfNull(image);
 
+        if (Images.Count >= MaxImageCount)
+        {
+            throw new InvalidOperationException(
+                $"A project cannot have more than {MaxImageCount} images.");
+        }
+
         Images.Add(image);
         Touch();
     }
@@ -109,6 +117,13 @@ public class Project
     public void AddTag(ProjectTag tag)
     {
         ArgumentNullException.ThrowIfNull(tag);
+
+        if (Tags.Count >= MaxTagCount)
+        {
+            throw new InvalidOperationException(
+                $"A project cannot have more than {MaxTagCount} tags.");
+        }
+
         Tags.Add(tag);
         Touch();
     }

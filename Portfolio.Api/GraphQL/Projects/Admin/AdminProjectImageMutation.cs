@@ -1,4 +1,5 @@
 ﻿using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
+using Portfolio.Api.Domain.Projects;
 using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
 using Portfolio.Api.Services.Images;
 using Portfolio.Api.Services.Images.Results;
@@ -33,6 +34,18 @@ public class AdminProjectImageMutation
                     UserError.NotFound(
                         $"Project '{input.ProjectId}' was not found.",
                         "input", "projectId")
+                ]);
+        }
+
+        if (result.ImageLimitWasExceeded)
+        {
+            return new PrepareProjectImageUploadsPayload(
+                Items: null,
+                UserErrors:
+                [
+                    UserError.Validation(
+                        $"A project cannot have more than {Project.MaxImageCount} images.",
+                        "input", "items")
                 ]);
         }
 

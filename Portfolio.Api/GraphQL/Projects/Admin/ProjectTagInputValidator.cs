@@ -4,6 +4,20 @@ namespace Portfolio.Api.GraphQL.Projects.Admin;
 
 internal static class ProjectTagInputValidator
 {
+    public static IReadOnlyList<UserError> ValidateProjectTagIds(
+        IReadOnlyList<Guid> tagIds)
+    {
+        if (tagIds.Distinct().Count() <= Project.MaxTagCount)
+            return [];
+
+        return
+        [
+            UserError.Validation(
+                $"A project cannot have more than {Project.MaxTagCount} tags.",
+                "input", "tagIds")
+        ];
+    }
+
     public static IReadOnlyList<UserError> ValidateName(string name)
     {
         var userError = GetNameValidationError(name, "input", "name");

@@ -47,6 +47,12 @@ public class ProjectImageService
             .Where(image => image.ClientId is not null)
             .ToDictionary(image => image.ClientId!);
 
+        var newImageCount = input.Items.Count(item =>
+            !imagesByClientId.ContainsKey(item.ClientId.Trim()));
+
+        if (project.Images.Count + newImageCount > Project.MaxImageCount)
+            return PrepareProjectImageUploadsResult.ImageLimitExceeded();
+
         var instructions = new List<ProjectImageUploadInstruction>(input.Items.Count);
 
         var nextSortOrder = project.Images.Count == 0

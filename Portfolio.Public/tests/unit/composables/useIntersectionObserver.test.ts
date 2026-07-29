@@ -1,6 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, ref } from 'vue'
+import {
+  defineComponent,
+  h,
+  nextTick,
+  ref,
+  type Ref,
+  type VNodeChild
+} from 'vue'
 import { useIntersectionObserver } from '~/composables/useIntersectionObserver'
 
 const observerMocks = {
@@ -29,6 +36,26 @@ const IntersectionObserverMock = vi.fn(function (
   }
 })
 
+type MountObserverComponentOptions = {
+  target: Ref<Element | null | undefined>
+  callback?: IntersectionObserverCallback
+  options?: IntersectionObserverInit
+  render?: () => VNodeChild
+}
+
+const mountObserverComponent = ({
+  target,
+  callback = vi.fn(),
+  options,
+  render = () => null
+}: MountObserverComponentOptions) => mount(defineComponent({
+  setup: () => {
+    useIntersectionObserver(target, callback, options)
+
+    return render
+  }
+}))
+
 beforeEach(() => {
   vi.stubGlobal('IntersectionObserver', IntersectionObserverMock)
 })
@@ -45,19 +72,41 @@ describe('useIntersectionObserver', () => {
     const options: IntersectionObserverInit = {
       rootMargin: '100px'
     }
-    const TestComponent = defineComponent({
-      setup: () => {
-        useIntersectionObserver(target, callback, options)
-
-        return () => h('div', { ref: target })
-      }
+    const wrapper = mountObserverComponent({
+      target,
+      callback,
+      options,
+      render: () => h('div', { ref: target })
     })
-
-    const wrapper = mount(TestComponent)
 
     expect(observerMocks.create).toHaveBeenCalledWith(callback, options)
     expect(observerMocks.observe).toHaveBeenCalledWith(wrapper.element)
 
     wrapper.unmount()
+  })
+
+  it('moves observation when the target element changes', async () => {
+    const firstTarget = document.createElement('div')
+    const nextTarget = document.createElement('div')
+    const target = ref<Element | null>(firstTarget)
+    const wrapper = mountObserverComponent({ target })
+    observerMocks.observe.mockClear()
+
+    target.value = nextTarget
+    await nextTick()
+
+    expect(observerMocks.unobserve).toHaveBeenCalledWith(firstTarget)
+    expect(observerMocks.observe).toHaveBeenCalledWith(nextTarget)
+
+    wrapper.unmount()
+  })
+
+  it('disconnects the observer when the component unmounts', () => {
+    const target = ref<Element | null>(document.createElement('div'))
+    const wrapper = mountObserverComponent({ target })
+
+    wrapper.unmount()
+
+    expect(observerMocks.disconnect).toHaveBeenCalledOnce()
   })
 })

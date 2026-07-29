@@ -1,3 +1,10 @@
+import {
+  onMounted,
+  onUnmounted,
+  watch,
+  type Ref
+} from 'vue'
+
 export const useIntersectionObserver = (
   target: Ref<Element | null | undefined>,
   callback: IntersectionObserverCallback,

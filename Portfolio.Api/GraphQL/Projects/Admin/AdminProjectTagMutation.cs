@@ -49,6 +49,15 @@ public class AdminProjectTagMutation
         [Service] ProjectTagService tags,
         CancellationToken ct = default)
     {
+        var userErrors = ProjectTagInputValidator.ValidateProjectTagIds(input.TagIds);
+
+        if (userErrors.Count > 0)
+        {
+            return new UpdateProjectTagsPayload(
+                Project: null,
+                UserErrors: userErrors);
+        }
+
         var result = await tags.UpdateProjectTagsAsync(
             input.ProjectId,
             input.TagIds,

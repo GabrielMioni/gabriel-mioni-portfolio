@@ -143,6 +143,63 @@ public sealed class UpdateProjectTagsTests(SqlServerFixture database)
     }
 
     [Fact]
+    public async Task UpdateProjectTags_AboveProjectTagLimit_ReturnsValidationAndChangesNothing()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var suffix = TestData.NewSuffix();
+        var project = Project.Create(
+            title: $"Project above tag limit {suffix}",
+            summary: null,
+            body: null);
+
+        var tags = Enumerable
+            .Range(0, Project.MaxTagCount + 1)
+            .Select(index => ProjectTag.Create($"Limit tag {index} {suffix}"))
+            .ToArray();
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            db.Tags.AddRange(tags);
+            await db.SaveChangesAsync();
+        }
+
+        // Act
+        using var response = await SendUpdateProjectTagsAsync(
+            client,
+            projectId: project.Id,
+            tagIds: tags.Select(tag => tag.Id).ToArray());
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync("updateProjectTags");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.Validation,
+            message: $"A project cannot have more than {Project.MaxTagCount} tags.",
+            field: ["input", "tagIds"]);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedProject = await verificationDb.Projects
+            .Include(candidate => candidate.Tags)
+            .AsNoTracking()
+            .SingleAsync(candidate => candidate.Id == project.Id);
+
+        Assert.Empty(persistedProject.Tags);
+    }
+
+    [Fact]
     public async Task UpdateProjectTags_WithMissingTagId_ReturnsInvalidReferenceAndChangesNothing()
     {
         await using var factory = new ApiWebApplicationFactory(database.ConnectionString);

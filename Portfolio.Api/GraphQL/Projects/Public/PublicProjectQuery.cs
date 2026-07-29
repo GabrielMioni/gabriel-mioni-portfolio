@@ -24,9 +24,11 @@ namespace Portfolio.Api.GraphQL.Projects.Public
                 .ToListAsync(ct);
         }
 
-        [UseOffsetPaging(IncludeTotalCount = true)]
-        [UseFiltering]
-        [UseSorting]
+        [UseOffsetPaging(
+            IncludeTotalCount = true,
+            DefaultPageSize = 12,
+            MaxPageSize = 12,
+            RequirePagingBoundaries = true)]
         public IQueryable<PublicProjectDto> GetPublishedProjects(
             string[]? tagValues,
             [Service] AppDbContext db,
@@ -39,7 +41,10 @@ namespace Portfolio.Api.GraphQL.Projects.Public
             if (tagValues is { Length: > 0 })
                 query = query.Where(p => p.Tags.Any(t => tagValues.Contains(t.Value)));
 
-            return query.Select(project => new PublicProjectDto
+            return query
+                .OrderByDescending(project => project.PublishedAt)
+                .ThenBy(project => project.Id)
+                .Select(project => new PublicProjectDto
                 {
                     Id = project.Id,
                     Title = project.Title,
@@ -47,6 +52,7 @@ namespace Portfolio.Api.GraphQL.Projects.Public
                     Body = project.Body,
                     PublishedAt = project.PublishedAt,
                     Images = project.Images
+                        .Where(i => i.IsUploaded)
                         .OrderBy(i => i.SortOrder)
                         .Select(i => new PublicProjectImageDto
                         {

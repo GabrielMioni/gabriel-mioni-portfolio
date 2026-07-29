@@ -281,6 +281,97 @@ public sealed class PrepareProjectImageUploadsTests(SqlServerFixture database)
     }
 
     [Fact]
+    public async Task PrepareProjectImageUploads_AtImageLimit_AllowsRetryButRejectsNewImage()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var suffix = TestData.NewSuffix();
+        var project = Project.Create($"Project at image limit {suffix}", null, null);
+
+        for (var index = 0; index < Project.MaxImageCount; index++)
+        {
+            project.AddImage(ProjectImage.CreatePending(
+                id: Guid.NewGuid(),
+                project.Id,
+                clientId: $"existing-{index}-{suffix}",
+                altText: $"Existing image {index}",
+                fullKey: $"projects/{project.Id}/existing-{index}-full.webp",
+                thumbKey: $"projects/{project.Id}/existing-{index}-thumb.webp",
+                contentType: "image/webp",
+                sizeBytes: 100,
+                width: 100,
+                height: 100,
+                sortOrder: index));
+        }
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        var retryItem = new PrepareItem(
+            ClientId: $"existing-0-{suffix}",
+            AltText: "Existing image 0",
+            FullContentType: "image/webp",
+            FullSizeBytes: 100,
+            ThumbContentType: "image/webp",
+            ThumbSizeBytes: 50,
+            Height: 100,
+            Width: 100);
+
+        var newClientId = $"new-{suffix}";
+        var newItem = retryItem with { ClientId = newClientId };
+
+        // Act: retry an existing preparation at the limit
+        using var retryResponse = await SendPrepareProjectImageUploadsAsync(
+            client,
+            project.Id,
+            [retryItem]);
+
+        // Assert: retry remains safe
+        var retryPayload = await retryResponse.ReadGraphQlPayloadAsync(
+            "prepareProjectImageUploads");
+
+        Assert.Empty(retryPayload.GetProperty("userErrors").EnumerateArray());
+        Assert.Single(retryPayload.GetProperty("items").EnumerateArray());
+
+        // Act: attempt to add a new image beyond the limit
+        using var newImageResponse = await SendPrepareProjectImageUploadsAsync(
+            client,
+            project.Id,
+            [newItem]);
+
+        // Assert: public GraphQL contract
+        var newImagePayload = await newImageResponse.ReadGraphQlPayloadAsync(
+            "prepareProjectImageUploads");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            newImagePayload.GetProperty("items").ValueKind);
+
+        newImagePayload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.Validation,
+            message: $"A project cannot have more than {Project.MaxImageCount} images.",
+            field: ["input", "items"]);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        Assert.Equal(
+            Project.MaxImageCount,
+            await verificationDb.ProjectImages.CountAsync(image =>
+                image.ProjectId == project.Id));
+        Assert.False(await verificationDb.ProjectImages.AnyAsync(image =>
+            image.ClientId == newClientId));
+    }
+
+    [Fact]
     public async Task PrepareProjectImageUploads_WhenProjectDoesNotExist_ReturnsNotFoundAndCreatesNothing()
     {
         await using var factory = new ApiWebApplicationFactory(database.ConnectionString);

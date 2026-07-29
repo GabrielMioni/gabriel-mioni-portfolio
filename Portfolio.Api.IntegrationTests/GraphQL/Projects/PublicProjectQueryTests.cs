@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
@@ -16,15 +17,11 @@ public sealed class PublicProjectQueryTests(SqlServerFixture database)
           $skip: Int
           $take: Int
           $tagValues: [String!]
-          $where: PublicProjectDtoFilterInput
-          $order: [PublicProjectDtoSortInput!]
         ) {
           publishedProjects(
             skip: $skip
             take: $take
             tagValues: $tagValues
-            where: $where
-            order: $order
           ) {
             items {
               id
@@ -75,10 +72,8 @@ public sealed class PublicProjectQueryTests(SqlServerFixture database)
     private static Task<HttpResponseMessage> SendPublishedProjectsAsync(
         HttpClient client,
         int? skip = null,
-        int? take = null,
-        string[]? tagValues = null,
-        object? where = null,
-        object[]? order = null)
+        int take = 12,
+        string[]? tagValues = null)
     {
         return client.PostAsJsonAsync(
             "/graphql",
@@ -89,9 +84,7 @@ public sealed class PublicProjectQueryTests(SqlServerFixture database)
                 {
                     skip,
                     take,
-                    tagValues,
-                    where,
-                    order
+                    tagValues
                 }
             });
     }
@@ -189,8 +182,7 @@ public sealed class PublicProjectQueryTests(SqlServerFixture database)
         // Act
         using var response = await SendPublishedProjectsAsync(
             client,
-            where: new { title = new { contains = suffix } },
-            order: [new { title = "ASC" }]);
+            tagValues: [alphaTag.Value]);
 
         // Assert
         var data = await response.ReadGraphQlDataAsync();
@@ -292,9 +284,7 @@ public sealed class PublicProjectQueryTests(SqlServerFixture database)
         // Act
         using var response = await SendPublishedProjectsAsync(
             client,
-            tagValues: [selectedTag.Value],
-            where: new { title = new { contains = suffix } },
-            order: [new { title = "ASC" }]);
+            tagValues: [selectedTag.Value]);
 
         // Assert
         var data = await response.ReadGraphQlDataAsync();
@@ -313,7 +303,7 @@ public sealed class PublicProjectQueryTests(SqlServerFixture database)
     }
 
     [Fact]
-    public async Task PublishedProjects_AppliesFilteringSortingAndPaging()
+    public async Task PublishedProjects_UsesStableOrderingAndAppliesPaging()
     {
         await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
         using var client = factory.CreateClient();
@@ -325,6 +315,11 @@ public sealed class PublicProjectQueryTests(SqlServerFixture database)
         var projectA = Project.Create($"{prefix} A", null, null, ProjectStatus.Published);
         var projectB = Project.Create($"{prefix} B", null, null, ProjectStatus.Published);
         var projectC = Project.Create($"{prefix} C", null, null, ProjectStatus.Published);
+        var pagingTag = ProjectTag.Create($"Paging {suffix}");
+
+        projectA.AddTag(pagingTag);
+        projectB.AddTag(pagingTag);
+        projectC.AddTag(pagingTag);
 
         await using (var scope = factory.Services.CreateAsyncScope())
         {
@@ -338,8 +333,7 @@ public sealed class PublicProjectQueryTests(SqlServerFixture database)
             client,
             skip: 1,
             take: 1,
-            where: new { title = new { startsWith = prefix } },
-            order: [new { title = "ASC" }]);
+            tagValues: [pagingTag.Value]);
 
         // Assert
         var data = await response.ReadGraphQlDataAsync();
@@ -351,6 +345,31 @@ public sealed class PublicProjectQueryTests(SqlServerFixture database)
         Assert.Equal(projectB.Id, returnedProject.GetProperty("id").GetGuid());
         Assert.True(pageInfo.GetProperty("hasNextPage").GetBoolean());
         Assert.True(pageInfo.GetProperty("hasPreviousPage").GetBoolean());
+    }
+
+    [Fact]
+    public async Task PublishedProjects_AbovePageLimit_ReturnsGraphQlError()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateClient();
+
+        // Act
+        using var response = await SendPublishedProjectsAsync(
+            client,
+            take: 13);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        await using var responseStream = await response.Content.ReadAsStreamAsync();
+        using var document = await JsonDocument.ParseAsync(responseStream);
+        var errors = document.RootElement.GetProperty("errors").EnumerateArray();
+        var error = Assert.Single(errors);
+
+        Assert.Contains(
+            "maximum allowed items per page",
+            error.GetProperty("message").GetString(),
+            StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

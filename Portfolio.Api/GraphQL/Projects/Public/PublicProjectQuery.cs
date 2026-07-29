@@ -47,6 +47,7 @@ namespace Portfolio.Api.GraphQL.Projects.Public
                     Body = project.Body,
                     PublishedAt = project.PublishedAt,
                     Images = project.Images
+                        .Where(i => i.IsUploaded)
                         .OrderBy(i => i.SortOrder)
                         .Select(i => new PublicProjectImageDto
                         {

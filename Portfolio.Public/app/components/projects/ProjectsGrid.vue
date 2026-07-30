@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {
+  computed,
+  ref,
+  useTemplateRef
+} from 'vue'
+import { useIntersectionObserver } from '~/composables/useIntersectionObserver'
 import { useProjectQueries } from '~/composables/useProjectQueries'
 import ProjectItem from '~/components/projects/ProjectItem.vue'
 import ProjectDialog from '~/components/projects/ProjectDialog.vue'

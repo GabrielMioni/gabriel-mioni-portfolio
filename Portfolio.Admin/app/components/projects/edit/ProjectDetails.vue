@@ -3,6 +3,7 @@ import { ProjectStatus } from '~/generated/graphql'
 import type { ProjectBaseForm } from '~/types/ui/form'
 import type { TagEditorItem } from '~/types/tags'
 import { required } from '~/utils/rules'
+import { MAX_PROJECT_TAGS } from '~/utils/projects/limits'
 
 const form = defineModel<ProjectBaseForm>('form', { required: true })
 const isValid = defineModel<boolean>('is-valid', { default: false })
@@ -64,7 +65,8 @@ const statusOptions = [
         <v-col>
           <TagsCombobox
             v-if="showTags"
-            v-model:assigned-tags="assignedTags" />
+            v-model:assigned-tags="assignedTags"
+            :max-items="MAX_PROJECT_TAGS" />
         </v-col>
       </v-row>
       <v-row no-gutters>

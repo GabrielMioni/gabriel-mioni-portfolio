@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import type { TagEditorItem } from '~/types/tags'
 import { generateTagValue } from '~/utils/tags'
+import {
+  MAX_PROJECT_TAGS,
+  takeItemsWithinCapacity
+} from '~/utils/projects/limits'
 
 const assignedTags = defineModel<TagEditorItem[]>('assignedTags', { default: () => [] })
 
 const props = withDefaults(
   defineProps<{
       disableExisting?: boolean
+      maxItems?: number
     }>(),
   {
-    disableExisting: false
+    disableExisting: false,
+    maxItems: undefined
   }
 )
 
@@ -17,6 +23,20 @@ const { allTags, fetchingTags } = useProjectTagQueries()
 const { showSnackbar } = useSnackbarStore()
 
 const search = ref('')
+const tagLimitReached = computed(() =>
+  props.maxItems !== undefined &&
+  assignedTags.value.length >= props.maxItems
+)
+const tagLabel = computed(() =>
+  props.maxItems === undefined
+    ? 'Tags'
+    : `Tags (${assignedTags.value.length}/${props.maxItems})`
+)
+const tagHint = computed(() =>
+  tagLimitReached.value
+    ? `Projects can have up to ${props.maxItems} tags.`
+    : undefined
+)
 
 const tagItems = computed<TagEditorItem[]>(() => {
   const all = allTags.value.map(t => ({ id: t.id, name: t.name, value: t.value }))
@@ -50,11 +70,24 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
   )
 
   const seen = new Set<string>()
-  assignedTags.value = normalized.filter(v => {
+  const uniqueValues = normalized.filter(v => {
     if (!v.value || seen.has(v.value)) return false
     seen.add(v.value)
     return true
   })
+
+  const acceptedValues = props.maxItems === undefined
+    ? uniqueValues
+    : takeItemsWithinCapacity(uniqueValues, 0, props.maxItems)
+
+  if (acceptedValues.length < uniqueValues.length) {
+    showSnackbar(
+      `Projects can have up to ${props.maxItems ?? MAX_PROJECT_TAGS} tags.`,
+      'warning'
+    )
+  }
+
+  assignedTags.value = acceptedValues
 }
 </script>
 
@@ -68,16 +101,21 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
       :loading="fetchingTags"
       item-title="name"
       return-object
-      label="Tags"
+      :label="tagLabel"
+      :hint="tagHint"
+      :persistent-hint="tagLimitReached"
       chips
       multiple
       variant="filled"
-      hide-details
+      :hide-details="props.maxItems === undefined"
       @update:model-value="onUpdateModelValue">
       <template #item="{ item, props: itemProps }">
         <v-list-item
           v-bind="itemProps"
-          :disabled="disableExisting && !!item.raw.id"
+          :disabled="
+            (disableExisting && !!item.raw.id) ||
+            (tagLimitReached && !assignedTags.some(tag => tag.value === item.raw.value))
+          "
           :subtitle="disableExisting && item.raw.id ? 'Already exists' : undefined" />
       </template>
 
@@ -89,7 +127,7 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
               class="mr-2" />
           </template>
           <v-list-item-title>
-            Press enter to create tag
+            {{ tagLimitReached ? 'Tag limit reached' : 'Press enter to create tag' }}
           </v-list-item-title>
         </v-list-item>
       </template>

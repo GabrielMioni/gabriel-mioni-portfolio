@@ -5,18 +5,57 @@ import {
   removeEditorItem
 } from '~/utils/editorItems'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
+import {
+  getRemainingCapacity,
+  MAX_PROJECT_IMAGES,
+  takeItemsWithinCapacity
+} from '~/utils/projects/limits'
 
 const imageItems = defineModel<ImageEditorItem[]>('items', { required: true })
 
 const filesList = ref<File[]>([])
+const { showSnackbar } = useSnackbarStore()
+
+// Persisted images marked for removal still exist on the server until Save.
+const usedImageSlots = computed(() => imageItems.value.length)
+const remainingImageSlots = computed(() =>
+  getRemainingCapacity(usedImageSlots.value, MAX_PROJECT_IMAGES)
+)
+const hasRemovedImages = computed(() =>
+  imageItems.value.some(item => item.isRemoved)
+)
 
 const updateImageUploadItems = async (files: File[]) => {
   if (files.length === 0) return
 
+  const acceptedFiles = takeItemsWithinCapacity(
+    files,
+    usedImageSlots.value,
+    MAX_PROJECT_IMAGES
+  )
+  const rejectedCount = files.length - acceptedFiles.length
+
+  if (rejectedCount > 0) {
+    const saveRemovalsMessage = hasRemovedImages.value
+      ? ' Save removed images before adding replacements.'
+      : ''
+
+    showSnackbar(
+      `${rejectedCount} image${rejectedCount === 1 ? ' was' : 's were'} not added. ` +
+      `Projects can have up to ${MAX_PROJECT_IMAGES} images.${saveRemovalsMessage}`,
+      'warning'
+    )
+  }
+
+  if (acceptedFiles.length === 0) {
+    filesList.value = []
+    return
+  }
+
   let sort = imageItems.value.length ?? 0
 
   const items = await Promise.all(
-    files.map(async file => {
+    acceptedFiles.map(async file => {
       const mimeType = getOutputMimeType(file)
 
       const resizedThumb = await resizeImageTo(file, 600, 600, mimeType)
@@ -68,7 +107,12 @@ const removeImage = (clientId: string) => {
     class="pa-0 project-image-upload">
     <v-row>
       <v-col>
-        <ProjectImageDropzone v-model="filesList" />
+        <ProjectImageDropzone
+          v-model="filesList"
+          :disabled="remainingImageSlots === 0"
+          :maximum-count="MAX_PROJECT_IMAGES"
+          :remaining-capacity="remainingImageSlots"
+          :removed-images-pending="hasRemovedImages" />
       </v-col>
     </v-row>
     <v-divider class="my-6" />

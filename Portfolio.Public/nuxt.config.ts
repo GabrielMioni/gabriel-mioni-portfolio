@@ -1,4 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const apiOrigin = process.env.NUXT_API_ORIGIN || 'http://localhost:5217'
+const isEndToEnd = process.env.NUXT_END_TO_END === 'true'
+
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -8,7 +11,7 @@ export default defineNuxtConfig({
     dirs: [{ path: '~/components', pathPrefix: false }]
   },
   devtools: {
-    enabled: true
+    enabled: !isEndToEnd
   },
   css: ['~/assets/css/main.css'],
   colorMode: {
@@ -25,6 +28,7 @@ export default defineNuxtConfig({
       storageBase: process.env.NUXT_PUBLIC_STORAGE_BASE || ''
     }
   },
+  buildDir: process.env.NUXT_BUILD_DIR || '.nuxt',
   routeRules: {
     '/': { prerender: true }
   },
@@ -35,7 +39,7 @@ export default defineNuxtConfig({
   nitro: {
     routeRules: {
       '/graphql': {
-        proxy: 'http://localhost:5217/graphql'
+        proxy: `${apiOrigin}/graphql`
       }
     }
   },

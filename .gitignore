@@ -29,6 +29,8 @@ node_modules/
 .output/
 dist/
 .cache/
+playwright-report/
+test-results/
 
 ############################################
 # Environment files

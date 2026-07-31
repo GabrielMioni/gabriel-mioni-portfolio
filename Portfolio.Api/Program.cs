@@ -119,6 +119,7 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
 builder.Services.AddSingleton<IObjectStorage, ObjectStorage>();
 
 var app = builder.Build();
+var isEndToEnd = app.Environment.IsEnvironment("EndToEnd");
 
 if (app.Environment.IsDevelopment())
 {
@@ -127,7 +128,7 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
-if (!app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment() && !isEndToEnd)
 {
     app.UseHttpsRedirection();
 }
@@ -141,7 +142,7 @@ var adminGraphQl = app
     .MapGraphQL("/graphql/admin", schemaName: "admin")
     .RequireCors("client");
 
-if (!app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment() && !isEndToEnd)
 {
     adminGraphQl.RequireAuthorization();
 }
@@ -193,6 +194,13 @@ app.Use(async (ctx, next) =>
 
 if (!isSchemaCommand)
 {
+    if (isEndToEnd)
+    {
+        await using var scope = app.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.MigrateAsync();
+    }
+
     await IdentitySeed.SeedAdminAsync(app);
     await ProjectTagSeed.SeedAsync(app);
 }

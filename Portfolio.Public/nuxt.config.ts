@@ -3,7 +3,6 @@ const apiOrigin = process.env.NUXT_API_ORIGIN || 'http://localhost:5217'
 const isEndToEnd = process.env.NUXT_END_TO_END === 'true'
 
 export default defineNuxtConfig({
-  buildDir: process.env.NUXT_BUILD_DIR || '.nuxt',
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui'
@@ -29,6 +28,7 @@ export default defineNuxtConfig({
       storageBase: process.env.NUXT_PUBLIC_STORAGE_BASE || ''
     }
   },
+  buildDir: process.env.NUXT_BUILD_DIR || '.nuxt',
   routeRules: {
     '/': { prerender: true }
   },

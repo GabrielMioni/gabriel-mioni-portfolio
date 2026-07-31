@@ -1,0 +1,16 @@
+{
+  "name": "portfolio-e2e-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node ./scripts/run-e2e.mjs",
+    "test:headed": "node ./scripts/run-e2e.mjs --headed",
+    "test:ui": "node ./scripts/run-e2e.mjs --ui",
+    "install:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.0",
+    "@types/node": "^26.1.2",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,8 +1,12 @@
+const apiOrigin = process.env.NUXT_API_ORIGIN || 'http://localhost:5217'
+const isEndToEnd = process.env.NUXT_END_TO_END === 'true'
+
 export default defineNuxtConfig({
+  buildDir: process.env.NUXT_BUILD_DIR || '.nuxt',
   compatibilityDate: '2025-07-15',
   ssr: false,
   css: ['~/assets/scss/main.scss'],
-  devtools: { enabled: true },
+  devtools: { enabled: !isEndToEnd },
   devServer: {
     port: 3000
   },
@@ -20,13 +24,13 @@ export default defineNuxtConfig({
   nitro: {
     routeRules: {
       '/api/**': {
-        proxy: 'http://localhost:5217/api/**'
+        proxy: `${apiOrigin}/api/**`
       },
       '/graphql/admin': {
-        proxy: 'http://localhost:5217/graphql/admin'
+        proxy: `${apiOrigin}/graphql/admin`
       },
       '/graphql': {
-        proxy: 'http://localhost:5217/graphql'
+        proxy: `${apiOrigin}/graphql`
       }
     }
   },

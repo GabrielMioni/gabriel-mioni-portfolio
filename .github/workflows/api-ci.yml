@@ -16,6 +16,9 @@ jobs:
     name: Run API integration tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      R2_TEST_ENDPOINT: https://46776328fb12f0713a4a0cb63cd28033.r2.cloudflarestorage.com
+      R2_TEST_BUCKET: mioni-portfolio-images-test
 
     steps:
       - name: Check out repository
@@ -40,5 +43,35 @@ jobs:
         run: >-
           dotnet test
           Portfolio.Api.IntegrationTests/Portfolio.Api.IntegrationTests.csproj
+          --no-build
+          --configuration Release
+
+      - name: Validate R2 test configuration
+        env:
+          R2_TEST_ACCESS_KEY: ${{ secrets.R2_TEST_ACCESS_KEY }}
+          R2_TEST_SECRET_KEY: ${{ secrets.R2_TEST_SECRET_KEY }}
+        run: |
+          if [ -z "$R2_TEST_ACCESS_KEY" ] || [ -z "$R2_TEST_SECRET_KEY" ]; then
+            echo "::error::R2 test credentials are not configured."
+            exit 1
+          fi
+
+      - name: Restore storage test dependencies
+        run: dotnet restore Portfolio.Api.StorageTests/Portfolio.Api.StorageTests.csproj
+
+      - name: Build storage tests
+        run: >-
+          dotnet build
+          Portfolio.Api.StorageTests/Portfolio.Api.StorageTests.csproj
+          --no-restore
+          --configuration Release
+
+      - name: Run R2 storage tests
+        env:
+          R2_TEST_ACCESS_KEY: ${{ secrets.R2_TEST_ACCESS_KEY }}
+          R2_TEST_SECRET_KEY: ${{ secrets.R2_TEST_SECRET_KEY }}
+        run: >-
+          dotnet test
+          Portfolio.Api.StorageTests/Portfolio.Api.StorageTests.csproj
           --no-build
           --configuration Release

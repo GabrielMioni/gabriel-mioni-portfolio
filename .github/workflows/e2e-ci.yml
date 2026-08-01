@@ -29,6 +29,36 @@ jobs:
       - name: Restore API dependencies
         run: dotnet restore Portfolio.Api/Portfolio.Api.csproj
 
+      - name: Build API
+        run: >-
+          dotnet build
+          Portfolio.Api/Portfolio.Api.csproj
+          --no-restore
+          --configuration Release
+
+      - name: Export Admin GraphQL schema
+        run: >-
+          dotnet run
+          --project Portfolio.Api/Portfolio.Api.csproj
+          --no-build
+          --no-launch-profile
+          --configuration Release
+          --
+          schema export
+          --schema-name admin
+          --output obj/admin-schema.graphql
+
+      - name: Export Public GraphQL schema
+        run: >-
+          dotnet run
+          --project Portfolio.Api/Portfolio.Api.csproj
+          --no-build
+          --no-launch-profile
+          --configuration Release
+          --
+          schema export
+          --output obj/public-schema.graphql
+
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
@@ -43,9 +73,21 @@ jobs:
         working-directory: Portfolio.Admin
         run: npm ci
 
+      - name: Generate Admin GraphQL client
+        working-directory: Portfolio.Admin
+        env:
+          ADMIN_GRAPHQL_SCHEMA: ../Portfolio.Api/obj/admin-schema.graphql
+        run: npm run codegen
+
       - name: Install Public dependencies
         working-directory: Portfolio.Public
         run: npm ci
+
+      - name: Generate Public GraphQL client
+        working-directory: Portfolio.Public
+        env:
+          PUBLIC_GRAPHQL_SCHEMA: ../Portfolio.Api/obj/public-schema.graphql
+        run: npm run codegen
 
       - name: Install E2E dependencies
         working-directory: Portfolio.E2ETests

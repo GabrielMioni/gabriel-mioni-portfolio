@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "test": "node ./scripts/run-e2e.mjs",
     "test:headed": "node ./scripts/run-e2e.mjs --headed",
     "test:ui": "node ./scripts/run-e2e.mjs --ui",

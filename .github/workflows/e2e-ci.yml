@@ -1,0 +1,115 @@
+name: E2E CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  browser-tests:
+    name: Run browser lifecycle tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore API dependencies
+        run: dotnet restore Portfolio.Api/Portfolio.Api.csproj
+
+      - name: Build API
+        run: >-
+          dotnet build
+          Portfolio.Api/Portfolio.Api.csproj
+          --no-restore
+          --configuration Release
+
+      - name: Export Admin GraphQL schema
+        run: >-
+          dotnet run
+          --project Portfolio.Api/Portfolio.Api.csproj
+          --no-build
+          --no-launch-profile
+          --configuration Release
+          --
+          schema export
+          --schema-name admin
+          --output obj/admin-schema.graphql
+
+      - name: Export Public GraphQL schema
+        run: >-
+          dotnet run
+          --project Portfolio.Api/Portfolio.Api.csproj
+          --no-build
+          --no-launch-profile
+          --configuration Release
+          --
+          schema export
+          --output obj/public-schema.graphql
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            Portfolio.Admin/package-lock.json
+            Portfolio.Public/package-lock.json
+            Portfolio.E2ETests/package-lock.json
+
+      - name: Install Admin dependencies
+        working-directory: Portfolio.Admin
+        run: npm ci
+
+      - name: Generate Admin GraphQL client
+        working-directory: Portfolio.Admin
+        env:
+          ADMIN_GRAPHQL_SCHEMA: ../Portfolio.Api/obj/admin-schema.graphql
+        run: npm run codegen
+
+      - name: Install Public dependencies
+        working-directory: Portfolio.Public
+        run: npm ci
+
+      - name: Generate Public GraphQL client
+        working-directory: Portfolio.Public
+        env:
+          PUBLIC_GRAPHQL_SCHEMA: ../Portfolio.Api/obj/public-schema.graphql
+        run: npm run codegen
+
+      - name: Install E2E dependencies
+        working-directory: Portfolio.E2ETests
+        run: npm ci
+
+      - name: Install Chromium
+        working-directory: Portfolio.E2ETests
+        run: npx playwright install --with-deps chromium
+
+      - name: Type-check E2E tests
+        working-directory: Portfolio.E2ETests
+        run: npm run typecheck
+
+      - name: Run E2E tests
+        working-directory: Portfolio.E2ETests
+        run: npm test
+
+      - name: Upload failure artifacts
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-failure-artifacts
+          path: Portfolio.E2ETests/test-results/
+          if-no-files-found: ignore
+          retention-days: 7

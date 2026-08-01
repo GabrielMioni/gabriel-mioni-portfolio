@@ -34,6 +34,17 @@ export default defineNuxtConfig({
       }
     }
   },
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@urql/exchange-graphcache',
+        '@urql/vue',
+        'date-fns',
+        'pica',
+        'vuedraggable'
+      ]
+    }
+  },
   vuetify: {
     vuetifyOptions: './vuetify.config.ts'
   }

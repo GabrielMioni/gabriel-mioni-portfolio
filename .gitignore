@@ -38,6 +38,7 @@ test-results/
 .env
 .env.*
 !.env.example
+!.env.test.example
 
 ############################################
 # OS junk

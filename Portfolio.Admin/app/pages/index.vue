@@ -1,3 +1,5 @@
 <script setup lang="ts">
-await navigateTo('/projects', { replace: true })
+definePageMeta({
+  middleware: () => navigateTo('/projects', { replace: true })
+})
 </script>

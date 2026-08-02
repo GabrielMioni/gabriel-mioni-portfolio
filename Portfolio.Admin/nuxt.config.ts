@@ -17,6 +17,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
+      authBase: process.env.NUXT_PUBLIC_AUTH_BASE || `${apiOrigin}/api`,
+      authRequired: !isEndToEnd,
       graphQlBase: process.env.NUXT_PUBLIC_GRAPHQL_BASE || '/graphql/admin',
       storageBase: process.env.NUXT_PUBLIC_STORAGE_BASE || ''
     }

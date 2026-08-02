@@ -21,17 +21,15 @@ export default defineNuxtConfig({
       storageBase: process.env.NUXT_PUBLIC_STORAGE_BASE || ''
     }
   },
-  nitro: {
-    routeRules: {
-      '/api/**': {
-        proxy: `${apiOrigin}/api/**`
-      },
-      '/graphql/admin': {
-        proxy: `${apiOrigin}/graphql/admin`
-      },
-      '/graphql': {
-        proxy: `${apiOrigin}/graphql`
-      }
+  routeRules: {
+    '/api/**': {
+      proxy: `${apiOrigin}/api/**`
+    },
+    '/graphql/admin': {
+      proxy: `${apiOrigin}/graphql/admin`
+    },
+    '/graphql': {
+      proxy: `${apiOrigin}/graphql`
     }
   },
   vite: {

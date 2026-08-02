@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using Amazon.Runtime;
 using Amazon.S3;
+using Portfolio.Api.Authentication;
 using Portfolio.Api.Data;
 using Portfolio.Api.Infrastructure.Storage;
 using Portfolio.Api.Services.Images;
@@ -60,7 +61,11 @@ builder.Services
   .AddRoles<IdentityRole>()
   .AddEntityFrameworkStores<AppDbContext>();
 
-builder.Services.AddAuthorization();
+builder.Services.AddGitHubAuthentication(builder.Configuration);
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+});
 
 builder.Services
     .AddGraphQLServer()
@@ -144,10 +149,10 @@ var adminGraphQl = app
 
 if (!app.Environment.IsDevelopment() && !isEndToEnd)
 {
-    adminGraphQl.RequireAuthorization();
+    adminGraphQl.RequireAuthorization("Admin");
 }
 
-app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
+app.MapGitHubAuthentication();
 
 app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }));
 
@@ -177,21 +182,6 @@ app.MapGet("/api/user", (ClaimsPrincipal user) =>
 
 app.MapControllers();
 
-// Block registration
-app.Use(async (ctx, next) =>
-{
-    if (ctx.Request.Path.Equals("/api/auth/register", StringComparison.OrdinalIgnoreCase))
-    {
-        if (!(ctx.User?.Identity?.IsAuthenticated ?? false) || !ctx.User.IsInRole("Admin"))
-        {
-            ctx.Response.StatusCode = StatusCodes.Status404NotFound;
-            return;
-        }
-    }
-
-    await next();
-});
-
 if (!isSchemaCommand)
 {
     if (isEndToEnd)
@@ -201,7 +191,6 @@ if (!isSchemaCommand)
         await db.Database.MigrateAsync();
     }
 
-    await IdentitySeed.SeedAdminAsync(app);
     await ProjectTagSeed.SeedAsync(app);
 }
 

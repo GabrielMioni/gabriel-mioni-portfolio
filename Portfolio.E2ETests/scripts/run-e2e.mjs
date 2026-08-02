@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import { loadEnvFile } from 'node:process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
@@ -8,6 +10,16 @@ const sqlPassword = 'Portfolio_E2E!2026'
 const sqlPort = 14333
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(currentDirectory, '..')
+const repositoryRoot = path.resolve(projectRoot, '..')
+const localEnvironmentPath = path.join(
+  repositoryRoot,
+  '.env.test.local'
+)
+
+if (existsSync(localEnvironmentPath)) {
+  loadEnvFile(localEnvironmentPath)
+}
+
 const playwrightCli = path.join(
   projectRoot,
   'node_modules',
@@ -104,18 +116,21 @@ try {
     'TrustServerCertificate=True'
   ].join(';')
 
-  const exitCode = await run(
-    process.execPath,
-    [playwrightCli, 'test', ...process.argv.slice(2)],
-    {
-      env: {
-        ...process.env,
-        E2E_SQL_CONNECTION_STRING: connectionString
+  try {
+    await run(
+      process.execPath,
+      [playwrightCli, 'test', ...process.argv.slice(2)],
+      {
+        env: {
+          ...process.env,
+          E2E_SQL_CONNECTION_STRING: connectionString
+        }
       }
-    }
-  )
-
-  process.exitCode = exitCode
+    )
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error)
+    process.exitCode = 1
+  }
 } finally {
   if (containerStarted) {
     await run(

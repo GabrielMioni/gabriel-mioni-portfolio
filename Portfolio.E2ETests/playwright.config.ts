@@ -10,11 +10,31 @@ const publicOrigin = 'http://127.0.0.1:3101'
 const nodeCommand = `"${process.execPath}"`
 const connectionString = process.env.E2E_SQL_CONNECTION_STRING
 
+const requireEnvironmentVariable = (name: string) => {
+  const value = process.env[name]
+
+  if (!value) {
+    throw new Error(
+      `${name} is missing. Configure .env.test.local or GitHub Actions.`
+    )
+  }
+
+  return value
+}
+
 if (!connectionString) {
   throw new Error(
     'E2E_SQL_CONNECTION_STRING is missing. Run the suite through npm test.'
   )
 }
+
+const r2AccessKey = requireEnvironmentVariable('R2_TEST_ACCESS_KEY')
+const r2SecretKey = requireEnvironmentVariable('R2_TEST_SECRET_KEY')
+const r2Endpoint = requireEnvironmentVariable('R2_TEST_ENDPOINT')
+const r2Bucket = requireEnvironmentVariable('R2_TEST_BUCKET')
+const r2PublicBaseUrl = requireEnvironmentVariable(
+  'R2_TEST_PUBLIC_BASE_URL'
+)
 
 export default defineConfig({
   testDir: './tests',
@@ -49,11 +69,11 @@ export default defineConfig({
         ASPNETCORE_ENVIRONMENT: 'EndToEnd',
         ASPNETCORE_URLS: apiOrigin,
         ConnectionStrings__DefaultConnection: connectionString,
-        R2__AccessKey: 'e2e-access-key',
-        R2__SecretKey: 'e2e-secret-key',
-        R2__Endpoint: 'http://127.0.0.1:9',
-        R2__Bucket: 'e2e',
-        R2__PublicBaseUrl: 'http://storage.test'
+        R2__AccessKey: r2AccessKey,
+        R2__SecretKey: r2SecretKey,
+        R2__Endpoint: r2Endpoint,
+        R2__Bucket: r2Bucket,
+        R2__PublicBaseUrl: r2PublicBaseUrl
       },
       url: `${apiOrigin}/api/health`,
       timeout: 120_000,
@@ -71,7 +91,8 @@ export default defineConfig({
         ...process.env,
         NUXT_API_ORIGIN: apiOrigin,
         NUXT_BUILD_DIR: '.cache/nuxt-e2e',
-        NUXT_END_TO_END: 'true'
+        NUXT_END_TO_END: 'true',
+        NUXT_PUBLIC_STORAGE_BASE: r2PublicBaseUrl
       },
       url: `${adminOrigin}/api/health`,
       timeout: 120_000,
@@ -89,7 +110,8 @@ export default defineConfig({
         ...process.env,
         NUXT_API_ORIGIN: apiOrigin,
         NUXT_BUILD_DIR: '.cache/nuxt-e2e',
-        NUXT_END_TO_END: 'true'
+        NUXT_END_TO_END: 'true',
+        NUXT_PUBLIC_STORAGE_BASE: r2PublicBaseUrl
       },
       url: publicOrigin,
       timeout: 120_000,

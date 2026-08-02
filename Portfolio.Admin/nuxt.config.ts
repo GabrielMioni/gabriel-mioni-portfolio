@@ -17,21 +17,20 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
+      authBase: process.env.NUXT_PUBLIC_AUTH_BASE || `${apiOrigin}/api`,
       graphQlBase: process.env.NUXT_PUBLIC_GRAPHQL_BASE || '/graphql/admin',
       storageBase: process.env.NUXT_PUBLIC_STORAGE_BASE || ''
     }
   },
-  nitro: {
-    routeRules: {
-      '/api/**': {
-        proxy: `${apiOrigin}/api/**`
-      },
-      '/graphql/admin': {
-        proxy: `${apiOrigin}/graphql/admin`
-      },
-      '/graphql': {
-        proxy: `${apiOrigin}/graphql`
-      }
+  routeRules: {
+    '/api/**': {
+      proxy: `${apiOrigin}/api/**`
+    },
+    '/graphql/admin': {
+      proxy: `${apiOrigin}/graphql/admin`
+    },
+    '/graphql': {
+      proxy: `${apiOrigin}/graphql`
     }
   },
   vite: {

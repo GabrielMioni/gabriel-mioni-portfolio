@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import { loadEnvFile } from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -8,6 +9,7 @@ const containerName = 'portfolio-e2e-sql'
 const sqlImage = 'mcr.microsoft.com/mssql/server:2022-CU26-ubuntu-22.04'
 const sqlPassword = 'Portfolio_E2E!2026'
 const sqlPort = 14333
+const authenticationToken = randomUUID()
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(currentDirectory, '..')
 const repositoryRoot = path.resolve(projectRoot, '..')
@@ -123,6 +125,7 @@ try {
       {
         env: {
           ...process.env,
+          E2E_AUTH_TOKEN: authenticationToken,
           E2E_SQL_CONNECTION_STRING: connectionString
         }
       }

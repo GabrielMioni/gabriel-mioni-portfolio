@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
+    "predev": "node ../scripts/assert-port-available.mjs 3000 Admin",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",

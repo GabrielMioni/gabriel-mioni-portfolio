@@ -147,12 +147,17 @@ var adminGraphQl = app
     .MapGraphQL("/graphql/admin", schemaName: "admin")
     .RequireCors("client");
 
-if (!app.Environment.IsDevelopment() && !isEndToEnd)
+if (!app.Environment.IsDevelopment())
 {
     adminGraphQl.RequireAuthorization("Admin");
 }
 
 app.MapGitHubAuthentication();
+
+if (isEndToEnd)
+{
+    app.MapEndToEndAuthentication(app.Configuration);
+}
 
 app.MapGet("/api/health", () => Results.Ok(new { status = "Healthy" }));
 

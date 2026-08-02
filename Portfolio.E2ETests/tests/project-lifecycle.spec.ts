@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { signInAsAdmin } from './helpers/authentication.js'
 
 const publicOrigin = 'http://127.0.0.1:3101'
 
@@ -24,6 +25,7 @@ test('a published project with an image can be created, viewed, and deleted', as
     'base64'
   )
 
+  await signInAsAdmin(page)
   await page.goto('/projects/create')
   await page.getByLabel('Title').fill(title)
   await page.getByLabel('Summary').fill(summary)

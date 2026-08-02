@@ -1,9 +1,7 @@
 import { getFetchErrorStatus } from '~/utils/http'
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { public: { authRequired } } = useRuntimeConfig()
-
-  if (!authRequired || to.path === '/login') {
+  if (to.path === '/login') {
     return
   }
 

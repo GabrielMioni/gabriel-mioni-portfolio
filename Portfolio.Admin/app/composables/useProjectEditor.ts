@@ -2,7 +2,6 @@ import { useQuery } from '@urql/vue'
 import { useFragment } from '~/generated'
 import {
   type ProjectFragment,
-  type ProjectTagFragment,
   GetProjectByIdDocument,
   ProjectFragmentDoc
 } from '~/generated/graphql'
@@ -37,7 +36,7 @@ export const useProjectEditor = () => {
 
   const { createProject, editProject } = useProjectMutations()
   const { deleteImageUploads, uploadImages } = useProjectImageMutations()
-  const { createProjectTags, updateProjectTags } = useProjectTagMutations()
+  const { saveProjectTags } = useProjectTagMutations()
 
   const { data, error, fetching, executeQuery } = useQuery({
     query: GetProjectByIdDocument,
@@ -134,22 +133,6 @@ export const useProjectEditor = () => {
     })
   }
 
-  const resolvePendingTags = async (): Promise<ProjectTagFragment[]> => {
-    const pending = tagItems.value.filter(tag => !tag.id)
-    if (pending.length === 0) return []
-
-    const resolved = await createProjectTags(pending)
-    tagItems.value = tagItems.value.map((tag) => {
-      if (tag.id) return tag
-      const match = resolved.find(item => item.value === tag.value)
-      return match
-        ? { id: match.id, name: match.name, value: match.value }
-        : tag
-    })
-
-    return resolved
-  }
-
   const saveRelatedData = async (targetProjectId: string, updateTags: boolean) => {
     if (uploadItems.value.length > 0) {
       const uploadResult = await uploadImages({
@@ -173,8 +156,7 @@ export const useProjectEditor = () => {
     await deleteRemovedImages(targetProjectId)
 
     if (updateTags) {
-      await resolvePendingTags()
-      await updateProjectTags(targetProjectId, tagItems.value)
+      await saveProjectTags(targetProjectId, tagItems)
     }
   }
 

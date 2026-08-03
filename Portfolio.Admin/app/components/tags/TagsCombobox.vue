@@ -7,6 +7,7 @@ import {
 } from '~/utils/projects/limits'
 
 const assignedTags = defineModel<TagEditorItem[]>('assignedTags', { default: () => [] })
+const emit = defineEmits<{ submit: [] }>()
 
 const props = withDefaults(
   defineProps<{
@@ -19,7 +20,7 @@ const props = withDefaults(
   }
 )
 
-const { allTags, fetchingTags } = useProjectTagQueries()
+const { allTags, fetchingTags } = useTagQueries()
 const { showSnackbar } = useSnackbarStore()
 
 const search = ref('')
@@ -46,6 +47,13 @@ const tagItems = computed<TagEditorItem[]>(() => {
 
 const removeTag = (index: number) => {
   assignedTags.value = assignedTags.value.filter((_, i) => i !== index)
+}
+
+const onEnter = (event: KeyboardEvent) => {
+  if (search.value.trim() || assignedTags.value.length === 0) return
+
+  event.preventDefault()
+  emit('submit')
 }
 
 const resolveTag = (v: string): TagEditorItem => {
@@ -108,13 +116,14 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
       multiple
       variant="filled"
       :hide-details="props.maxItems === undefined"
+      @keydown.enter="onEnter"
       @update:model-value="onUpdateModelValue">
       <template #item="{ item, props: itemProps }">
         <v-list-item
           v-bind="itemProps"
           :disabled="
             (disableExisting && !!item.raw.id) ||
-            (tagLimitReached && !assignedTags.some(tag => tag.value === item.raw.value))
+              (tagLimitReached && !assignedTags.some(tag => tag.value === item.raw.value))
           "
           :subtitle="disableExisting && item.raw.id ? 'Already exists' : undefined" />
       </template>
@@ -139,9 +148,9 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
           content-class="font-italic"
           text="Pending"
           location="top">
-          <template #activator="{ props }">
+          <template #activator="{ props: activatorProps }">
             <v-chip
-              v-bind="props"
+              v-bind="activatorProps"
               :key="`tag-chip-${index}`"
               :value="item.raw.value"
               :color="item.raw?.id ? 'primary' : 'warning'"

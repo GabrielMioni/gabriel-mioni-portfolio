@@ -11,13 +11,13 @@ const emit = defineEmits<{
   deleted: []
 }>()
 
-const { deleteProjectTag, deletingTag } = useProjectTagMutations()
+const { deleteTag, deletingTag } = useTagMutations()
 const { showSnackbar } = useSnackbarStore()
 
 const onDelete = async () => {
   if (!props.tag) return
   try {
-    await deleteProjectTag(props.tag.id)
+    await deleteTag(props.tag.id)
     showSnackbar(`"${props.tag.name}" deleted`, 'success')
     dialog.value = false
     emit('deleted')

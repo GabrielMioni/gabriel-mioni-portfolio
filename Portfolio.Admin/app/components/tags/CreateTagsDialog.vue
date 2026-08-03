@@ -5,7 +5,7 @@ const dialog = defineModel<boolean>()
 
 const emit = defineEmits<{ created: [] }>()
 
-const { createProjectTags, creatingTags } = useProjectTagMutations()
+const { createTags, creatingTags } = useTagMutations()
 const { showSnackbar } = useSnackbarStore()
 
 const stagedTags = ref<TagEditorItem[]>([])
@@ -17,9 +17,9 @@ watch(dialog, (open) => {
 })
 
 const save = async () => {
-  if (!pendingTags.value.length) return
+  if (creatingTags.value || !pendingTags.value.length) return
   try {
-    await createProjectTags(pendingTags.value)
+    await createTags(pendingTags.value)
     showSnackbar(`${pendingTags.value.length} tag(s) created`, 'success')
     emit('created')
     dialog.value = false
@@ -38,7 +38,8 @@ const save = async () => {
     focus-first-input>
     <TagsCombobox
       v-model:assigned-tags="stagedTags"
-      disable-existing />
+      disable-existing
+      @submit="save" />
     <template #actions>
       <v-spacer />
       <v-btn

@@ -1,11 +1,11 @@
 using Portfolio.Api.Domain.Projects;
-using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
+using Portfolio.Api.GraphQL.Tags.Admin.Payloads;
 using Portfolio.Api.Services.Tags;
 
-namespace Portfolio.Api.GraphQL.Projects.Admin;
+namespace Portfolio.Api.GraphQL.Tags.Admin;
 
 [ExtendObjectType(OperationTypeNames.Query)]
-public class AdminProjectTagQuery
+public class AdminTagQuery
 {
     public Task<List<ProjectTag>> GetTags(
         [Service] ProjectTagService tags,

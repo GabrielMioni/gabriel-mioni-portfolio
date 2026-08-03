@@ -9,7 +9,14 @@ const props = defineProps<{
   tag: ProjectTagSummary | null
 }>()
 
-const { renameProjectTag, removeTagFromProjects, renamingTag, removingFromProjects, deleteProjectTag, deletingTag } = useProjectTagMutations()
+const {
+  renameTag,
+  removeTagFromProjects,
+  renamingTag,
+  removingFromProjects,
+  deleteTag,
+  deletingTag
+} = useTagMutations()
 const { showSnackbar } = useSnackbarStore()
 
 const emit = defineEmits<{ save: [], deleted: [] }>()
@@ -56,7 +63,7 @@ const toggleRemoval = (projectId: string) => {
 const confirmDelete = async () => {
   if (!props.tag) return
   try {
-    await deleteProjectTag(props.tag.id)
+    await deleteTag(props.tag.id)
     showSnackbar(`"${props.tag.name}" deleted`, 'success')
     dialog.value = false
     emit('deleted')
@@ -71,7 +78,7 @@ const save = async () => {
 
   try {
     if (editedName.value.trim() !== props.tag.name) {
-      await renameProjectTag(props.tag.id, editedName.value.trim())
+      await renameTag(props.tag.id, editedName.value.trim())
     }
 
     if (pendingRemovals.value.size > 0) {

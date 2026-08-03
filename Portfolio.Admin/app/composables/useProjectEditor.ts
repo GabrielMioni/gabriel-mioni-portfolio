@@ -37,7 +37,8 @@ export const useProjectEditor = () => {
 
   const { createProject, editProject } = useProjectMutations()
   const { deleteImageUploads, uploadImages } = useProjectImageMutations()
-  const { createProjectTags, updateProjectTags } = useProjectTagMutations()
+  const { createTags } = useTagMutations()
+  const { updateProjectTags } = useProjectTagMutations()
 
   const { data, error, fetching, executeQuery } = useQuery({
     query: GetProjectByIdDocument,
@@ -138,7 +139,7 @@ export const useProjectEditor = () => {
     const pending = tagItems.value.filter(tag => !tag.id)
     if (pending.length === 0) return []
 
-    const resolved = await createProjectTags(pending)
+    const resolved = await createTags(pending)
     tagItems.value = tagItems.value.map((tag) => {
       if (tag.id) return tag
       const match = resolved.find(item => item.value === tag.value)

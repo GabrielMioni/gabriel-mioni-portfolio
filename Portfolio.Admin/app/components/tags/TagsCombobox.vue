@@ -19,7 +19,7 @@ const props = withDefaults(
   }
 )
 
-const { allTags, fetchingTags } = useProjectTagQueries()
+const { allTags, fetchingTags } = useTagQueries()
 const { showSnackbar } = useSnackbarStore()
 
 const search = ref('')

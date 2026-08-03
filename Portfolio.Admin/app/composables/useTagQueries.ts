@@ -2,7 +2,7 @@ import { useQuery } from '@urql/vue'
 import { GetTagsDocument, ProjectTagFragmentDoc, type ProjectTagFragment } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 
-export const useProjectTagQueries = () => {
+export const useTagQueries = () => {
   const { data, fetching: fetchingTags } = useQuery({
     query: GetTagsDocument,
     requestPolicy: 'cache-and-network'

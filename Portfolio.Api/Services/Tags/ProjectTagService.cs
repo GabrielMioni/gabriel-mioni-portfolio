@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Api.Data;
 using Portfolio.Api.Domain.Projects;
-using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
+using Portfolio.Api.GraphQL.Tags.Admin.Payloads;
 using Portfolio.Api.Services.Tags.Results;
 
 namespace Portfolio.Api.Services.Tags;

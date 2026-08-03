@@ -13,6 +13,7 @@ using Portfolio.Api.Services.Storage;
 using Portfolio.Api.Services.Tags;
 using Portfolio.Api.GraphQL;
 using Portfolio.Api.GraphQL.Projects.Admin;
+using Portfolio.Api.GraphQL.Tags.Admin;
 using Portfolio.Api.GraphQL.Projects.Admin.Types;
 using Portfolio.Api.GraphQL.Projects.Public;
 
@@ -81,11 +82,11 @@ builder.Services
     .AddErrorFilter<UnexpectedGraphQlErrorFilter>()
     .AddQueryType(d => d.Name("Query"))
     .AddTypeExtension<AdminProjectQuery>()
-    .AddTypeExtension<AdminProjectTagQuery>()
+    .AddTypeExtension<AdminTagQuery>()
     .AddMutationType(d => d.Name("Mutation"))
     .AddTypeExtension<AdminProjectMutation>()
     .AddTypeExtension<AdminProjectImageMutation>()
-    .AddTypeExtension<AdminProjectTagMutation>()
+    .AddTypeExtension<AdminTagMutation>()
     .AddType<ProjectType>()
     .AddProjections()
     .AddFiltering()

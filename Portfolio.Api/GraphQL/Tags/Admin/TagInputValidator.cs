@@ -1,8 +1,8 @@
 using Portfolio.Api.Domain.Projects;
 
-namespace Portfolio.Api.GraphQL.Projects.Admin;
+namespace Portfolio.Api.GraphQL.Tags.Admin;
 
-internal static class ProjectTagInputValidator
+internal static class TagInputValidator
 {
     public static IReadOnlyList<UserError> ValidateProjectTagIds(
         IReadOnlyList<Guid> tagIds)

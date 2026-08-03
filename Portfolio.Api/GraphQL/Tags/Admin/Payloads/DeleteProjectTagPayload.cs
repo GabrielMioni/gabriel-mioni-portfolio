@@ -1,4 +1,4 @@
-namespace Portfolio.Api.GraphQL.Projects.Admin.Payloads;
+namespace Portfolio.Api.GraphQL.Tags.Admin.Payloads;
 
 public sealed record DeleteProjectTagPayload(
     Guid? DeletedTagId,

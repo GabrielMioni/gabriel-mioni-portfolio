@@ -1,20 +1,20 @@
 using Portfolio.Api.Domain.Projects;
-using Portfolio.Api.GraphQL.Projects.Admin.Inputs;
-using Portfolio.Api.GraphQL.Projects.Admin.Payloads;
+using Portfolio.Api.GraphQL.Tags.Admin.Inputs;
+using Portfolio.Api.GraphQL.Tags.Admin.Payloads;
 using Portfolio.Api.Services.Tags;
 using Portfolio.Api.Services.Tags.Results;
 
-namespace Portfolio.Api.GraphQL.Projects.Admin;
+namespace Portfolio.Api.GraphQL.Tags.Admin;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
-public class AdminProjectTagMutation
+public class AdminTagMutation
 {
     public async Task<CreateProjectTagsPayload> CreateProjectTags(
         CreateProjectTagsInput input,
         [Service] ProjectTagService tags,
         CancellationToken ct = default)
     {
-        var userErrors = ProjectTagInputValidator.ValidateNames(input.Names);
+        var userErrors = TagInputValidator.ValidateNames(input.Names);
 
         if (userErrors.Count > 0)
         {
@@ -49,7 +49,7 @@ public class AdminProjectTagMutation
         [Service] ProjectTagService tags,
         CancellationToken ct = default)
     {
-        var userErrors = ProjectTagInputValidator.ValidateProjectTagIds(input.TagIds);
+        var userErrors = TagInputValidator.ValidateProjectTagIds(input.TagIds);
 
         if (userErrors.Count > 0)
         {
@@ -123,7 +123,7 @@ public class AdminProjectTagMutation
         [Service] ProjectTagService tags,
         CancellationToken ct = default)
     {
-        var userErrors = ProjectTagInputValidator.ValidateName(input.Name);
+        var userErrors = TagInputValidator.ValidateName(input.Name);
 
         if (userErrors.Count > 0)
         {

@@ -4,11 +4,11 @@ import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 const model = defineModel<LinkEditorItem[]>({ required: true })
 
 defineEmits<{
-  (e: 'remove', clientId: string): void
+  (e: 'remove' | 'restore', clientId: string): void
 }>()
 
 const itemsLocal = computed({
-  get: () => model.value.filter(item => !item.isRemoved),
+  get: () => model.value,
   set: (value: LinkEditorItem[]) => {
     model.value = normalizeEditorItemsSortOrder(value)
   }
@@ -20,8 +20,8 @@ const itemsLocal = computed({
     <template #default="{ element }">
       <ProjectLinkListItem
         :item="element"
-        is-removing
-        @update="$emit('remove', $event)" />
+        @remove="$emit('remove', $event)"
+        @restore="$emit('restore', $event)" />
     </template>
   </DraggableList>
 </template>

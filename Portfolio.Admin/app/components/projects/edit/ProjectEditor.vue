@@ -13,19 +13,13 @@ const {
   tagItems,
 
   // computed
-  activeImageItems,
   activeLinkItems,
-  removedImageItems,
-  removedLinkItems,
   isNewProject,
   isSavingProject,
   hasUpdates,
   isInitialLoading,
   projectId,
 
-  // methods
-  restoreImageItem,
-  restoreLinkItem,
   submitProject
 } = useProjectEditor()
 
@@ -34,44 +28,12 @@ const router = useRouter()
 const { smAndDown } = useDisplay()
 
 const tab = ref<string>(tabValues.details)
-const removedDialog = ref(false)
 const deleteProjectDialog = ref<boolean>(false)
 const linksValid = ref<boolean>(true)
 const detailsValid = ref<boolean>(false)
 
-const hasRemovedItems = computed(() => {
-  if (tab.value === tabValues.images) {
-    return removedImageItems.value.length > 0
-  }
-  if (tab.value === tabValues.links) {
-    return removedLinkItems.value.length > 0
-  }
-  return false
-})
-
-const removedItemText = computed(() => {
-  if (!hasRemovedItems.value) {
-    return 'Empty'
-  }
-  if (tab.value === tabValues.images) {
-    return `Removed Images (${removedImageItems.value.length})`
-  }
-  if (tab.value === tabValues.links) {
-    return `Removed Links (${removedLinkItems.value.length})`
-  }
-  return ''
-})
-
 const menuItems = computed(() => {
   return [
-    {
-      title: removedItemText.value,
-      icon: 'mdi-delete-restore',
-      disabled: !hasRemovedItems.value,
-      action: () => {
-        openRemovedItemsDialog()
-      }
-    },
     {
       title: 'Cancel',
       icon: 'mdi-open-in-app',
@@ -90,11 +52,6 @@ const menuItems = computed(() => {
     }
   ].filter(i => !i.filter)
 })
-
-const openRemovedItemsDialog = () => {
-  if (!hasRemovedItems.value) return
-  removedDialog.value = true
-}
 
 const goToProjects = async () => {
   const previous = router.options.history.state.back
@@ -128,12 +85,12 @@ const goToProjects = async () => {
           <v-tab :value="tabValues.images">
             <EditorItemTabDisplay
               label="Images"
-              :items="activeImageItems" />
+              :items="imageItems" />
           </v-tab>
           <v-tab :value="tabValues.links">
             <EditorItemTabDisplay
               label="Links"
-              :items="activeLinkItems" />
+              :items="linkItems" />
           </v-tab>
         </v-tabs>
         <v-spacer />
@@ -142,14 +99,6 @@ const goToProjects = async () => {
             v-if="smAndDown"
             :items="menuItems" />
           <template v-else>
-            <v-btn
-              v-if="!isNewProject && (tab === tabValues.images || tab === tabValues.links)"
-              text
-              prepend-icon="mdi-delete-restore"
-              :disabled="!hasRemovedItems"
-              @click="openRemovedItemsDialog">
-              {{ removedItemText }}
-            </v-btn>
             <v-btn
               v-if="!isNewProject"
               text
@@ -196,16 +145,6 @@ const goToProjects = async () => {
         </v-tabs-window>
       </v-card>
       <template v-if="!isNewProject">
-        <RemovedImagesDialog
-          v-if="tab === tabValues.images"
-          v-model="removedDialog"
-          :removed-image-items="removedImageItems"
-          @add="restoreImageItem" />
-        <RemovedLinksDialog
-          v-if="tab === tabValues.links"
-          v-model="removedDialog"
-          :removed-link-items="removedLinkItems"
-          @add="restoreLinkItem" />
         <DeleteProjectDialog
           v-if="!isNewProject && projectId"
           v-model="deleteProjectDialog"

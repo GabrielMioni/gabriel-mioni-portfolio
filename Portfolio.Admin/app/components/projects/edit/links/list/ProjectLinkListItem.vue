@@ -4,20 +4,14 @@ import { required, validateUrl } from '~/utils/rules'
 
 const item = defineModel<LinkEditorItem>('item', { required: true })
 
-withDefaults(
-  defineProps<{
-    disableAction?: boolean
-    isRemoving?: boolean
-    }>(),
-  {
-    disableAction: true,
-    isRemoving: false
-  }
-)
-
-defineEmits<{
-  (e: 'update', clientId: string): void
+const emit = defineEmits<{
+  (e: 'remove' | 'restore', clientId: string): void
 }>()
+
+const updateRemovalState = () => {
+  const event = item.value.isRemoved ? 'restore' : 'remove'
+  emit(event, item.value.clientId)
+}
 
 const createdAtDate = computed(() => {
   if (!item.value?.createdAt) return null
@@ -28,10 +22,10 @@ const createdAtDate = computed(() => {
 
 <template>
   <EditorItemLayout
-    :draggable="isRemoving"
-    :action-icon="isRemoving ? 'mdi-close' : 'mdi-plus'"
-    :action-color="isRemoving ? 'error' : 'success'"
-    @action="$emit('update', item.clientId)">
+    :draggable="!item.isRemoved"
+    :is-pending="!item.id"
+    :is-removed="item.isRemoved"
+    @action="updateRemovalState">
     <v-row dense>
       <v-col
         cols="12"
@@ -41,6 +35,7 @@ const createdAtDate = computed(() => {
           label="Url"
           variant="filled"
           hide-details
+          :disabled="item.isRemoved"
           :rules="[required(), validateUrl()]" />
       </v-col>
       <v-col
@@ -51,12 +46,15 @@ const createdAtDate = computed(() => {
           label="Link Text"
           variant="filled"
           hide-details
+          :disabled="item.isRemoved"
           :rules="[required()]" />
       </v-col>
       <v-col
         cols="12"
         md="4">
-        <ProjectLinkSelect v-model="item.type" />
+        <ProjectLinkSelect
+          v-model="item.type"
+          :disabled="item.isRemoved" />
       </v-col>
       <v-col
         cols="12"

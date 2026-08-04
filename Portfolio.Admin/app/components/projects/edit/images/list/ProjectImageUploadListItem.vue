@@ -5,18 +5,14 @@ const config = useRuntimeConfig()
 
 const item = defineModel<ImageEditorItem>('item', { required: true })
 
-withDefaults(
-  defineProps<{
-      isRemoving?: boolean
-    }>(),
-  {
-    isRemoving: true
-  }
-)
-
-defineEmits<{
-  (e: 'update', clientId: string): void
+const emit = defineEmits<{
+  (e: 'remove' | 'restore', clientId: string): void
 }>()
+
+const updateRemovalState = () => {
+  const event = item.value.isRemoved ? 'restore' : 'remove'
+  emit(event, item.value.clientId)
+}
 
 const imageUrl = computed(() => {
   const current = item.value
@@ -46,10 +42,10 @@ const createdAtDate = computed(() => {
 
 <template>
   <EditorItemLayout
-    :draggable="isRemoving"
-    :action-icon="isRemoving ? 'mdi-close' : 'mdi-plus'"
-    :action-color="isRemoving ? 'error' : 'success'"
-    @action="$emit('update', item.clientId)">
+    :draggable="!item.isRemoved"
+    :is-pending="!item.id"
+    :is-removed="item.isRemoved"
+    @action="updateRemovalState">
     <template #leading>
       <v-img
         v-if="imageUrl"
@@ -58,35 +54,26 @@ const createdAtDate = computed(() => {
         width="50" />
     </template>
 
-    <v-row align="center">
-      <v-col
-        class="order-2"
-        sm="2">
-        <div class="image-details text-break fs-12">
-          <div>
-            <template v-if="createdAtDate">
-              {{ createdAtDate }}
-            </template>
-            <span
-              v-else
-              class="font-italic text-grey">
-              {{ imageFileName }} (pending)
-            </span>
-          </div>
-          <div>{{ item.contentType }}</div>
-          <div>{{ (item.sizeFull / 1024).toFixed(2) }} KB</div>
-        </div>
-      </v-col>
-
-      <v-col
-        cols="12"
-        sm>
+    <v-row>
+      <v-col cols="12">
         <v-text-field
           v-model="item.altText"
-          :disabled="!isRemoving"
+          :disabled="item.isRemoved"
           variant="filled"
           label="Alt Text"
           hide-details />
+        <div class="image-details d-flex flex-wrap ga-3 mt-2 text-medium-emphasis text-break fs-12">
+          <span v-if="createdAtDate">
+            {{ createdAtDate }}
+          </span>
+          <span
+            v-else
+            class="font-italic">
+            {{ imageFileName }} (pending)
+          </span>
+          <span>{{ item.contentType }}</span>
+          <span>{{ (item.sizeFull / 1024).toFixed(2) }} KB</span>
+        </div>
       </v-col>
     </v-row>
   </EditorItemLayout>

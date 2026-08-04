@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const showDevViewportIndicator = import.meta.dev
+
 onMounted(async () => {
   const { public: { apiBase } } = useRuntimeConfig()
   const result = await $fetch(`${apiBase}/health`)
@@ -11,5 +13,6 @@ onMounted(async () => {
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <DevViewportIndicator v-if="showDevViewportIndicator" />
   </v-app>
 </template>

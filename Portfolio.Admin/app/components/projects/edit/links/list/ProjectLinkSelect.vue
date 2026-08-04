@@ -4,6 +4,15 @@ import LinkTypeIcon from '~/components/projects/edit/links/LinkTypeIcon.vue'
 
 const linkType = defineModel<ProjectLinkType>({ required: true })
 
+withDefaults(
+  defineProps<{
+    disabled?: boolean
+  }>(),
+  {
+    disabled: false
+  }
+)
+
 const formatTitle = (linkType: ProjectLinkType): string => {
   switch (linkType) {
   case ProjectLinkType.Demo:
@@ -27,6 +36,7 @@ const selectItems = computed(() => {
   <v-select
     v-model="linkType"
     :items="selectItems"
+    :disabled="disabled"
     variant="filled"
     hide-details>
     <template #item="{ props, item }">

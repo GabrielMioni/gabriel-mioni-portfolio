@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import { ProjectLinkType } from '~/generated/graphql'
-import { removeEditorItem } from '~/utils/editorItems'
+import { removeEditorItem, restoreEditorItem } from '~/utils/editorItems'
 
 const linkItems = defineModel<LinkEditorItem[]>('items', { required: true })
 const isValid = defineModel<boolean>('isValid', { required: true })
@@ -26,6 +26,10 @@ const removeLink = (clientId: string) => {
   linkItems.value = removeEditorItem(clientId, linkItems.value)
 }
 
+const restoreLink = (clientId: string) => {
+  linkItems.value = restoreEditorItem(clientId, linkItems.value)
+}
+
 </script>
 
 <template>
@@ -41,7 +45,8 @@ const removeLink = (clientId: string) => {
           autocomplete="off">
           <ProjectLinkList
             v-model="linkItems"
-            @remove="removeLink" />
+            @remove="removeLink"
+            @restore="restoreLink" />
         </v-form>
       </v-col>
     </v-row>

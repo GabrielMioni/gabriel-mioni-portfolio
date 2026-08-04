@@ -7,7 +7,6 @@ import {
 } from '~/generated/graphql'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import type { TagEditorItem } from '~/types/tags'
-import { restoreEditorItem } from '~/utils/editorItems'
 import {
   buildCreateProjectInput,
   buildEditProjectInput,
@@ -74,7 +73,6 @@ export const useProjectEditor = () => {
   const activeImageItems = computed(() => imageItems.value.filter(item => !item.isRemoved))
   const removedImageItems = computed(() => imageItems.value.filter(item => item.isRemoved))
   const activeLinkItems = computed(() => linkItems.value.filter(item => !item.isRemoved))
-  const removedLinkItems = computed(() => linkItems.value.filter(item => item.isRemoved))
 
   const uploadItems = computed(() =>
     activeImageItems.value.filter((item): item is ImageEditorItem =>
@@ -218,14 +216,6 @@ export const useProjectEditor = () => {
     }
   }
 
-  const restoreImageItem = (clientId: string) => {
-    imageItems.value = restoreEditorItem(clientId, imageItems.value)
-  }
-
-  const restoreLinkItem = (clientId: string) => {
-    linkItems.value = restoreEditorItem(clientId, linkItems.value)
-  }
-
   const syncedProjectId = ref<string | null>(null)
   watch(
     project,
@@ -244,15 +234,11 @@ export const useProjectEditor = () => {
     tagItems,
     activeImageItems,
     activeLinkItems,
-    removedImageItems,
-    removedLinkItems,
     isNewProject,
     isSavingProject,
     hasUpdates,
     isInitialLoading,
     projectId,
-    restoreImageItem,
-    restoreLinkItem,
     submitProject
   }
 }

@@ -2,12 +2,13 @@
 import { getOutputMimeType, resizeImageTo } from '~/utils/images/'
 import {
   normalizeEditorItemsSortOrder,
-  removeEditorItem
+  removeEditorItem,
+  restoreEditorItem
 } from '~/utils/editorItems'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import {
-  getRemainingCapacity,
   MAX_PROJECT_IMAGES,
+  getRemainingCapacity,
   takeItemsWithinCapacity
 } from '~/utils/projects/limits'
 
@@ -99,6 +100,10 @@ const removeImage = (clientId: string) => {
   imageItems.value = removeEditorItem(clientId, imageItems.value)
 }
 
+const restoreImage = (clientId: string) => {
+  imageItems.value = restoreEditorItem(clientId, imageItems.value)
+}
+
 </script>
 
 <template>
@@ -120,7 +125,8 @@ const removeImage = (clientId: string) => {
       <v-col>
         <ProjectImageUploadList
           v-model="imageItems"
-          @remove="removeImage" />
+          @remove="removeImage"
+          @restore="restoreImage" />
       </v-col>
     </v-row>
   </v-container>

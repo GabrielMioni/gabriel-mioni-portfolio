@@ -6,11 +6,11 @@ import { normalizeEditorItemsSortOrder } from '~/utils/editorItems'
 const model = defineModel<ImageEditorItem[]>({ required: true })
 
 defineEmits<{
-  (e: 'remove', clientId: string): void
+  (e: 'remove' | 'restore', clientId: string): void
 }>()
 
 const itemsLocal = computed({
-  get: () => model.value.filter(item => !item.isRemoved),
+  get: () => model.value,
   set: (value: ImageEditorItem[]) => {
     model.value = normalizeEditorItemsSortOrder(value)
   }
@@ -22,7 +22,8 @@ const itemsLocal = computed({
     <template #default="{ element }">
       <ProjectImageUploadListItem
         :item="element"
-        @update="$emit('remove', $event)" />
+        @remove="$emit('remove', $event)"
+        @restore="$emit('restore', $event)" />
     </template>
   </DraggableList>
 </template>

@@ -43,6 +43,7 @@ const createdAtDate = computed(() => {
 <template>
   <EditorItemLayout
     :draggable="!item.isRemoved"
+    :is-pending="!item.id"
     :is-removed="item.isRemoved"
     @action="updateRemovalState">
     <template #leading>

@@ -3,11 +3,13 @@ withDefaults(
   defineProps<{
       draggable?: boolean
       isRemoved?: boolean
+      isPending?: boolean
       compact?: boolean
     }>(),
   {
     draggable: false,
     isRemoved: false,
+    isPending: false,
     compact: false
   }
 )
@@ -21,7 +23,10 @@ defineEmits<{
   <v-container
     fluid
     class="py-0 editor-list-item-layout hover-surface"
-    :class="{ 'editor-list-item-layout--removed': isRemoved }">
+    :class="{
+      'editor-list-item-layout--pending': isPending,
+      'editor-list-item-layout--removed': isRemoved
+    }">
     <v-row
       :class="{ 'editor-list-item-layout--compact': compact }">
       <v-col
@@ -71,6 +76,13 @@ defineEmits<{
 .editor-list-item-layout {
   border-inline-start: 3px solid transparent;
   transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.editor-list-item-layout--pending {
+  /*noinspection CssUnresolvedCustomProperty*/
+  background-color: rgba(var(--v-theme-warning), 0.08);
+  /*noinspection CssUnresolvedCustomProperty*/
+  border-inline-start-color: rgba(var(--v-theme-warning), 0.65);
 }
 
 .editor-list-item-layout--removed {

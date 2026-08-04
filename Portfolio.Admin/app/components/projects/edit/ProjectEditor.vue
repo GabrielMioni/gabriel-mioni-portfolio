@@ -13,7 +13,6 @@ const {
   tagItems,
 
   // computed
-  activeImageItems,
   activeLinkItems,
   isNewProject,
   isSavingProject,
@@ -86,12 +85,12 @@ const goToProjects = async () => {
           <v-tab :value="tabValues.images">
             <EditorItemTabDisplay
               label="Images"
-              :items="activeImageItems" />
+              :items="imageItems" />
           </v-tab>
           <v-tab :value="tabValues.links">
             <EditorItemTabDisplay
               label="Links"
-              :items="activeLinkItems" />
+              :items="linkItems" />
           </v-tab>
         </v-tabs>
         <v-spacer />

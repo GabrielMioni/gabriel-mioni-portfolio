@@ -54,7 +54,7 @@ test('a published project with an image and link can be created, edited, viewed,
     page.getByText(`${imageFileName} (pending)`, { exact: true })
   ).toBeVisible()
 
-  await page.getByRole('tab', { name: 'Links (0)', exact: true }).click()
+  await page.getByRole('tab', { name: 'Links: 0 active', exact: true }).click()
   await page.getByRole('button', { name: 'Add link', exact: true }).click()
   await page.getByLabel('Url').fill(linkUrl)
   await page.getByLabel('Link Text').fill(linkText)
@@ -78,7 +78,7 @@ test('a published project with an image and link can be created, edited, viewed,
     })
 
     await page.getByRole('tab', {
-      name: 'Images (1)',
+      name: 'Images: 1 active',
       exact: true
     }).click()
 
@@ -93,7 +93,7 @@ test('a published project with an image and link can be created, edited, viewed,
     }).click()
 
     await expect(page.getByRole('tab', {
-      name: 'Images (0)',
+      name: 'Images: 0 active, 1 pending removal',
       exact: true
     })).toBeVisible()
     await expect(altTextInput).toBeDisabled()
@@ -109,14 +109,14 @@ test('a published project with an image and link can be created, edited, viewed,
     }).click()
 
     await expect(page.getByRole('tab', {
-      name: 'Images (1)',
+      name: 'Images: 1 active',
       exact: true
     })).toBeVisible()
     await expect(altTextInput).toBeEnabled()
     await expect(saveButton).toBeDisabled()
 
     await page.getByRole('tab', {
-      name: 'Links (1)',
+      name: 'Links: 1 active',
       exact: true
     }).click()
 
@@ -135,7 +135,7 @@ test('a published project with an image and link can be created, edited, viewed,
     }).click()
 
     await expect(page.getByRole('tab', {
-      name: 'Links (0)',
+      name: 'Links: 0 active, 1 pending removal',
       exact: true
     })).toBeVisible()
     await expect(linkUrlInput).toBeDisabled()
@@ -153,7 +153,7 @@ test('a published project with an image and link can be created, edited, viewed,
     }).click()
 
     await expect(page.getByRole('tab', {
-      name: 'Links (1)',
+      name: 'Links: 1 active',
       exact: true
     })).toBeVisible()
     await expect(linkUrlInput).toBeEnabled()
@@ -167,7 +167,7 @@ test('a published project with an image and link can be created, edited, viewed,
     }).click()
 
     await expect(page.getByRole('tab', {
-      name: 'Links (2 • 1 pending)',
+      name: 'Links: 2 active, 1 pending addition',
       exact: true
     })).toBeVisible()
 
@@ -181,7 +181,7 @@ test('a published project with an image and link can be created, edited, viewed,
     }).click()
 
     await expect(page.getByRole('tab', {
-      name: 'Links (1)',
+      name: 'Links: 1 active',
       exact: true
     })).toBeVisible()
     await expect(page.getByLabel('Url')).toHaveCount(1)
@@ -198,6 +198,10 @@ test('a published project with an image and link can be created, edited, viewed,
 
     await expect(publicPage.getByText(title, { exact: true })).toBeVisible()
     await expect(publicPage.getByText(summary, { exact: true })).toBeVisible()
+    await expect(publicPage.getByRole('link', {
+      name: linkText,
+      exact: true
+    })).toBeVisible()
 
     const thumbnail = publicPage.getByAltText(imageFileName, { exact: true })
     await expect(thumbnail).toBeVisible()
@@ -221,6 +225,38 @@ test('a published project with an image and link can be created, edited, viewed,
 
     fullImageUrl = await fullImage.getAttribute('src')
     expect(fullImageUrl).not.toBeNull()
+
+    await linkRow.getByRole('button', {
+      name: 'Remove',
+      exact: true
+    }).click()
+
+    await expect(page.getByRole('tab', {
+      name: 'Links: 0 active, 1 pending removal',
+      exact: true
+    })).toBeVisible()
+    await expect(saveButton).toBeEnabled()
+
+    await saveButton.click()
+    await expect(page.getByText('Project saved.', { exact: true })).toBeVisible()
+
+    await page.reload()
+    await page.getByRole('tab', {
+      name: 'Links: 0 active',
+      exact: true
+    }).click()
+    await expect(page.getByLabel('Url')).toHaveCount(0)
+
+    const projectWithoutLinkResponse =
+      waitForPublishedProjectsResponse(publicPage)
+    await publicPage.reload()
+    await projectWithoutLinkResponse
+
+    await expect(publicPage.getByText(title, { exact: true })).toBeVisible()
+    await expect(publicPage.getByRole('link', {
+      name: linkText,
+      exact: true
+    })).toHaveCount(0)
   } finally {
     await page.getByRole('button', { name: 'Delete', exact: true }).click()
     const confirmationDialog = page.getByRole('dialog')

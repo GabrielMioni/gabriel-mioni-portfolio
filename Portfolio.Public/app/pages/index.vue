@@ -48,21 +48,7 @@ const config = useRuntimeConfig()
             </div>
           </div>
 
-          <figure>
-            <div class="manual-plate">
-              <span class="manual-plate-label">Plate A–01</span>
-              <div class="manual-plate-mark">
-                <img
-                  src="/owl-icon.svg"
-                  alt="Geometric owl mark"
-                  class="manual-plate-owl">
-              </div>
-            </div>
-            <figcaption class="manual-plate-caption">
-              <span>Fig. 01 — Systems practice</span>
-              <span>Portland, Oregon</span>
-            </figcaption>
-          </figure>
+          <ManualPlate />
         </div>
       </UContainer>
     </section>

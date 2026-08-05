@@ -136,7 +136,7 @@ const dropRandomPlateCell = () => {
       aria-label="Animate technical grid"
       @keydown.enter.prevent="dropRandomPlateCell"
       @keydown.space.prevent="dropRandomPlateCell">
-      <span class="manual-plate-label">Plate A–01</span>
+      <span class="manual-plate-label">Exercise A–01</span>
       <div
         ref="manualPlatePattern"
         class="manual-plate-pattern">
@@ -156,8 +156,8 @@ const dropRandomPlateCell = () => {
       </div>
     </div>
     <figcaption class="manual-plate-caption">
-      <span>Fig. 01 — Systems practice</span>
-      <span>Portland, Oregon</span>
+      <span>Fig. 01 — Elementary signal routing</span>
+      <span>Pointer / keyboard input</span>
     </figcaption>
   </figure>
 </template>

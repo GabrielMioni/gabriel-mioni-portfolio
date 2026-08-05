@@ -15,7 +15,8 @@ const config = useRuntimeConfig()
               Gabriel<br>Mioni
             </h1>
             <p class="editorial-summary">
-              Full-stack developer with 15 years of experience building durable applications for the web.
+              Full-stack developer based in Portland, Oregon, with 15 years of experience building durable
+              applications for the web.
             </p>
             <div class="hero-actions">
               <UButton

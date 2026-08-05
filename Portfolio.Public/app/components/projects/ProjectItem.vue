@@ -71,17 +71,18 @@ const selectProject = () => {
 <style scoped>
 .project-card {
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   border: 0;
   border-radius: 0;
   background: var(--folio-paper-raised);
-  box-shadow: none;
-  transition: background-color 180ms ease, translate 180ms ease;
+  box-shadow: 0 -1px 0 transparent;
+  transition: background-color 180ms ease, box-shadow 180ms ease, translate 180ms ease;
 }
 
 .project-card--interactive:hover {
   z-index: 1;
   background: color-mix(in srgb, var(--folio-amber) 22%, var(--folio-paper-raised));
+  box-shadow: 0 -1px 0 var(--folio-ink);
   translate: 0 -3px;
 }
 

@@ -130,7 +130,7 @@ const dropRandomPlateCell = () => {
   <figure>
     <div
       ref="manualPlate"
-      class="manual-plate"
+      class="manual-plate folio-focus-ring folio-focus-ring--roomy"
       role="button"
       tabindex="0"
       aria-label="Animate technical grid"
@@ -164,8 +164,8 @@ const dropRandomPlateCell = () => {
 
 <style scoped>
 .manual-plate {
-  --folio-plate-ink: #22231f;
-  --folio-plate-rule: rgb(34 35 31 / 22%);
+  --folio-plate-rule: color-mix(in srgb, var(--folio-dark-ink) 22%, transparent);
+  --folio-plate-shadow: color-mix(in srgb, var(--folio-dark-ink) 24%, transparent);
 
   position: relative;
   display: grid;
@@ -178,17 +178,29 @@ const dropRandomPlateCell = () => {
   place-items: center;
 }
 
+.manual-plate::before,
 .manual-plate::after {
   position: absolute;
-  right: -12%;
-  bottom: -25%;
   width: 65%;
   aspect-ratio: 1;
-  border: 1px solid var(--folio-ink);
-  background: var(--folio-coral);
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
   content: '';
   pointer-events: none;
+}
+
+.manual-plate::before {
+  z-index: 1;
+  right: calc(-12% + 1rem);
+  bottom: calc(-25% - .25rem);
+  background: var(--folio-plate-shadow);
+}
+
+.manual-plate::after {
+  z-index: 1;
+  right: -12%;
+  bottom: -25%;
+  border: 1px solid var(--folio-ink);
+  background: var(--folio-coral);
 }
 
 .manual-plate-pattern {
@@ -222,20 +234,15 @@ const dropRandomPlateCell = () => {
   transition-duration: 65ms;
 }
 
-.manual-plate:focus-visible {
-  outline: 3px solid var(--folio-cyan);
-  outline-offset: 4px;
-}
-
 .manual-plate-mark {
   position: relative;
   z-index: 1;
   display: grid;
   width: min(48%, 12rem);
   aspect-ratio: 1;
-  border: 1px solid var(--folio-plate-ink);
+  border: 1px solid var(--folio-dark-ink);
   background: var(--folio-rust);
-  box-shadow: -.45rem .95rem 0 rgb(34 35 31 / 15%);
+  box-shadow: -.45rem .95rem 0 var(--folio-plate-shadow);
   rotate: 45deg;
   place-items: center;
   will-change: rotate;
@@ -274,8 +281,8 @@ const dropRandomPlateCell = () => {
   z-index: 2;
   top: 1rem;
   right: 1rem;
-  color: var(--folio-plate-ink);
-  font-family: 'Courier New', monospace;
+  color: var(--folio-dark-ink);
+  font-family: var(--folio-font-mono);
   font-size: .65rem;
   font-weight: 700;
   letter-spacing: .12em;
@@ -288,7 +295,7 @@ const dropRandomPlateCell = () => {
   gap: 1rem;
   margin-inline: auto;
   padding-top: .6rem;
-  font-family: 'Courier New', monospace;
+  font-family: var(--folio-font-mono);
   font-size: .65rem;
   letter-spacing: .08em;
 }

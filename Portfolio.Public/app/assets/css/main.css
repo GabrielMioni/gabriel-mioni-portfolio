@@ -21,12 +21,16 @@
   --folio-paper: #e8e2d2;
   --folio-paper-raised: #f3efe3;
   --folio-ink: #22231f;
+  --folio-dark-ink: #22231f;
   --folio-muted: #6f6b5e;
   --folio-rule: #aaa38e;
   --folio-amber: #ffba00;
   --folio-coral: #d98f87;
   --folio-cyan: #168aa8;
   --folio-rust: #814236;
+  --folio-font-display: 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  --folio-font-body: Georgia, 'Times New Roman', serif;
+  --folio-font-mono: 'Courier New', monospace;
 }
 
 .dark {
@@ -39,6 +43,45 @@
   --folio-coral: #cf8278;
   --folio-cyan: #70b5bd;
   --folio-rust: #6e4035;
+}
+
+.text-dark-ink,
+.hover\:text-dark-ink:hover {
+  color: var(--folio-dark-ink) !important;
+}
+
+.folio-focus-ring {
+  --folio-focus-ring-width: 3px;
+  --folio-focus-ring-offset: 3px;
+}
+
+.folio-focus-ring--compact {
+  --folio-focus-ring-width: 2px;
+  --folio-focus-ring-offset: 2px;
+}
+
+.folio-focus-ring--inset {
+  --folio-focus-ring-offset: -3px;
+}
+
+.folio-focus-ring--roomy {
+  --folio-focus-ring-offset: 4px;
+}
+
+.folio-focus-ring:focus-visible {
+  outline: var(--folio-focus-ring-width) solid var(--folio-cyan);
+  outline-offset: var(--folio-focus-ring-offset);
+}
+
+.folio-accent-control {
+  border: 1px solid var(--folio-ink);
+  border-radius: 0;
+  background: transparent !important;
+  transition: background-color 140ms ease;
+}
+
+.folio-accent-control:hover {
+  background: var(--folio-amber) !important;
 }
 
 html {
@@ -54,7 +97,7 @@ body {
 }
 
 ::selection {
-  color: var(--folio-ink);
+  color: var(--folio-dark-ink);
   background: var(--folio-amber);
 }
 
@@ -86,7 +129,7 @@ body {
 }
 
 .editorial-kicker {
-  font-family: 'Courier New', monospace;
+  font-family: var(--folio-font-mono);
   font-size: .7rem;
   font-weight: 700;
   letter-spacing: .12em;
@@ -118,7 +161,7 @@ body {
 .editorial-title {
   max-width: 12ch;
   margin: 1.25rem 0 1.5rem;
-  font-family: 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--folio-font-display);
   font-size: clamp(4.25rem, 11vw, 9.5rem);
   font-weight: 900;
   font-stretch: condensed;
@@ -128,7 +171,7 @@ body {
 
 .editorial-summary {
   max-width: 43rem;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--folio-font-body);
   font-size: clamp(1.15rem, 2.2vw, 1.75rem);
   line-height: 1.4;
 }
@@ -153,7 +196,7 @@ body {
   padding: .65rem .9rem;
   border-right: 1px solid var(--folio-ink);
   border-bottom: 1px solid var(--folio-ink);
-  font-family: 'Courier New', monospace;
+  font-family: var(--folio-font-mono);
   font-size: .68rem;
   font-weight: 700;
   letter-spacing: .08em;
@@ -173,7 +216,7 @@ body {
 }
 
 .projects-heading h2 {
-  font-family: 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--folio-font-display);
   font-size: clamp(2.25rem, 5vw, 4.5rem);
   font-stretch: condensed;
   font-weight: 900;

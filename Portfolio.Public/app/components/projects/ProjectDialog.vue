@@ -38,13 +38,17 @@ const formatCount = (count: number, singular: string, plural = `${singular}s`) =
   `${count} ${count === 1 ? singular : plural}`
 
 const recordSummary = computed(() => [
-  formatCount(props.project?.tags.length ?? 0, 'technology', 'technologies'),
-  formatCount(props.project?.links.length ?? 0, 'link')
-].join(' · '))
+  (props.project?.tags.length ?? 0) > 0
+    ? formatCount(props.project?.tags.length ?? 0, 'technology', 'technologies')
+    : null,
+  (props.project?.links.length ?? 0) > 0
+    ? formatCount(props.project?.links.length ?? 0, 'link')
+    : null
+].filter(summary => summary !== null).join(' · '))
 
-const figureSummary = computed(() =>
-  formatCount(projectImages.value.length, 'figure')
-)
+const figureSummary = computed(() => projectImages.value.length > 0
+  ? formatCount(projectImages.value.length, 'figure')
+  : '')
 
 const modalUi = computed(() => ({
   overlay: 'project-dialog__overlay',
@@ -53,7 +57,7 @@ const modalUi = computed(() => ({
   title: 'project-dialog__title',
   description: 'project-dialog__description',
   body: 'project-dialog__body',
-  close: 'project-dialog__close'
+  close: 'project-dialog__close folio-accent-control folio-focus-ring folio-focus-ring--compact hover:text-dark-ink'
 }))
 </script>
 
@@ -69,9 +73,13 @@ const modalUi = computed(() => ({
         class="project-dialog__layout"
         :class="{ 'project-dialog__layout--text-only': !hasImages }">
         <section class="project-dialog__copy">
-          <div class="project-dialog__record-line">
-            <span>{{ recordSummary }}</span>
-            <span>{{ figureSummary }}</span>
+          <div
+            v-if="recordSummary || figureSummary"
+            class="project-dialog__record-line">
+            <span v-if="recordSummary">{{ recordSummary }}</span>
+            <span
+              v-if="figureSummary"
+              class="project-dialog__figure-count">{{ figureSummary }}</span>
           </div>
           <div
             ref="text-section"
@@ -147,7 +155,7 @@ const modalUi = computed(() => ({
 
 .project-dialog__title {
   max-width: 24ch;
-  font-family: 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--folio-font-display);
   font-size: clamp(1.85rem, 3.5vw, 3.25rem);
   font-stretch: condensed;
   font-weight: 900;
@@ -158,7 +166,7 @@ const modalUi = computed(() => ({
 .project-dialog__description,
 .project-dialog__metadata-label,
 .project-dialog__record-line {
-  font-family: 'Courier New', monospace;
+  font-family: var(--folio-font-mono);
   font-size: .68rem;
   font-weight: 700;
   letter-spacing: .11em;
@@ -168,17 +176,6 @@ const modalUi = computed(() => ({
   margin-bottom: .55rem;
   color: var(--folio-rust);
   text-transform: none;
-}
-
-.project-dialog__close {
-  border: 1px solid var(--folio-ink);
-  border-radius: 0;
-  color: var(--folio-ink);
-  background: transparent;
-}
-
-.project-dialog__close:hover {
-  background: var(--folio-amber);
 }
 
 .project-dialog__body {
@@ -222,6 +219,10 @@ const modalUi = computed(() => ({
   background: var(--folio-paper);
 }
 
+.project-dialog__figure-count {
+  margin-left: auto;
+}
+
 .project-dialog__text {
   flex: 1;
   min-height: 0;
@@ -254,7 +255,7 @@ const modalUi = computed(() => ({
 
 .project-dialog__prose {
   color: var(--folio-ink);
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--folio-font-body);
   font-size: clamp(1rem, 1.35vw, 1.12rem);
   line-height: 1.72;
 }
@@ -265,21 +266,6 @@ const modalUi = computed(() => ({
   padding: 1rem clamp(1.25rem, 3vw, 2.5rem) 1.25rem;
   border-top: 1px solid var(--folio-ink);
   background: var(--folio-paper);
-}
-
-.project-dialog__links a {
-  border: 1px solid var(--folio-ink);
-  border-radius: 0;
-  color: var(--folio-ink);
-  background: transparent;
-  box-shadow: none;
-  font-family: 'Courier New', monospace;
-  font-size: .7rem;
-  font-weight: 700;
-}
-
-.project-dialog__links a:hover {
-  background: var(--folio-amber);
 }
 
 .project-dialog__figures {

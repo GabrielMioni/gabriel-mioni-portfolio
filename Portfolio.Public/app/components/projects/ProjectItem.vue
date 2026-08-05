@@ -34,7 +34,7 @@ const selectProject = () => {
     :class="{ 'cursor-pointer group project-card--interactive': hasAdditionalContent }"
     @click="selectProject">
     <template #header>
-      <div class="project-image-frame">
+      <div class="project-image-frame editorial-corner-field">
         <div class="aspect-video bg-stone-100 dark:bg-stone-800">
           <StorageImage
             :storage-key="mainImage?.thumbKey"
@@ -91,9 +91,6 @@ const selectProject = () => {
   min-height: 15rem;
   padding: 1rem;
   border-bottom: 1px solid var(--folio-ink);
-  background:
-    linear-gradient(135deg, transparent 75%, color-mix(in srgb, var(--folio-cyan) 45%, transparent) 75%),
-    var(--folio-paper);
   place-items: center;
 }
 

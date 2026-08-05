@@ -97,6 +97,12 @@ body {
   background: var(--folio-ink);
 }
 
+.editorial-corner-field {
+  background:
+    linear-gradient(135deg, transparent 78%, color-mix(in srgb, var(--folio-cyan) 35%, transparent) 78%),
+    var(--editorial-corner-background, var(--folio-paper));
+}
+
 .editorial-hero {
   padding: clamp(3rem, 7vw, 7rem) 0 clamp(4rem, 8vw, 8rem);
   border-bottom: 1px solid var(--folio-ink);

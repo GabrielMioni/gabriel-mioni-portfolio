@@ -175,6 +175,16 @@ body {
   line-height: 1;
 }
 
+.project-signal-trace {
+  width: 6rem;
+  color: var(--folio-cyan);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
 @media (max-width: 48rem) {
   .editorial-hero-grid {
     grid-template-columns: 1fr;
@@ -188,7 +198,7 @@ body {
     grid-template-columns: auto 1fr;
   }
 
-  .projects-heading .editorial-kicker:last-child {
+  .project-signal-trace {
     display: none;
   }
 }

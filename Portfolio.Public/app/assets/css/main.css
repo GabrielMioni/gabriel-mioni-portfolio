@@ -134,78 +134,6 @@ body {
   margin-top: 2rem;
 }
 
-.manual-plate {
-  position: relative;
-  display: grid;
-  min-height: 27rem;
-  overflow: hidden;
-  border: 1px solid var(--folio-ink);
-  background: var(--folio-amber);
-  place-items: center;
-}
-
-.manual-plate::before {
-  position: absolute;
-  inset: 0;
-  content: '';
-  opacity: .22;
-  background-image:
-    linear-gradient(var(--folio-ink) 1px, transparent 1px),
-    linear-gradient(90deg, var(--folio-ink) 1px, transparent 1px);
-  background-size: 2.25rem 2.25rem;
-}
-
-.manual-plate::after {
-  position: absolute;
-  right: -12%;
-  bottom: -25%;
-  width: 65%;
-  aspect-ratio: 1;
-  border: 1px solid var(--folio-ink);
-  background: var(--folio-coral);
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-  content: '';
-}
-
-.manual-plate-mark {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  width: min(48%, 12rem);
-  aspect-ratio: 1;
-  border: 1px solid var(--folio-ink);
-  background: var(--folio-rust);
-  box-shadow: .8rem .8rem 0 rgb(34 35 31 / 15%);
-  rotate: 45deg;
-  place-items: center;
-}
-
-.manual-plate-owl {
-  width: 72%;
-  rotate: -45deg;
-}
-
-.manual-plate-label {
-  position: absolute;
-  z-index: 2;
-  top: 1rem;
-  right: 1rem;
-  font-family: 'Courier New', monospace;
-  font-size: .65rem;
-  font-weight: 700;
-  letter-spacing: .12em;
-}
-
-.manual-plate-caption {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: .6rem;
-  font-family: 'Courier New', monospace;
-  font-size: .65rem;
-  letter-spacing: .08em;
-}
-
 .technology-index {
   display: flex;
   flex-wrap: wrap;
@@ -254,10 +182,6 @@ body {
 
   .editorial-title {
     font-size: clamp(3.8rem, 19vw, 6.2rem);
-  }
-
-  .manual-plate {
-    min-height: 20rem;
   }
 
   .projects-heading {

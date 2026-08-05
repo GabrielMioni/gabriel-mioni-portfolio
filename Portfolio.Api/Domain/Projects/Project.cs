@@ -3,7 +3,7 @@
 public class Project
 {
     public const int MaxTitleLength = 300;
-    public const int MaxImageCount = 15;
+    public const int MaxImageCount = 6;
     public const int MaxTagCount = 15;
 
     public Guid Id { get; private set; }

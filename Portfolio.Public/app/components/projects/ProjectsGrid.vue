@@ -47,47 +47,71 @@ useIntersectionObserver(observer, ([entry]) => {
 </script>
 
 <template>
-  <UContainer>
-    <TransitionGroup
+  <div>
+    <section
       v-if="availableTags.length > 0"
-      tag="div"
-      name="tag"
-      class="flex flex-wrap items-center gap-2 mb-6"
-      appear>
-      <UIcon
-        key="filter-icon"
-        name="i-lucide-filter"
-        class="size-3.5 text-stone-400 dark:text-stone-500 shrink-0" />
-      <UButton
-        key="all"
-        label="All"
-        :variant="selectedTags.length === 0 ? 'solid' : 'outline'"
-        color="primary"
-        size="xs"
-        class="select-none"
-        @click="selectedTags = []" />
-      <UButton
-        v-for="(tag, index) in availableTags"
-        :key="tag.value"
-        :label="tag.name"
-        :variant="selectedTags.includes(tag.value) ? 'solid' : 'outline'"
-        :style="{ transitionDelay: `${(index + 1) * 25}ms` }"
-        color="primary"
-        size="xs"
-        class="select-none"
-        @click="toggleTag(tag.value)" />
-    </TransitionGroup>
+      class="project-filters"
+      aria-labelledby="project-filter-label">
+      <div class="project-filters__heading">
+        <div
+          id="project-filter-label"
+          class="project-filters__label">
+          <UIcon
+            name="i-lucide-filter"
+            class="size-3.5 shrink-0" />
+          <span>Filter by technology</span>
+        </div>
+        <span class="project-filters__status">
+          {{ selectedTags.length === 0 ? 'Showing all' : `${selectedTags.length} selected` }}
+        </span>
+      </div>
+      <TransitionGroup
+        tag="div"
+        name="tag"
+        class="project-filters__options"
+        appear>
+        <button
+          key="all"
+          type="button"
+          class="project-filter folio-focus-ring folio-focus-ring--compact"
+          :class="{
+            'project-filter--active': selectedTags.length === 0,
+            'text-dark-ink': selectedTags.length === 0
+          }"
+          :aria-pressed="selectedTags.length === 0"
+          @click="selectedTags = []">
+          All
+        </button>
+        <button
+          v-for="(tag, index) in availableTags"
+          :key="tag.value"
+          type="button"
+          class="project-filter folio-focus-ring folio-focus-ring--compact"
+          :class="{
+            'project-filter--active': selectedTags.includes(tag.value),
+            'text-dark-ink': selectedTags.includes(tag.value)
+          }"
+          :style="{ transitionDelay: `${(index + 1) * 25}ms` }"
+          :aria-pressed="selectedTags.includes(tag.value)"
+          @click="toggleTag(tag.value)">
+          {{ tag.name }}
+        </button>
+      </TransitionGroup>
+    </section>
     <TransitionGroup
       tag="div"
-      class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      class="project-grid"
       appear
       @before-leave="(el) => { (el as HTMLElement).style.transitionDelay = '0ms' }">
-      <ProjectItem
+      <div
         v-for="(item, index) in projects"
         :key="item.id"
-        :project="item"
-        :style="{ transitionDelay: `${index * 40}ms` }"
-        @select="selectProject" />
+        class="project-cell"
+        :style="{ transitionDelay: `${index * 40}ms` }">
+        <ProjectItem
+          :project="item"
+          @select="selectProject" />
+      </div>
     </TransitionGroup>
     <div
       v-if="!fetchingProjects && projects.length <= 0"
@@ -110,10 +134,104 @@ useIntersectionObserver(observer, ([entry]) => {
     <ProjectDialog
       v-model:open="dialogOpen"
       :project="selectedProject" />
-  </UContainer>
+  </div>
 </template>
 
 <style scoped>
+.project-filters {
+  margin-bottom: 2rem;
+  border: 1px solid var(--folio-ink);
+  background: var(--folio-paper-raised);
+}
+
+.project-filters__heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: .55rem .75rem;
+  border-bottom: 1px solid var(--folio-ink);
+  background: var(--folio-paper);
+}
+
+.project-filters__label,
+.project-filters__status,
+.project-filter {
+  font-family: var(--folio-font-mono);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.project-filters__label {
+  display: flex;
+  gap: .55rem;
+  align-items: center;
+}
+
+.project-filters__status {
+  color: var(--folio-muted);
+}
+
+.project-filters__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  padding: .75rem;
+}
+
+.project-filter {
+  min-height: 2rem;
+  padding: .35rem .7rem;
+  border: 1px solid var(--folio-rule);
+  border-radius: 0;
+  color: var(--folio-ink);
+  background: transparent;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease;
+  user-select: none;
+}
+
+.project-filter:hover {
+  border-color: var(--folio-ink);
+  background: color-mix(in srgb, var(--folio-cyan) 14%, transparent);
+}
+
+.project-filter--active {
+  border-color: var(--folio-ink);
+  background: var(--folio-amber);
+  box-shadow: inset 0 -3px 0 var(--folio-rust);
+}
+
+.project-filter--active:hover {
+  color: var(--folio-ink) !important;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.project-cell {
+  position: relative;
+  min-width: 0;
+  padding: 1px;
+  background: var(--folio-ink);
+}
+
+@media (max-width: 64rem) {
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .v-enter-active {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }

@@ -212,10 +212,16 @@ test('a published project with an image and link can be created, edited, viewed,
     thumbnailUrl = await thumbnail.getAttribute('src')
     expect(thumbnailUrl).not.toBeNull()
 
-    await publicPage.getByText(title, { exact: true }).click()
+    await publicPage.getByRole('button', {
+      name: title,
+      exact: true
+    }).click()
 
-    const fullImage = publicPage.getByAltText(
-      `Thumbnail of ${imageFileName}`,
+    const fullImage = publicPage.getByRole('button', {
+      name: `Enlarge ${imageFileName}`,
+      exact: true
+    }).getByAltText(
+      `Full image of ${imageFileName}`,
       { exact: true }
     )
     await expect(fullImage).toBeVisible()

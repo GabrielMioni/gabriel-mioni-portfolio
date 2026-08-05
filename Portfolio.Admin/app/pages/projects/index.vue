@@ -83,6 +83,7 @@ provide('projectActions', {
       <v-col>
         <ProjectsTable
           v-model:search="search"
+          class="px-3"
           :options="tableOptions"
           :projects="projects"
           :total-count="totalCount"

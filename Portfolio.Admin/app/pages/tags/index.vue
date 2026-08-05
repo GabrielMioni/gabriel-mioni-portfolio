@@ -81,6 +81,7 @@ const onDelete = (tagId: string) => {
     <TagsTable
       v-model:search="search"
       v-model:show-orphaned="showOrphaned"
+      class="px-3"
       :tags="tags"
       :total-count="totalCount"
       :options="tableOptions"

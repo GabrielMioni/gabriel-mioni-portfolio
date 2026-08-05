@@ -78,8 +78,7 @@ const goToProjects = async () => {
     <template v-else>
       <v-toolbar
         color="background"
-        class="position-sticky top-0"
-        style="z-index: 999">
+        class="project-editor-toolbar position-sticky">
         <v-tabs v-model="tab">
           <v-tab :value="tabValues.details">Details</v-tab>
           <v-tab :value="tabValues.images">
@@ -159,5 +158,10 @@ const goToProjects = async () => {
 .project-editor-actions {
   display: flex;
   gap: 0.5rem;
+}
+
+.project-editor-toolbar {
+  top: var(--v-layout-top);
+  z-index: 10;
 }
 </style>

@@ -12,15 +12,19 @@ export default defineVuetifyConfiguration({
     themes: {
       light: {
         colors: {
-          primary: '#1E88E5',
-          secondary: '#546E7A',
-          success: '#2E7D32',
-          warning: '#ED6C02',
-          error: '#D32F2F',
-          header: '#80CBC4',
-          grey: '#6B7280',
-          'surface-muted': '#F5F5F5',
-          border: '#E0E0E0'
+          background: '#F3F1EA',
+          surface: '#FFFEFB',
+          primary: '#087A65',
+          secondary: '#52635E',
+          success: '#278553',
+          warning: '#C7771A',
+          error: '#BC3C35',
+          header: '#DCEBE5',
+          grey: '#68716E',
+          'surface-muted': '#EAE7DF',
+          border: '#D7D3C9',
+          'nav-surface': '#1C1E1E',
+          'nav-active': '#C8F0E1'
         }
       },
       dark: {

@@ -1,2 +1,11 @@
 @use 'base/typography';
 @use './utilities';
+
+html {
+  background: #f3f1ea;
+}
+
+body {
+  color: #25312e;
+  font-family: Inter, "Segoe UI", sans-serif;
+}

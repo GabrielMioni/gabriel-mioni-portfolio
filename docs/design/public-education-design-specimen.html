@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en" data-theme="print">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Public Education Design Specimen</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #e8e2d2;
+      --paper-raised: #f3efe3;
+      --ink: #22231f;
+      --muted: #6f6b5e;
+      --rule: #aaa38e;
+      --cyan: #168aa8;
+      --coral: #d98f87;
+      --orange: #f15a30;
+      --magenta: #d84d9d;
+      --rust: #814236;
+      --amber: #ffba00;
+      --moss: #657153;
+      --screen: #171a17;
+    }
+
+    html[data-theme="terminal"] {
+      color-scheme: dark;
+      --paper: #151a17;
+      --paper-raised: #1d231f;
+      --ink: #e3ddc9;
+      --muted: #9b9c8b;
+      --rule: #465047;
+      --cyan: #70b5bd;
+      --coral: #cf8278;
+      --orange: #ef7149;
+      --magenta: #ce6ca8;
+      --rust: #6e4035;
+      --amber: #ffb000;
+      --moss: #93a17b;
+      --screen: #0b110e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      transition: background 180ms ease, color 180ms ease;
+    }
+
+    button, a { font: inherit; }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 72px;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 24px;
+      padding-bottom: 12px;
+      border-bottom: 7px solid var(--cyan);
+    }
+
+    .identity {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .identity-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      background: var(--amber);
+      color: #171a17;
+      font-weight: 800;
+      letter-spacing: -0.08em;
+    }
+
+    .eyebrow,
+    .meta,
+    .figure-label,
+    .step-number,
+    .terminal-label {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 12px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .identity-name {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .identity-note { color: var(--muted); font-size: 12px; }
+
+    .theme-toggle {
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      padding: 9px 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 12px;
+      letter-spacing: .06em;
+    }
+
+    .theme-toggle:hover { background: var(--ink); color: var(--paper); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(340px, .92fr);
+      gap: clamp(40px, 7vw, 96px);
+      align-items: center;
+      padding: clamp(64px, 10vw, 132px) 0;
+    }
+
+    .hero h1 {
+      max-width: 800px;
+      margin: 18px 0 24px;
+      font-family: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+      font-size: clamp(52px, 8.5vw, 118px);
+      font-stretch: condensed;
+      font-weight: 900;
+      letter-spacing: -.065em;
+      line-height: .86;
+    }
+
+    .hero-copy {
+      max-width: 620px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(17px, 2vw, 22px);
+      line-height: 1.55;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+      margin-top: 38px;
+      color: var(--muted);
+    }
+
+    .art-plate {
+      position: relative;
+      aspect-ratio: 1 / 1.12;
+      overflow: hidden;
+      background: var(--rust);
+      border: 1px solid var(--ink);
+    }
+
+    .art-grid {
+      position: absolute;
+      inset: 0;
+      opacity: .22;
+      background-image:
+        linear-gradient(var(--paper-raised) 1px, transparent 1px),
+        linear-gradient(90deg, var(--paper-raised) 1px, transparent 1px);
+      background-size: 34px 34px;
+    }
+
+    .layer {
+      position: absolute;
+      left: 15%;
+      width: 70%;
+      height: 22%;
+      clip-path: polygon(17% 0, 83% 0, 100% 100%, 0 100%);
+      background: var(--orange);
+      border: 1px solid var(--ink);
+    }
+
+    .layer::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 18%;
+      width: 18%;
+      aspect-ratio: 1;
+      translate: -50% 0;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--magenta);
+    }
+
+    .layer::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 8%;
+      width: 7%;
+      height: 34%;
+      translate: -50% 0;
+      background: var(--cyan);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+    }
+
+    .layer-one { top: 17%; }
+    .layer-two { top: 40%; }
+    .layer-three { top: 63%; }
+
+    .plate-index {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      color: var(--paper-raised);
+      font-family: "Courier New", Courier, monospace;
+      font-size: 12px;
+      letter-spacing: .08em;
+    }
+
+    .section {
+      padding: 54px 0 64px;
+      border-top: 1px solid var(--rule);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 30px;
+      margin-bottom: 42px;
+    }
+
+    .section h2 {
+      max-width: 800px;
+      margin: 0;
+      font-family: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+      font-size: clamp(36px, 5.8vw, 76px);
+      font-weight: 900;
+      letter-spacing: -.045em;
+      line-height: .95;
+    }
+
+    .project-file {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: clamp(30px, 6vw, 80px);
+      align-items: start;
+    }
+
+    .project-copy h3 {
+      margin: 12px 0 20px;
+      font-size: clamp(28px, 4vw, 48px);
+      letter-spacing: -.035em;
+      line-height: 1;
+    }
+
+    .project-copy p {
+      max-width: 510px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .subject-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      margin-top: 28px;
+      padding-top: 14px;
+      border-top: 1px solid var(--rule);
+      font-family: "Courier New", Courier, monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .technical-figure {
+      position: relative;
+      min-height: 380px;
+      border: 1px solid var(--ink);
+      background: var(--paper-raised);
+      padding: 36px;
+    }
+
+    .screen {
+      position: relative;
+      height: 250px;
+      padding: 18px;
+      background: var(--screen);
+      color: var(--amber);
+      border: 10px solid var(--muted);
+      font-family: "Courier New", Courier, monospace;
+      overflow: hidden;
+    }
+
+    .screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .05;
+      background: repeating-linear-gradient(to bottom, transparent 0 4px, currentColor 5px);
+    }
+
+    .terminal-line { margin-bottom: 12px; }
+    .terminal-dim { color: #83c99a; }
+    .cursor { display: inline-block; width: 9px; height: 16px; background: currentColor; vertical-align: -2px; }
+
+    .figure-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 15px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .instruction-grid {
+      display: grid;
+      grid-template-columns: .85fr 1.15fr;
+      gap: clamp(36px, 7vw, 100px);
+    }
+
+    .steps { list-style: none; margin: 0; padding: 0; }
+
+    .steps li {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 16px;
+      padding: 18px 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .steps li:last-child { border-bottom: 1px solid var(--rule); }
+    .steps p { margin: 4px 0 0; color: var(--muted); line-height: 1.5; }
+
+    .diagram {
+      position: relative;
+      min-height: 400px;
+    }
+
+    .diagram-shape {
+      position: absolute;
+      left: 50%;
+      width: 190px;
+      aspect-ratio: 1;
+      translate: -50% 0;
+      background: transparent;
+      border: 2px solid var(--ink);
+      clip-path: polygon(50% 0, 98% 36%, 80% 94%, 20% 94%, 2% 36%);
+    }
+
+    .diagram-shape::before,
+    .diagram-shape::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -30%;
+      width: 2px;
+      height: 160%;
+      background: var(--ink);
+      transform-origin: center;
+    }
+
+    .diagram-shape::before { rotate: 54deg; }
+    .diagram-shape::after { rotate: -54deg; }
+    .shape-a { top: 10px; }
+    .shape-b { top: 182px; scale: .72; }
+
+    .diagram-arrow {
+      position: absolute;
+      left: 50%;
+      top: 177px;
+      width: 2px;
+      height: 58px;
+      background: var(--coral);
+    }
+
+    .diagram-arrow::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: -5px;
+      width: 9px;
+      height: 9px;
+      border-right: 2px solid var(--coral);
+      border-bottom: 2px solid var(--coral);
+      rotate: 45deg;
+    }
+
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      min-height: 150px;
+      border: 1px solid var(--ink);
+    }
+
+    .swatch {
+      display: flex;
+      align-items: end;
+      padding: 12px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 11px;
+      color: #171a17;
+    }
+
+    .swatch.paper { background: #e8e2d2; }
+    .swatch.cyan { background: #168aa8; }
+    .swatch.coral { background: #d98f87; }
+    .swatch.orange { background: #f15a30; }
+    .swatch.magenta { background: #d84d9d; }
+    .swatch.rust { background: #814236; color: #f3efe3; }
+    .swatch.amber { background: #ffba00; }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding-top: 22px;
+      border-top: 7px solid var(--cyan);
+      color: var(--muted);
+    }
+
+    @media (max-width: 780px) {
+      .hero,
+      .project-file,
+      .instruction-grid { grid-template-columns: 1fr; }
+      .section-head { grid-template-columns: 1fr; gap: 14px; }
+      .art-plate { width: min(100%, 520px); }
+      .palette { grid-template-columns: repeat(2, 1fr); }
+      .swatch { min-height: 90px; }
+    }
+
+    @media (max-width: 500px) {
+      .page { width: min(100% - 20px, 1180px); padding-top: 16px; }
+      .masthead { grid-template-columns: 1fr; align-items: start; }
+      .theme-toggle { justify-self: start; }
+      .hero { padding: 58px 0; }
+      .technical-figure { padding: 18px; }
+      .screen { border-width: 6px; font-size: 12px; }
+      .figure-caption, .footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <div class="identity">
+        <div class="identity-mark" aria-hidden="true">GM</div>
+        <div>
+          <div class="identity-name">Gabriel Mioni</div>
+          <div class="identity-note">Software systems &amp; web applications</div>
+        </div>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">View terminal edition</button>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Public information system Â· Issue 01</div>
+        <h1>Systems,<br>carefully<br>explained.</h1>
+        <p class="hero-copy">A field guide to building durable applications with Vue, TypeScript, GraphQL, and .NET.</p>
+        <div class="hero-meta meta">
+          <span>15 years on the web</span>
+          <span>Portland, Oregon</span>
+          <span>Updated 2026</span>
+        </div>
+      </div>
+      <figure>
+        <div class="art-plate" role="img" aria-label="Three stacked technical layers in orange, magenta, and blue">
+          <div class="art-grid"></div>
+          <div class="layer layer-one"></div>
+          <div class="layer layer-two"></div>
+          <div class="layer layer-three"></div>
+          <div class="plate-index">PLATE Aâ€“01</div>
+        </div>
+        <figcaption class="figure-caption">
+          <span>FIG. 01 â€” Application layers</span>
+          <span>Not to scale</span>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="eyebrow">Project file 01</div>
+        <h2>Portfolio administration system</h2>
+      </div>
+      <div class="project-file">
+        <div class="project-copy">
+          <div class="meta">Objective / maintainable publishing</div>
+          <h3>A small system with explicit boundaries.</h3>
+          <p>An authenticated editor coordinates project data, image preparation, tags, and links through a typed GraphQL API. Each part is designed to fail visibly and recover safely.</p>
+          <div class="subject-list">
+            <span>Vue 3</span><span>Nuxt</span><span>GraphQL</span><span>.NET</span><span>SQL Server</span>
+          </div>
+        </div>
+        <figure class="technical-figure">
+          <div class="screen" aria-label="Terminal-style project status display">
+            <div class="terminal-label">Project record / 001</div>
+            <div class="terminal-line">&gt; LOAD PROJECT_EDITOR</div>
+            <div class="terminal-line terminal-dim">STATUS ........ READY</div>
+            <div class="terminal-line terminal-dim">IMAGES ........ 08</div>
+            <div class="terminal-line terminal-dim">TAGS .......... 05</div>
+            <div class="terminal-line">&gt; VERIFY SAVE_SEQUENCE</div>
+            <div class="terminal-line">COMPLETE <span class="cursor" aria-hidden="true"></span></div>
+          </div>
+          <figcaption class="figure-caption">
+            <span>FIG. 02 â€” Administrative record</span>
+            <span>Operational view</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="eyebrow">Instruction plate 02</div>
+        <h2>Show the process, not just the result.</h2>
+      </div>
+      <div class="instruction-grid">
+        <ol class="steps">
+          <li><span class="step-number">01</span><div><strong>Arrange the record.</strong><p>Create the project and establish its stable identity.</p></div></li>
+          <li><span class="step-number">02</span><div><strong>Prepare related media.</strong><p>Validate, resize, upload, and retain retry-safe identifiers.</p></div></li>
+          <li><span class="step-number">03</span><div><strong>Verify the public result.</strong><p>Confirm that the published system reflects the saved record.</p></div></li>
+        </ol>
+        <div class="diagram" role="img" aria-label="Two outlined pentagons connected by a coral arrow">
+          <div class="diagram-shape shape-a"></div>
+          <div class="diagram-arrow"></div>
+          <div class="diagram-shape shape-b"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="eyebrow">Color reference</div>
+        <h2>Paper, ink, and concentrated signals.</h2>
+      </div>
+      <div class="palette" aria-label="Proposed design palette">
+        <div class="swatch paper">Paper</div>
+        <div class="swatch cyan">Cyan</div>
+        <div class="swatch coral">Coral</div>
+        <div class="swatch orange">Orange</div>
+        <div class="swatch magenta">Magenta</div>
+        <div class="swatch rust">Rust</div>
+        <div class="swatch amber">Amber</div>
+      </div>
+    </section>
+
+    <footer class="footer meta">
+      <span>Design specimen / public education system</span>
+      <span>Volume 01 Â· 2026</span>
+    </footer>
+  </main>
+
+  <script>
+    const root = document.documentElement;
+    const toggle = document.getElementById('theme-toggle');
+
+    toggle.addEventListener('click', () => {
+      const terminal = root.dataset.theme !== 'terminal';
+      root.dataset.theme = terminal ? 'terminal' : 'print';
+      toggle.setAttribute('aria-pressed', String(terminal));
+      toggle.textContent = terminal ? 'View printed edition' : 'View terminal edition';
+    });
+  </script>
+</body>
+</html>
+

@@ -1,4 +1,4 @@
-export const MAX_PROJECT_IMAGES = 15
+export const MAX_PROJECT_IMAGES = 6
 export const MAX_PROJECT_TAGS = 15
 
 export const getRemainingCapacity = (

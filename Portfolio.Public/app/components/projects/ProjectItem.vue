@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { PublicProjectFragment } from '~/generated/graphql'
 import { PublicProjectImageFragmentDoc } from '~/generated/graphql'
 import { useFragment } from '~/generated'
@@ -19,8 +20,11 @@ const mainImage = computed(() => {
 const hasAdditionalContent = computed(() => {
   return (
     (props.project.body?.trim() || '').length > 0
-    || props.project.images.length > 1)
+    || props.project.images.length > 0)
 })
+
+const projectTitleId = computed(() => `project-title-${props.project.id}`)
+const projectSummaryId = computed(() => `project-summary-${props.project.id}`)
 
 const selectProject = () => {
   emit('select', props.project.id)
@@ -29,10 +33,19 @@ const selectProject = () => {
 
 <template>
   <UCard
+    as="article"
     :ui="{ header: 'p-0' }"
     class="project-card"
-    :class="{ 'cursor-pointer group project-card--interactive': hasAdditionalContent }"
-    @click="selectProject">
+    :class="{ 'cursor-pointer group project-card--interactive': hasAdditionalContent }">
+    <button
+      v-if="hasAdditionalContent"
+      type="button"
+      class="project-card__open folio-focus-ring"
+      :aria-labelledby="projectTitleId"
+      :aria-describedby="project.summary ? projectSummaryId : undefined"
+      @click="selectProject"
+      @keydown.enter.prevent="selectProject"
+      @keydown.space.prevent="selectProject" />
     <template #header>
       <div class="project-image-frame editorial-corner-field">
         <div class="aspect-video bg-stone-100 dark:bg-stone-800">
@@ -46,30 +59,34 @@ const selectProject = () => {
     </template>
     <div class="project-copy">
       <span class="project-label">Project record</span>
-      <p class="project-title">
+      <h3
+        :id="projectTitleId"
+        class="project-title">
         {{ project.title }}
-      </p>
+      </h3>
       <p
         v-if="project.summary"
+        :id="projectSummaryId"
         class="project-summary line-clamp-3">
         {{ project.summary }}
       </p>
       <ProjectTagIcons
         :tags="project.tags"
-        class="pt-1" />
+        class="project-card__tags pt-1" />
     </div>
     <template
       v-if="project.links.length"
       #footer>
       <ProjectLinks
         :links="project.links"
-        @click.stop />
+        class="project-card__links" />
     </template>
   </UCard>
 </template>
 
 <style scoped>
 .project-card {
+  position: relative;
   height: 100%;
   overflow: visible;
   border: 0;
@@ -77,6 +94,27 @@ const selectProject = () => {
   background: var(--folio-paper-raised);
   box-shadow: 0 -1px 0 transparent;
   transition: background-color 180ms ease, box-shadow 180ms ease, translate 180ms ease;
+}
+
+.project-card__open {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.project-card__links {
+  position: relative;
+  z-index: 2;
+}
+
+.project-card__tags {
+  position: relative;
+  z-index: 2;
+  width: fit-content;
 }
 
 .project-card--interactive:hover {
@@ -106,14 +144,14 @@ const selectProject = () => {
 }
 
 .project-label {
-  font-family: 'Courier New', monospace;
+  font-family: var(--folio-font-mono);
   font-size: .62rem;
   font-weight: 700;
   letter-spacing: .12em;
 }
 
 .project-title {
-  font-family: 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--folio-font-display);
   font-size: 1.7rem;
   font-stretch: condensed;
   font-weight: 900;
@@ -123,7 +161,7 @@ const selectProject = () => {
 
 .project-summary {
   color: var(--folio-muted);
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--folio-font-body);
   font-size: .95rem;
   line-height: 1.5;
 }

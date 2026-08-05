@@ -8,7 +8,7 @@ import {
 
 describe('project limits', () => {
   it('matches the limits enforced by the API', () => {
-    expect(MAX_PROJECT_IMAGES).toBe(15)
+    expect(MAX_PROJECT_IMAGES).toBe(6)
     expect(MAX_PROJECT_TAGS).toBe(15)
   })
 
@@ -40,7 +40,7 @@ describe('project limits', () => {
 
     const acceptedItems = takeItemsWithinCapacity(
       items,
-      13,
+      MAX_PROJECT_IMAGES - 2,
       MAX_PROJECT_IMAGES
     )
 

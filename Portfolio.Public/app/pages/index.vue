@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const config = useRuntimeConfig()
+</script>
+
 <template>
   <div>
     <section class="editorial-hero">
@@ -5,7 +9,7 @@
         <div class="editorial-hero-grid">
           <div>
             <div class="editorial-kicker">
-              Public portfolio system · Version 1.0.2
+              Public portfolio system · Version {{ config.public.appVersion }}
             </div>
             <h1 class="editorial-title">
               Gabriel<br>Mioni

@@ -25,7 +25,9 @@ useSeoMeta({
 
 <template>
   <UApp>
-    <UHeader>
+    <UHeader
+      :toggle="false"
+      class="site-header">
       <template #left>
         <NuxtLink to="/">
           <AppLogo class="w-auto h-6 shrink-0" />
@@ -37,19 +39,19 @@ useSeoMeta({
       </template>
     </UHeader>
 
-    <UMain>
+    <UMain class="site-main">
       <NuxtPage />
     </UMain>
 
-    <UFooter>
+    <UFooter class="site-footer">
       <template #top>
         <div class="flex items-center gap-4 px-4 sm:px-6 lg:px-8 py-4">
-          <div class="flex-1 h-px bg-stone-200 dark:bg-stone-700" />
+          <div class="flex-1 editorial-rule" />
           <img
             src="/owl-icon.svg"
             alt="Owl"
-            class="size-10">
-          <div class="flex-1 h-px bg-stone-200 dark:bg-stone-700" />
+            class="footer-owl size-10">
+          <div class="flex-1 editorial-rule" />
         </div>
       </template>
       <template #left>

@@ -47,12 +47,12 @@ useIntersectionObserver(observer, ([entry]) => {
 </script>
 
 <template>
-  <UContainer>
+  <div>
     <TransitionGroup
       v-if="availableTags.length > 0"
       tag="div"
       name="tag"
-      class="flex flex-wrap items-center gap-2 mb-6"
+      class="project-filters"
       appear>
       <UIcon
         key="filter-icon"
@@ -79,15 +79,18 @@ useIntersectionObserver(observer, ([entry]) => {
     </TransitionGroup>
     <TransitionGroup
       tag="div"
-      class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      class="project-grid"
       appear
       @before-leave="(el) => { (el as HTMLElement).style.transitionDelay = '0ms' }">
-      <ProjectItem
+      <div
         v-for="(item, index) in projects"
         :key="item.id"
-        :project="item"
-        :style="{ transitionDelay: `${index * 40}ms` }"
-        @select="selectProject" />
+        class="project-cell"
+        :style="{ transitionDelay: `${index * 40}ms` }">
+        <ProjectItem
+          :project="item"
+          @select="selectProject" />
+      </div>
     </TransitionGroup>
     <div
       v-if="!fetchingProjects && projects.length <= 0"
@@ -110,10 +113,46 @@ useIntersectionObserver(observer, ([entry]) => {
     <ProjectDialog
       v-model:open="dialogOpen"
       :project="selectedProject" />
-  </UContainer>
+  </div>
 </template>
 
 <style scoped>
+.project-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 2rem;
+  padding: .75rem;
+  border: 1px solid var(--folio-ink);
+  background: var(--folio-paper-raised);
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.project-cell {
+  position: relative;
+  min-width: 0;
+  padding: 1px;
+  background: var(--folio-ink);
+}
+
+@media (max-width: 64rem) {
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .v-enter-active {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }

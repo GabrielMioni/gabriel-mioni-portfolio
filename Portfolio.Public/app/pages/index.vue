@@ -1,57 +1,77 @@
 <template>
   <div>
-    <UPageHero
-      title="Gabriel Mioni"
-      description="Fullstack developer with 15 years of experience building for the web."
-      :links="[{
-        label: 'GitHub',
-        to: 'https://github.com/gabrielmioni',
-        target: '_blank',
-        icon: 'i-simple-icons-github',
-        size: 'xl',
-        color: 'neutral',
-        variant: 'subtle'
-      }, {
-        label: 'Contact',
-        to: 'mailto:gabrielmioni@gmail.com',
-        trailingIcon: 'i-lucide-mail',
-        size: 'xl',
-        variant: 'subtle'
-      }]"
-      :ui="{
-        container: 'px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16 sm:gap-16',
-        header: 'flex flex-col',
-        headline: 'max-w-4xl',
-        title: 'text-4xl sm:text-5xl',
-        description: 'max-w-4xl mx-auto text-lg sm:text-xl',
-        links: 'flex flex-col sm:flex-row gap-3 justify-center'
-      }">
-      <template #default>
-        <div class="flex flex-wrap justify-center gap-3 mt-6">
-          <UBadge
-            v-for="tech in [
-              { label: 'Vue', icon: 'i-simple-icons-vuedotjs' },
-              { label: 'TypeScript', icon: 'i-simple-icons-typescript' },
-              { label: 'Nuxt', icon: 'i-simple-icons-nuxtdotjs' },
-              { label: '.NET', icon: 'i-simple-icons-dotnet' },
-              { label: 'C#', icon: 'i-simple-icons-csharp' },
-              { label: 'GraphQL', icon: 'i-simple-icons-graphql' }
-            ]"
-            :key="tech.label"
-            :label="tech.label"
-            :icon="tech.icon"
-            color="primary"
-            variant="soft"
-            size="lg" />
+    <section class="editorial-hero">
+      <UContainer>
+        <div class="editorial-hero-grid">
+          <div>
+            <div class="editorial-kicker">
+              Public portfolio system · Version 1.0.2
+            </div>
+            <h1 class="editorial-title">
+              Gabriel<br>Mioni
+            </h1>
+            <p class="editorial-summary">
+              Full-stack developer with 15 years of experience building durable applications for the web.
+            </p>
+            <div class="hero-actions">
+              <UButton
+                label="View GitHub"
+                to="https://github.com/gabrielmioni"
+                target="_blank"
+                icon="i-simple-icons-github"
+                color="neutral"
+                variant="solid"
+                size="lg"
+                class="rounded-none" />
+              <UButton
+                label="Make contact"
+                to="mailto:gabrielmioni@gmail.com"
+                trailing-icon="i-lucide-arrow-up-right"
+                color="primary"
+                variant="solid"
+                size="lg"
+                class="rounded-none" />
+            </div>
+            <div
+              class="technology-index"
+              aria-label="Primary technologies">
+              <span>Vue</span>
+              <span>TypeScript</span>
+              <span>Nuxt</span>
+              <span>.NET</span>
+              <span>C#</span>
+              <span>GraphQL</span>
+            </div>
+          </div>
+
+          <figure>
+            <div class="manual-plate">
+              <span class="manual-plate-label">Plate A–01</span>
+              <div class="manual-plate-mark">
+                <img
+                  src="/owl-icon.svg"
+                  alt="Geometric owl mark"
+                  class="manual-plate-owl">
+              </div>
+            </div>
+            <figcaption class="manual-plate-caption">
+              <span>Fig. 01 — Systems practice</span>
+              <span>Portland, Oregon</span>
+            </figcaption>
+          </figure>
         </div>
-      </template>
-    </UPageHero>
-    <UContainer class="py-12">
-      <div class="flex items-center gap-4 mb-8">
-        <span class="text-xs font-semibold uppercase tracking-widest text-primary">Projects</span>
-        <div class="flex-1 h-px bg-stone-200 dark:bg-stone-700" />
-      </div>
-      <ProjectsGrid />
-    </UContainer>
+      </UContainer>
+    </section>
+
+    <section class="projects-section">
+      <UContainer>
+        <div class="projects-heading">
+          <h2>Selected systems</h2>
+          <div class="editorial-rule" />
+          <span class="editorial-kicker">Project index</span>
+        </div>
+        <ProjectsGrid />
+      </UContainer>
+    </section>
   </div>
 </template>

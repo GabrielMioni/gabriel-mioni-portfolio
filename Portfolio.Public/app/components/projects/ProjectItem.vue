@@ -30,10 +30,11 @@ const selectProject = () => {
 <template>
   <UCard
     :ui="{ header: 'p-0' }"
-    :class="{ 'cursor-pointer group transition hover:ring-2 hover:ring-primary': hasAdditionalContent }"
+    class="project-card"
+    :class="{ 'cursor-pointer group project-card--interactive': hasAdditionalContent }"
     @click="selectProject">
     <template #header>
-      <div class="h-[250px] content-center">
+      <div class="project-image-frame">
         <div class="aspect-video bg-stone-100 dark:bg-stone-800">
           <StorageImage
             :storage-key="mainImage?.thumbKey"
@@ -43,13 +44,14 @@ const selectProject = () => {
         </div>
       </div>
     </template>
-    <div class="space-y-2">
-      <p class="text-lg font-semibold text-stone-900 dark:text-stone-100">
+    <div class="project-copy">
+      <span class="project-label">Project record</span>
+      <p class="project-title">
         {{ project.title }}
       </p>
       <p
         v-if="project.summary"
-        class="text-sm text-stone-500 dark:text-stone-400 line-clamp-3">
+        class="project-summary line-clamp-3">
         {{ project.summary }}
       </p>
       <ProjectTagIcons
@@ -65,3 +67,72 @@ const selectProject = () => {
     </template>
   </UCard>
 </template>
+
+<style scoped>
+.project-card {
+  height: 100%;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--folio-paper-raised);
+  box-shadow: none;
+  transition: background-color 180ms ease, translate 180ms ease;
+}
+
+.project-card--interactive:hover {
+  z-index: 1;
+  background: color-mix(in srgb, var(--folio-amber) 22%, var(--folio-paper-raised));
+  translate: 0 -3px;
+}
+
+.project-image-frame {
+  display: grid;
+  min-height: 15rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--folio-ink);
+  background:
+    linear-gradient(135deg, transparent 75%, color-mix(in srgb, var(--folio-cyan) 45%, transparent) 75%),
+    var(--folio-paper);
+  place-items: center;
+}
+
+.project-image-frame > div {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--folio-ink);
+}
+
+.project-copy {
+  display: grid;
+  gap: .65rem;
+}
+
+.project-label {
+  font-family: 'Courier New', monospace;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.project-title {
+  font-family: 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1.7rem;
+  font-stretch: condensed;
+  font-weight: 900;
+  letter-spacing: -.015em;
+  line-height: 1;
+}
+
+.project-summary {
+  color: var(--folio-muted);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: .95rem;
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card {
+    transition: none;
+  }
+}
+</style>

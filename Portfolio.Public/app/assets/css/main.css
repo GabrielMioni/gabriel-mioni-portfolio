@@ -116,15 +116,11 @@ body {
   background: var(--folio-paper) !important;
 }
 
-.app-logo-mark {
-  background: var(--folio-rust);
-}
-
-.footer-owl {
+.theme-owl {
   filter: brightness(0);
 }
 
-.dark .footer-owl {
+.dark .theme-owl {
   filter: none;
 }
 

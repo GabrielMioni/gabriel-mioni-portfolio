@@ -50,7 +50,7 @@ useSeoMeta({
           <img
             src="/owl-icon.svg"
             alt="Owl"
-            class="footer-owl size-10">
+            class="theme-owl size-10">
           <div class="flex-1 editorial-rule" />
         </div>
       </template>

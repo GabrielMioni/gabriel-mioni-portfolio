@@ -3,7 +3,7 @@ defineProps<{
   eyebrow: string
   title: string
   description: string
-  count: number
+  count?: number
 }>()
 </script>
 
@@ -15,7 +15,9 @@ defineProps<{
       </p>
       <div class="admin-page-header__title-row">
         <h1>{{ title }}</h1>
-        <span class="admin-page-header__count">
+        <span
+          v-if="count !== undefined"
+          class="admin-page-header__count">
           {{ count }} {{ count === 1 ? 'record' : 'records' }}
         </span>
       </div>

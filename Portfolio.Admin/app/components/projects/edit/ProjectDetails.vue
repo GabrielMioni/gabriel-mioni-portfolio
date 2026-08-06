@@ -21,35 +21,45 @@ const statusOptions = [
 </script>
 
 <template>
-  <v-form v-model="isValid">
-    <v-container
-      class="pa-0"
-      fluid>
-      <v-row no-gutters>
-        <v-col>
+  <v-form
+    v-model="isValid"
+    class="project-details">
+    <div class="project-details__grid">
+      <section class="project-details__section">
+        <header class="project-details__section-header">
+          <span>Content</span>
+          <h2>Project details</h2>
+        </header>
+        <div class="project-details__section-body">
           <v-text-field
             v-model="form.title"
             variant="filled"
             label="Title"
             :rules="[required()]"/>
-        </v-col>
-      </v-row>
-      <v-row
-        no-gutters
-        class="mb-3">
-        <v-col>
           <v-text-field
             v-model="form.summary"
             variant="filled"
             label="Summary"
             hide-details />
-        </v-col>
-      </v-row>
-      <v-row no-gutters>
-        <v-col>
+          <v-textarea
+            v-model="form.body"
+            max-height="420"
+            label="Body"
+            auto-grow
+            persistent-hint />
+        </div>
+      </section>
+
+      <section class="project-details__section">
+        <header class="project-details__section-header">
+          <span>Publication</span>
+          <h2>Visibility and tags</h2>
+        </header>
+        <div class="project-details__section-body">
+          <label class="project-details__field-label">Status</label>
           <v-radio-group
             v-model="form.status"
-            inline
+            class="mt-1"
             hide-details>
             <v-radio
               v-for="option in statusOptions"
@@ -57,32 +67,64 @@ const statusOptions = [
               :label="option.label"
               :value="option.value" />
           </v-radio-group>
-        </v-col>
-      </v-row>
-      <v-row
-        no-gutters
-        class="mb-3">
-        <v-col>
           <TagsCombobox
             v-if="showTags"
             v-model:assigned-tags="assignedTags"
             :max-items="MAX_PROJECT_TAGS" />
-        </v-col>
-      </v-row>
-      <v-row no-gutters>
-        <v-col>
-          <v-textarea
-            v-model="form.body"
-            max-height="300"
-            label="Body"
-            auto-grow
-            persistent-hint />
-        </v-col>
-      </v-row>
-    </v-container>
+        </div>
+      </section>
+    </div>
   </v-form>
 </template>
 
 <style scoped>
+.project-details__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 2fr) minmax(17rem, 1fr);
+}
+
+.project-details__section {
+  align-self: start;
+  background: rgb(var(--v-theme-paper));
+  border: 1px solid rgb(var(--v-theme-rule));
+}
+
+.project-details__section-header {
+  border-bottom: 1px solid rgb(var(--v-theme-rule));
+  padding: 0.75rem 1rem;
+}
+
+.project-details__section-header span,
+.project-details__field-label {
+  color: rgb(var(--v-theme-rust));
+  font-family: var(--admin-font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.project-details__section-header h2 {
+  font-family: var(--admin-font-display);
+  font-size: 1.4rem;
+  font-weight: 850;
+  line-height: 1.1;
+  margin-top: 0.2rem;
+}
+
+.project-details__section-body {
+  padding: 1rem;
+}
+
+.project-details__section-body > :last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 959px) {
+  .project-details__grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 </style>

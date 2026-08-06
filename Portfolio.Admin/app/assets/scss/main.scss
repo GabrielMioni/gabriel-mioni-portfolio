@@ -1,11 +1,67 @@
 @use 'base/typography';
 @use './utilities';
 
+:root {
+  --admin-font-display: 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  --admin-font-body: Georgia, 'Times New Roman', serif;
+  --admin-font-mono: 'Courier New', monospace;
+  --admin-font-ui: Inter, 'Segoe UI', Arial, sans-serif;
+}
+
 html {
-  background: #f3f1ea;
+  background: rgb(var(--v-theme-background));
 }
 
 body {
-  color: #25312e;
-  font-family: Inter, "Segoe UI", sans-serif;
+  color: rgb(var(--v-theme-on-background));
+  font-family: var(--admin-font-ui);
+}
+
+.admin-page {
+  margin-inline: auto;
+  max-width: 90rem;
+  padding: 0 clamp(1rem, 3vw, 2.5rem) 2.5rem;
+}
+
+.admin-table-workspace {
+  border: 1px solid rgb(var(--v-theme-rule));
+}
+
+.admin-table-toolbar {
+  background: rgb(var(--v-theme-paper-raised));
+  border-bottom: 1px solid rgb(var(--v-theme-rule));
+  padding: 1rem;
+}
+
+.admin-record-summary dt {
+  font-family: var(--admin-font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.admin-record-summary {
+  border: 1px solid rgb(var(--v-theme-rule));
+  margin-top: 1rem;
+}
+
+.admin-record-summary > div {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  padding: 0.75rem 1rem;
+}
+
+.admin-record-summary > div + div {
+  border-top: 1px solid rgb(var(--v-theme-rule));
+}
+
+.admin-record-summary dt {
+  color: rgb(var(--v-theme-rust));
+}
+
+.admin-record-summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
 }

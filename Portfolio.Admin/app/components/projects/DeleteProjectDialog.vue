@@ -70,49 +70,37 @@ const shorten = (val?: string | null) => {
     v-model="dialog"
     :persistent="deleting"
     width="500"
-    title="Delete Project">
-    <div :class="{ 'mb-3': showDetails }">
-      Are you sure you want to delete this project?
-    </div>
-    <v-container
+    title="Delete project">
+    <BaseDestructiveNotice title="Remove this project?">
+      The project record and its associated images will be deleted.
+      This cannot be undone.
+    </BaseDestructiveNotice>
+    <dl
       v-if="showDetails"
-      class="pa-0">
-      <v-row no-gutters>
-        <v-col
-          cols="3"
-          class="font-weight-bold">
-          Title:
-        </v-col>
-        <v-col>
-          <div
-            class="font-italic"
-            v-text="titleDisplay"/>
-        </v-col>
-      </v-row>
-      <v-row no-gutters>
-        <v-col
-          cols="3"
-          class="font-weight-bold">
-          Summary:
-        </v-col>
-        <v-col>
-          <div
-            class="font-italic"
-            v-text="summaryDisplay"/>
-        </v-col>
-      </v-row>
-    </v-container>
+      class="admin-record-summary">
+      <div v-if="titleDisplay">
+        <dt>Project</dt>
+        <dd>{{ titleDisplay }}</dd>
+      </div>
+      <div v-if="summaryDisplay">
+        <dt>Summary</dt>
+        <dd>{{ summaryDisplay }}</dd>
+      </div>
+    </dl>
     <template #actions>
+      <v-spacer />
       <v-btn
         variant="text"
+        :disabled="deleting"
         @click="dialog = false">
         Cancel
       </v-btn>
       <v-btn
         variant="flat"
         color="error"
+        :loading="deleting"
         @click="deleteProjectAsync">
-        Delete
+        Delete project
       </v-btn>
     </template>
   </BaseDialog>

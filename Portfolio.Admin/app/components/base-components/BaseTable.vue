@@ -8,6 +8,8 @@ defineProps<{
   itemsLength: number
   itemValue?: string
   options: TableOptions
+  emptyTitle?: string
+  emptyMessage?: string
 }>()
 
 const emit = defineEmits<{
@@ -50,6 +52,21 @@ const expanded = defineModel<string[]>('expanded', {
       <slot
         name="expanded-row"
         :item="item as T" />
+    </template>
+    <template #no-data>
+      <div class="base-table__empty">
+        <v-icon
+          aria-hidden="true"
+          class="base-table__empty-icon"
+          icon="mdi-file-search-outline"
+          size="32" />
+        <p class="base-table__empty-title">
+          {{ emptyTitle ?? 'No records found' }}
+        </p>
+        <p class="base-table__empty-message">
+          {{ emptyMessage ?? 'Try changing the current filters.' }}
+        </p>
+      </div>
     </template>
   </v-data-table-server>
 </template>

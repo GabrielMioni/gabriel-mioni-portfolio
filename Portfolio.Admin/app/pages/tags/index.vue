@@ -77,16 +77,31 @@ const onDelete = (tagId: string) => {
 </script>
 
 <template>
-  <v-container>
+  <v-container
+    fluid
+    class="admin-page">
+    <AdminPageHeader
+      eyebrow="Classification index"
+      title="Tags"
+      description="Maintain the vocabulary used to classify projects."
+      :count="totalCount">
+      <template #actions>
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="createDialogOpen = true">
+          New Tag(s)
+        </v-btn>
+      </template>
+    </AdminPageHeader>
     <TagsTable
       v-model:search="search"
       v-model:show-orphaned="showOrphaned"
-      class="px-3"
+      class="admin-table-workspace"
       :tags="tags"
       :total-count="totalCount"
       :options="tableOptions"
       @update:options="updateTableOptions"
-      @new-tag="createDialogOpen = true"
       @edit="onEdit"
       @delete="onDelete" />
     <TagDialog

@@ -9,7 +9,6 @@ const {
   updateTableOptions
 } = useTableUrlSync({ defaultItemsPerPage: 10 })
 
-const editDialogId = ref<string | null>(null)
 const deleteDialogId = ref<string | null>(null)
 
 const queryVars = computed<GetProjectsQueryVariables>(() => {
@@ -35,13 +34,6 @@ const {
   totalCount
 } = useProjectQueries(queryVars)
 
-const editDialog = computed({
-  get: () => !!editDialogId.value,
-  set: (val) => {
-    if (!val) editDialogId.value = null
-  }
-})
-
 const deleteDialog = computed({
   get: () => !!deleteDialogId.value,
   set: (val) => {
@@ -51,49 +43,48 @@ const deleteDialog = computed({
   }
 })
 
-const selectedEditProject = computed(() => {
-  const id = editDialogId.value
-  if (!id) return null
-  return projects.value.find((project) => project.id === id) ?? null
-})
-
 const selectedDeleteProject = computed(() => {
   const id = deleteDialogId.value
   if (!id) return null
   return projects.value.find((project) => project.id === id) ?? null
 })
 
-const onEdit = (id: string) => {
-  editDialogId.value = id
-}
-
 const onDelete = (id: string) => {
   deleteDialogId.value = id
 }
 
 provide('projectActions', {
-  edit: onEdit,
   delete: onDelete
 })
 </script>
 
 <template>
-  <v-container>
-    <v-row>
-      <v-col>
-        <ProjectsTable
-          v-model:search="search"
-          class="px-3"
-          :options="tableOptions"
-          :projects="projects"
-          :total-count="totalCount"
-          :page-info="pageInfo"
-          @update:options="updateTableOptions" />
-      </v-col>
-    </v-row>
-    <QuickEditDialog
-      v-model="editDialog"
-      :project="selectedEditProject" />
+  <v-container
+    fluid
+    class="admin-page">
+    <AdminPageHeader
+      eyebrow="Content index"
+      title="Projects"
+      description="Create, revise, and publish project studies."
+      :count="totalCount">
+      <template #actions>
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-plus"
+          variant="flat"
+          to="/projects/create">
+          Add Project
+        </v-btn>
+      </template>
+    </AdminPageHeader>
+    <ProjectsTable
+      v-model:search="search"
+      class="admin-table-workspace"
+      :options="tableOptions"
+      :projects="projects"
+      :total-count="totalCount"
+      :page-info="pageInfo"
+      @update:options="updateTableOptions" />
     <DeleteProjectDialog
       v-if="selectedDeleteProject"
       v-model="deleteDialog"

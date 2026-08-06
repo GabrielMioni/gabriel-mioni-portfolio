@@ -148,11 +148,13 @@ const dropRandomPlateCell = () => {
           aria-hidden="true"
           @click="dropPlateCell(cell)" />
       </div>
-      <div class="manual-plate-mark">
-        <img
-          src="/owl-icon.svg"
-          alt="Geometric owl mark"
-          class="manual-plate-owl">
+      <div
+        class="manual-plate-mark"
+        aria-hidden="true">
+        <span class="manual-plate-facet manual-plate-facet--top" />
+        <span class="manual-plate-facet manual-plate-facet--right" />
+        <span class="manual-plate-facet manual-plate-facet--bottom" />
+        <span class="manual-plate-facet manual-plate-facet--left" />
       </div>
     </div>
     <figcaption class="manual-plate-caption">
@@ -200,7 +202,13 @@ const dropRandomPlateCell = () => {
   right: -12%;
   bottom: -25%;
   border: 1px solid var(--folio-ink);
-  background: var(--folio-coral);
+  background: conic-gradient(
+    from 0deg at 50% 0%,
+    transparent 0deg 153deg,
+    color-mix(in srgb, var(--folio-coral) 96%, var(--folio-paper-raised)) 153deg 175deg,
+    color-mix(in srgb, var(--folio-coral) 90%, var(--folio-dark-ink)) 175deg 207deg,
+    transparent 207deg 360deg
+  ), var(--folio-coral);
 }
 
 .manual-plate-pattern {
@@ -235,17 +243,62 @@ const dropRandomPlateCell = () => {
 }
 
 .manual-plate-mark {
+  --manual-plate-apex-x: 50%;
+  --manual-plate-apex-y: 42%;
+
   position: relative;
   z-index: 1;
   display: grid;
   width: min(48%, 12rem);
   aspect-ratio: 1;
+  overflow: hidden;
   border: 1px solid var(--folio-dark-ink);
   background: var(--folio-rust);
   box-shadow: -.45rem .95rem 0 var(--folio-plate-shadow);
   rotate: 45deg;
   place-items: center;
   will-change: rotate;
+}
+
+.manual-plate-facet {
+  position: absolute;
+  inset: 0;
+}
+
+.manual-plate-facet--top {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    var(--manual-plate-apex-x) var(--manual-plate-apex-y)
+  );
+  background: color-mix(in srgb, var(--folio-rust) 92%, var(--folio-paper-raised));
+}
+
+.manual-plate-facet--right {
+  clip-path: polygon(
+    100% 0,
+    100% 100%,
+    var(--manual-plate-apex-x) var(--manual-plate-apex-y)
+  );
+  background: color-mix(in srgb, var(--folio-rust) 94%, var(--folio-dark-ink));
+}
+
+.manual-plate-facet--bottom {
+  clip-path: polygon(
+    100% 100%,
+    0 100%,
+    var(--manual-plate-apex-x) var(--manual-plate-apex-y)
+  );
+  background: color-mix(in srgb, var(--folio-rust) 88%, var(--folio-dark-ink));
+}
+
+.manual-plate-facet--left {
+  clip-path: polygon(
+    0 100%,
+    0 0,
+    var(--manual-plate-apex-x) var(--manual-plate-apex-y)
+  );
+  background: color-mix(in srgb, var(--folio-rust) 96%, var(--folio-paper-raised));
 }
 
 .manual-plate-mark:hover {
@@ -269,11 +322,6 @@ const dropRandomPlateCell = () => {
   72% {
     rotate: 44.6deg;
   }
-}
-
-.manual-plate-owl {
-  width: 72%;
-  rotate: -45deg;
 }
 
 .manual-plate-label {
@@ -303,6 +351,21 @@ const dropRandomPlateCell = () => {
 @media (max-width: 48rem) {
   .manual-plate {
     height: calc(20.25rem + 2px);
+  }
+
+  .manual-plate::before,
+  .manual-plate::after {
+    width: min(52%, 17rem);
+  }
+
+  .manual-plate::before {
+    right: calc(-8% + .75rem);
+    bottom: calc(-20% - .2rem);
+  }
+
+  .manual-plate::after {
+    right: -8%;
+    bottom: -20%;
   }
 }
 

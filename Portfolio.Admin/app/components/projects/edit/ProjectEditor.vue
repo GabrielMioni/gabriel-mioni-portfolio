@@ -32,15 +32,19 @@ const deleteProjectDialog = ref<boolean>(false)
 const linksValid = ref<boolean>(true)
 const detailsValid = ref<boolean>(false)
 
+const editorTitle = computed(() => {
+  if (isNewProject.value) return 'New project'
+  return projectDetailsModel.title || 'Untitled project'
+})
+
+const editorDescription = computed(() =>
+  isNewProject.value
+    ? 'Prepare a new project study for the public portfolio.'
+    : 'Revise project content, media, and references.'
+)
+
 const menuItems = computed(() => {
   return [
-    {
-      title: 'Cancel',
-      icon: 'mdi-open-in-app',
-      action: () => {
-        goToProjects()
-      }
-    },
     {
       title: 'Delete',
       icon: 'mdi-file-document',
@@ -67,19 +71,38 @@ const goToProjects = async () => {
 </script>
 
 <template>
-  <v-container>
+  <v-container
+    fluid
+    class="admin-page project-editor">
     <div
       v-if="isInitialLoading"
-      class="d-flex justify-center">
+      class="project-editor-loading d-flex align-center justify-center">
       <v-progress-circular
         size="60"
         indeterminate />
     </div>
     <template v-else>
+      <AdminPageHeader
+        eyebrow="Project record"
+        :title="editorTitle"
+        :description="editorDescription">
+        <template #actions>
+          <v-btn
+            prepend-icon="mdi-arrow-left"
+            variant="text"
+            @click="goToProjects">
+            Back
+          </v-btn>
+        </template>
+      </AdminPageHeader>
       <v-toolbar
-        color="background"
+        color="paper-raised"
         class="project-editor-toolbar position-sticky">
-        <v-tabs v-model="tab">
+        <v-tabs
+          v-model="tab"
+          class="project-editor-tabs"
+          color="rust"
+          show-arrows>
           <v-tab :value="tabValues.details">Details</v-tab>
           <v-tab :value="tabValues.images">
             <EditorItemTabDisplay
@@ -95,8 +118,9 @@ const goToProjects = async () => {
         <v-spacer />
         <div class="project-editor-actions">
           <BaseMenu
-            v-if="smAndDown"
-            :items="menuItems" />
+            v-if="smAndDown && menuItems.length > 0"
+            :items="menuItems"
+            activator-label="Project actions" />
           <template v-else>
             <v-btn
               v-if="!isNewProject"
@@ -104,11 +128,6 @@ const goToProjects = async () => {
               color="error"
               @click="deleteProjectDialog = true">
               Delete
-            </v-btn>
-            <v-btn
-              text
-              @click="goToProjects">
-              Cancel
             </v-btn>
           </template>
           <v-btn
@@ -121,9 +140,10 @@ const goToProjects = async () => {
         </div>
       </v-toolbar>
       <v-card
+        class="project-editor-panel"
         flat>
         <v-tabs-window v-model="tab">
-          <div class="mt-3">
+          <div class="project-editor-panel__content">
             <v-tabs-window-item :value="tabValues.details">
               <ProjectDetails
                 v-model:form="projectDetailsModel"
@@ -148,6 +168,8 @@ const goToProjects = async () => {
           v-if="!isNewProject && projectId"
           v-model="deleteProjectDialog"
           :project-id="projectId"
+          :summary="projectDetailsModel.summary"
+          :title="projectDetailsModel.title"
           @deleted="goToProjects" />
       </template>
     </template>
@@ -160,8 +182,48 @@ const goToProjects = async () => {
   gap: 0.5rem;
 }
 
+.project-editor-loading {
+  min-height: 60vh;
+}
+
 .project-editor-toolbar {
   top: var(--v-layout-top);
-  z-index: 10;
+  z-index: 5;
+}
+
+.project-editor-toolbar :deep(.v-toolbar__content) {
+  border: 1px solid rgb(var(--v-theme-rule));
+  border-top: 5px solid rgb(var(--v-theme-cyan));
+  padding-inline: 0.5rem;
+}
+
+.project-editor-tabs {
+  min-width: 0;
+}
+
+.project-editor-tabs :deep(.v-tab--selected) {
+  background: color-mix(
+    in srgb,
+    rgb(var(--v-theme-amber)) 22%,
+    rgb(var(--v-theme-paper-raised))
+  );
+  color: rgb(var(--v-theme-ink)) !important;
+}
+
+.project-editor-panel {
+  background: rgb(var(--v-theme-paper-raised));
+  border: 1px solid rgb(var(--v-theme-rule));
+  border-top: 0;
+  border-radius: 0;
+}
+
+.project-editor-panel__content {
+  padding: clamp(1rem, 2.5vw, 2rem);
+}
+
+@media (max-width: 599px) {
+  .project-editor-panel__content {
+    padding: 0.75rem;
+  }
 }
 </style>

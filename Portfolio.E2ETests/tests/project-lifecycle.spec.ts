@@ -267,7 +267,7 @@ test('a published project with an image and link can be created, edited, viewed,
     await page.getByRole('button', { name: 'Delete', exact: true }).click()
     const confirmationDialog = page.getByRole('dialog')
     await confirmationDialog
-      .getByRole('button', { name: 'Delete', exact: true })
+      .getByRole('button', { name: 'Delete project', exact: true })
       .click()
 
     await expect(page).toHaveURL(url => url.pathname === '/projects')

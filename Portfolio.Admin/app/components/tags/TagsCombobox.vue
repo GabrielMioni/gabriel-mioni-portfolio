@@ -154,7 +154,7 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
               :key="`tag-chip-${index}`"
               :value="item.raw.value"
               :color="item.raw?.id ? 'primary' : 'warning'"
-              :variant="item.raw?.id ? 'flat' : 'outlined'"
+              variant="flat"
               :prepend-icon="item.raw?.id ? undefined : 'mdi-plus'"
               class="ma-1"
               closable
@@ -170,3 +170,9 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
     </v-combobox>
   </div>
 </template>
+
+<style lang="scss" scoped>
+:deep(.v-field__input) {
+  margin: 5px 0;
+}
+</style>

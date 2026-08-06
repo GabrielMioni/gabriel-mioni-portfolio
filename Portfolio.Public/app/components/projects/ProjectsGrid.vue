@@ -126,10 +126,13 @@ useIntersectionObserver(observer, ([entry]) => {
     <div ref="observer" />
     <div
       v-if="fetchingProjects"
-      class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-6">
-      <ProjectItemSkeleton
-        v-for="n in (projects.length === 0 ? 9 : 3)"
-        :key="n" />
+      class="project-grid project-grid--loading mt-6">
+      <div
+        v-for="n in 3"
+        :key="n"
+        class="project-cell project-cell--skeleton">
+        <ProjectItemSkeleton />
+      </div>
     </div>
     <ProjectDialog
       v-model:open="dialogOpen"
@@ -218,6 +221,11 @@ useIntersectionObserver(observer, ([entry]) => {
   min-width: 0;
   padding: 1px;
   background: var(--folio-ink);
+}
+
+.project-cell--skeleton {
+  padding: 0;
+  background: transparent;
 }
 
 @media (max-width: 64rem) {

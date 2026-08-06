@@ -12,8 +12,7 @@ const navItems = [
   <v-navigation-drawer
     v-model="drawer"
     class="admin-drawer"
-    color="nav-surface"
-    theme="dark">
+    color="nav-surface">
     <div class="admin-brand">
       <div class="admin-brand__mark">
         <span
@@ -51,7 +50,8 @@ const navItems = [
 
 <style scoped>
 .admin-drawer {
-  background: #1c1e1e !important;
+  /*noinspection CssUnresolvedCustomProperty*/
+  background: rgb(var(--v-theme-nav-surface)) !important;
 }
 
 .admin-brand {
@@ -64,8 +64,6 @@ const navItems = [
 
 .admin-brand__mark {
   align-items: center;
-  background: #ffba00;
-  border-radius: 12px;
   display: flex;
   height: 44px;
   justify-content: center;
@@ -73,7 +71,8 @@ const navItems = [
 }
 
 .admin-brand__owl {
-  background: #132421;
+  /*noinspection CssUnresolvedCustomProperty*/
+  background: rgb(var(--v-theme-ink));
   height: 30px;
   mask: url('/owl-icon.svg') center / contain no-repeat;
   width: 30px;
@@ -81,7 +80,9 @@ const navItems = [
 }
 
 .admin-brand__name {
-  color: #f7faf8;
+  /*noinspection CssUnresolvedCustomProperty*/
+  color: rgb(var(--v-theme-nav-ink));
+  font-family: var(--admin-font-display);
   font-size: 1rem;
   font-weight: 750;
   letter-spacing: -0.01em;
@@ -89,7 +90,9 @@ const navItems = [
 }
 
 .admin-brand__label {
-  color: #9eb5ae;
+  /*noinspection CssUnresolvedCustomProperty*/
+  color: rgb(var(--v-theme-nav-muted));
+  font-family: var(--admin-font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   margin-top: 0.2rem;
@@ -97,7 +100,8 @@ const navItems = [
 }
 
 .admin-drawer__divider {
-  border-color: #343838;
+  /*noinspection CssUnresolvedCustomProperty*/
+  border-color: rgb(var(--v-theme-nav-rule));
   opacity: 1;
 }
 
@@ -106,12 +110,14 @@ const navItems = [
 }
 
 .admin-nav__item {
-  color: #c7d3cf;
+  /*noinspection CssUnresolvedCustomProperty*/
+  color: rgb(var(--v-theme-nav-ink));
   margin-bottom: 0.25rem;
 }
 
 .admin-nav__item.v-list-item--active {
-  background: #303635;
+  /*noinspection CssUnresolvedCustomProperty*/
+  background: rgb(var(--v-theme-nav-active-surface));
   font-weight: 650;
 }
 </style>

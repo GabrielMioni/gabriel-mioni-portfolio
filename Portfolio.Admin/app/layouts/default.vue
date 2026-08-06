@@ -66,11 +66,14 @@ const signOut = async () => {
 
 <style scoped>
 .admin-app-bar {
-  border-color: #d7d3c9 !important;
+  /*noinspection CssUnresolvedCustomProperty*/
+  border-color: rgb(var(--v-theme-border)) !important;
 }
 
 .admin-page-title {
-  color: #25312e;
+  /*noinspection CssUnresolvedCustomProperty*/
+  color: rgb(var(--v-theme-on-surface));
+  font-family: var(--admin-font-display);
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: -0.01em;

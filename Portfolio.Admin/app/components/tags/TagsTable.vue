@@ -13,7 +13,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:options': [options: TableOptions]
-  'new-tag': []
   edit: [tagId: string]
   delete: [tagId: string]
 }>()
@@ -45,7 +44,7 @@ const getMenuItems = (tag: ProjectTagSummary): MenuItem[] => [
     <template #top>
       <v-container
         fluid
-        class="px-0">
+        class="admin-table-toolbar">
         <v-row align="center">
           <v-col>
             <v-text-field
@@ -63,14 +62,6 @@ const getMenuItems = (tag: ProjectTagSummary): MenuItem[] => [
               hide-details
               density="compact"
               color="primary" />
-          </v-col>
-          <v-col cols="auto">
-            <v-btn
-              color="primary"
-              prepend-icon="mdi-plus"
-              @click="emit('new-tag')">
-              New Tag(s)
-            </v-btn>
           </v-col>
         </v-row>
       </v-container>

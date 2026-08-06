@@ -3,16 +3,8 @@ import { getFetchErrorStatus } from '~/utils/http'
 
 const drawer = ref(true)
 const isSigningOut = ref(false)
-const route = useRoute()
 const snackbarStore = useSnackbarStore()
 const { apiFetch } = useApiFetch()
-
-const pageTitle = computed(() => {
-  if (route.path.startsWith('/tags')) return 'Tags'
-  if (route.path.startsWith('/projects')) return 'Projects'
-
-  return 'Admin'
-})
 
 const signOut = async () => {
   isSigningOut.value = true
@@ -45,7 +37,7 @@ const signOut = async () => {
         aria-label="Toggle navigation"
         @click="drawer = !drawer" />
       <v-app-bar-title class="admin-page-title">
-        {{ pageTitle }}
+        Portfolio admin
       </v-app-bar-title>
       <v-spacer />
       <v-btn
@@ -67,7 +59,7 @@ const signOut = async () => {
 <style scoped>
 .admin-app-bar {
   /*noinspection CssUnresolvedCustomProperty*/
-  border-color: rgb(var(--v-theme-border)) !important;
+  border-bottom: 6px solid rgb(var(--v-theme-cyan)) !important;
 }
 
 .admin-page-title {

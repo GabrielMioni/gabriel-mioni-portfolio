@@ -16,3 +16,19 @@ body {
   color: rgb(var(--v-theme-on-background));
   font-family: var(--admin-font-ui);
 }
+
+.admin-page {
+  margin-inline: auto;
+  max-width: 90rem;
+  padding: 0 clamp(1rem, 3vw, 2.5rem) 2.5rem;
+}
+
+.admin-table-workspace {
+  border: 1px solid rgb(var(--v-theme-rule));
+}
+
+.admin-table-toolbar {
+  background: rgb(var(--v-theme-paper-raised));
+  border-bottom: 1px solid rgb(var(--v-theme-rule));
+  padding: 1rem;
+}

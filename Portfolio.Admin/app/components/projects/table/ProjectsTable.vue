@@ -64,8 +64,8 @@ const expanded = ref<string[]>([])
     <template #top>
       <v-container
         fluid
-        class="px-0">
-        <v-row>
+        class="admin-table-toolbar">
+        <v-row no-gutters>
           <v-col>
             <v-text-field
               v-model="search"
@@ -73,18 +73,6 @@ const expanded = ref<string[]>([])
               append-inner-icon="mdi-magnify"
               clearable
               hide-details />
-          </v-col>
-          <v-col
-            cols="auto"
-            align-self="center"
-            justify="end">
-            <v-btn
-              color="primary"
-              prepend-icon="mdi-plus"
-              variant="flat"
-              to="/projects/create">
-              Add Project
-            </v-btn>
           </v-col>
         </v-row>
       </v-container>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <filter id="pulp-noise" x="0" y="0" width="100%" height="100%">
+    <feTurbulence
+      type="fractalNoise"
+      baseFrequency="0.035"
+      numOctaves="4"
+      seed="19"
+      stitchTiles="stitch" />
+    <feColorMatrix type="saturate" values="0" />
+  </filter>
+
+  <rect width="180" height="180" filter="url(#pulp-noise)" opacity="0.7" />
+
+  <g fill="none" stroke="#25251f" stroke-linecap="round" opacity="0.28">
+    <path d="M14 28l7 2" />
+    <path d="M48 13l4 1" />
+    <path d="M76 44l8-2" />
+    <path d="M126 20l5 2" />
+    <path d="M156 51l7-1" />
+    <path d="M25 82l5-2" />
+    <path d="M61 105l7 1" />
+    <path d="M105 75l4 2" />
+    <path d="M142 98l8-2" />
+    <path d="M16 148l6 1" />
+    <path d="M53 160l5-1" />
+    <path d="M91 137l7 2" />
+    <path d="M132 151l5-2" />
+    <path d="M164 125l4 1" />
+  </g>
+
+  <g fill="none" stroke="#fff" stroke-linecap="round" opacity="0.22">
+    <path d="M32 47l5-1" />
+    <path d="M93 18l7 1" />
+    <path d="M148 36l4-1" />
+    <path d="M14 113l6 2" />
+    <path d="M81 91l5-1" />
+    <path d="M119 119l7 1" />
+    <path d="M151 166l6-2" />
+  </g>
+</svg>

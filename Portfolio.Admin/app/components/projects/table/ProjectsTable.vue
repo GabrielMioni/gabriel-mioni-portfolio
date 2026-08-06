@@ -59,6 +59,8 @@ const expanded = ref<string[]>([])
     :headers="headers"
     :items="projects"
     :items-length="totalCount"
+    empty-title="No projects found"
+    empty-message="Try changing the search, or add a new project."
     density="comfortable"
     @update:options="emit('update:options', $event)">
     <template #top>

@@ -29,12 +29,13 @@ const view = computed(() => ({
     <td>
       <div class="d-flex align-center">
         <v-btn
-          variant="flat"
+          variant="text"
           size="x-small"
           class="mr-2"
           :icon="isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'"
-          @click.stop="props.toggleExpand?.()"
-          @keydown.enter.stop="props.toggleExpand?.()" />
+          :aria-label="`${isExpanded ? 'Collapse' : 'Expand'} ${view.title}`"
+          :aria-expanded="isExpanded"
+          @click.stop="props.toggleExpand?.()" />
         <div>
           <div
             class="font-weight-bold"
@@ -50,7 +51,9 @@ const view = computed(() => ({
       <ProjectStatus :project="project" />
     </td>
     <td class="text-end">
-      <ProjectMenu :project-id="project.id"/>
+      <ProjectMenu
+        :project-id="project.id"
+        :project-title="project.title" />
     </td>
   </tr>
 </template>

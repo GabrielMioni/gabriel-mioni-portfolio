@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { MenuItem } from '~/types/ui/MenuItem'
 
-defineProps<{
+withDefaults(defineProps<{
   items: MenuItem[]
-}>()
+  activatorLabel?: string
+}>(), {
+  activatorLabel: 'Open actions menu'
+})
 
 const onItemClick = async (item: MenuItem) => {
   if (item.action) await item.action()
@@ -16,8 +19,9 @@ const onItemClick = async (item: MenuItem) => {
     <template #activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
+        :aria-label="activatorLabel"
         size="small"
-        variant="flat"
+        variant="text"
         icon="mdi-dots-vertical" />
     </template>
     <v-list>

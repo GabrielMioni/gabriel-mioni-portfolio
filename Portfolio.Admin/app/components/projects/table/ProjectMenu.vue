@@ -4,6 +4,7 @@ import BaseMenu from '~/components/base-components/BaseMenu.vue'
 
 const props = defineProps<{
   projectId: string
+  projectTitle: string
 }>()
 
 const actions = inject<{ edit: (id: string) => void; delete: (id: string) => void }>('projectActions')
@@ -36,7 +37,9 @@ const menuItems = [
 </script>
 
 <template>
-  <BaseMenu :items="menuItems" />
+  <BaseMenu
+    :items="menuItems"
+    :activator-label="`Actions for ${projectTitle}`" />
 </template>
 
 <style scoped>

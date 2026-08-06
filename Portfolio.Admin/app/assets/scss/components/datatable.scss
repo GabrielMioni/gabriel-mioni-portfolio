@@ -1,15 +1,38 @@
-@use '../abstracts/colors' as c;
-
-$hover: c.$color-hover;
+$hover: color-mix(
+  in srgb,
+  rgb(var(--v-theme-cyan)) 11%,
+  rgb(var(--v-theme-paper-raised))
+);
+$row-rule: color-mix(in srgb, rgb(var(--v-theme-rule)) 55%, transparent);
 
 .base-table.v-table {
+  background: rgb(var(--v-theme-paper-raised));
+
   thead {
-    background-color: c.$header;
+    background-color: rgb(var(--v-theme-header));
+
+    > tr > th {
+      border-bottom-color: rgb(var(--v-theme-rule));
+      font-family: var(--admin-font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
     > tr > th.v-data-table__th--sorted {
-      font-weight: bold;
+      color: rgb(var(--v-theme-rust));
     }
   }
+
   .v-table__wrapper > table > tbody {
+    > tr {
+      transition: background-color 140ms ease;
+    }
+
+    > tr > td {
+      border-bottom-color: $row-rule;
+    }
+
     > tr:hover {
       background: $hover;
     }
@@ -36,9 +59,38 @@ $hover: c.$color-hover;
       background: $hover;
     }
 
-/* Remove border between parent + expand row */
+    /* Remove border between parent + expand row */
     > tr.expanded:has(+ tr.expand-row) > td {
       border-bottom-color: transparent;
     }
+  }
+
+  .v-data-table-footer {
+    background: rgb(var(--v-theme-paper-raised));
+    border-top: 1px solid rgb(var(--v-theme-rule));
+    font-family: var(--admin-font-mono);
+    font-size: 0.75rem;
+  }
+
+  .base-table__empty {
+    padding: 3.5rem 1rem;
+    text-align: center;
+  }
+
+  .base-table__empty-icon,
+  .base-table__empty-message {
+    color: rgb(var(--v-theme-muted));
+  }
+
+  .base-table__empty-title {
+    font-family: var(--admin-font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-top: 0.75rem;
+  }
+
+  .base-table__empty-message {
+    font-family: var(--admin-font-body);
+    margin-top: 0.25rem;
   }
 }

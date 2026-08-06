@@ -168,6 +168,8 @@ const goToProjects = async () => {
           v-if="!isNewProject && projectId"
           v-model="deleteProjectDialog"
           :project-id="projectId"
+          :summary="projectDetailsModel.summary"
+          :title="projectDetailsModel.title"
           @deleted="goToProjects" />
       </template>
     </template>

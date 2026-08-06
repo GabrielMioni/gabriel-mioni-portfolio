@@ -32,13 +32,24 @@ const onDelete = async () => {
   <BaseDialog
     v-model="dialog"
     :persistent="deletingTag"
-    title="Delete Tag"
+    title="Delete tag"
     width="440">
-    <div>
-      Are you sure you want to delete
-      <span class="font-weight-bold">{{ tag?.name }}</span>?
-      This will remove the tag from all associated projects.
-    </div>
+    <BaseDestructiveNotice title="Remove this tag?">
+      The tag will be removed from every assigned project. The projects
+      themselves will remain unchanged.
+    </BaseDestructiveNotice>
+    <dl
+      v-if="tag"
+      class="admin-record-summary">
+      <div>
+        <dt>Tag</dt>
+        <dd>{{ tag.name }}</dd>
+      </div>
+      <div>
+        <dt>Assignments</dt>
+        <dd>{{ tag.projectsCount }}</dd>
+      </div>
+    </dl>
     <template #actions>
       <v-spacer />
       <v-btn
@@ -52,7 +63,7 @@ const onDelete = async () => {
         variant="flat"
         :loading="deletingTag"
         @click="onDelete">
-        Delete
+        Delete tag
       </v-btn>
     </template>
   </BaseDialog>

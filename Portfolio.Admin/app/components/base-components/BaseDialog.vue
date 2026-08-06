@@ -61,6 +61,7 @@ withDefaults(
         <v-btn
           aria-label="Close dialog"
           class="admin-dialog__close"
+          :disabled="persistent"
           icon="mdi-close"
           variant="text"
           @click="dialog = false" />

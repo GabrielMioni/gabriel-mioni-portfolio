@@ -9,7 +9,6 @@ const {
   updateTableOptions
 } = useTableUrlSync({ defaultItemsPerPage: 10 })
 
-const editDialogId = ref<string | null>(null)
 const deleteDialogId = ref<string | null>(null)
 
 const queryVars = computed<GetProjectsQueryVariables>(() => {
@@ -35,13 +34,6 @@ const {
   totalCount
 } = useProjectQueries(queryVars)
 
-const editDialog = computed({
-  get: () => !!editDialogId.value,
-  set: (val) => {
-    if (!val) editDialogId.value = null
-  }
-})
-
 const deleteDialog = computed({
   get: () => !!deleteDialogId.value,
   set: (val) => {
@@ -51,28 +43,17 @@ const deleteDialog = computed({
   }
 })
 
-const selectedEditProject = computed(() => {
-  const id = editDialogId.value
-  if (!id) return null
-  return projects.value.find((project) => project.id === id) ?? null
-})
-
 const selectedDeleteProject = computed(() => {
   const id = deleteDialogId.value
   if (!id) return null
   return projects.value.find((project) => project.id === id) ?? null
 })
 
-const onEdit = (id: string) => {
-  editDialogId.value = id
-}
-
 const onDelete = (id: string) => {
   deleteDialogId.value = id
 }
 
 provide('projectActions', {
-  edit: onEdit,
   delete: onDelete
 })
 </script>
@@ -104,9 +85,6 @@ provide('projectActions', {
       :total-count="totalCount"
       :page-info="pageInfo"
       @update:options="updateTableOptions" />
-    <QuickEditDialog
-      v-model="editDialog"
-      :project="selectedEditProject" />
     <DeleteProjectDialog
       v-if="selectedDeleteProject"
       v-model="deleteDialog"

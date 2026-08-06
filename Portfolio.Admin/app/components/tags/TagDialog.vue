@@ -13,9 +13,7 @@ const {
   renameTag,
   removeTagFromProjects,
   renamingTag,
-  removingFromProjects,
-  deleteTag,
-  deletingTag
+  removingFromProjects
 } = useTagMutations()
 const { showSnackbar } = useSnackbarStore()
 
@@ -38,7 +36,7 @@ const isDirty = computed(() =>
   editedName.value.trim() !== (props.tag?.name ?? '') || pendingRemovals.value.size > 0
 )
 
-const saving = computed(() => renamingTag.value || removingFromProjects.value || deletingTag.value)
+const saving = computed(() => renamingTag.value || removingFromProjects.value)
 
 watch(
   [dialog, () => props.tag] as const,
@@ -60,17 +58,9 @@ const toggleRemoval = (projectId: string) => {
   pendingRemovals.value = next
 }
 
-const confirmDelete = async () => {
-  if (!props.tag) return
-  try {
-    await deleteTag(props.tag.id)
-    showSnackbar(`"${props.tag.name}" deleted`, 'success')
-    dialog.value = false
-    emit('deleted')
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : 'An error occurred'
-    showSnackbar(message, 'error')
-  }
+const onDeleted = () => {
+  dialog.value = false
+  emit('deleted')
 }
 
 const save = async () => {
@@ -99,94 +89,177 @@ const save = async () => {
   <BaseDialog
     v-model="dialog"
     :persistent="saving"
-    :title="tag?.name ?? ''"
+    title="Edit tag"
     width="560"
     focus-first-input>
+    <p class="tag-dialog__record-label">Tag record</p>
+    <p class="tag-dialog__record-name">{{ tag?.name }}</p>
     <v-text-field
       v-model="editedName"
       label="Name"
       variant="filled"
       hide-details
       class="mb-6" />
-    <v-divider class="mb-4" />
-    <div class="text-subtitle-2 mb-2">Projects</div>
-    <div
-      v-if="fetchingProjects"
-      class="d-flex justify-center py-4">
-      <v-progress-circular indeterminate />
-    </div>
-    <v-list
-      v-else
-      density="compact">
-      <v-list-item
-        v-for="project in projects"
-        :key="project.id"
-        :to="pendingRemovals.has(project.id) ? undefined : `/projects/${project.id}`"
-        :prepend-icon="pendingRemovals.has(project.id) ? undefined : 'mdi-open-in-app'"
-        :title="project.title">
-        <template #title>
-          <div
-            :class="{ 'text-decoration-line-through text-disabled': pendingRemovals.has(project.id) }"
-            v-text="project.title" />
-        </template>
-        <template #append>
-          <v-btn
-            :icon="pendingRemovals.has(project.id) ? 'mdi-undo' : 'mdi-close'"
-            :color="pendingRemovals.has(project.id) ? 'warning' : undefined"
-            size="x-small"
-            variant="text"
-            @click.prevent="toggleRemoval(project.id)" />
-        </template>
-      </v-list-item>
-      <v-list-item
-        v-if="projects.length === 0"
-        class="text-grey">
-        No projects
-      </v-list-item>
-    </v-list>
-    <template #actions>
-      <template v-if="confirmingDelete">
-        <span class="text-error text-body-2">Delete this tag? This will remove the tag from all associated projects.</span>
-        <v-btn
-          variant="text"
-          size="small"
-          :disabled="saving"
-          @click="confirmingDelete = false">
-          Cancel
-        </v-btn>
-        <v-btn
-          color="error"
-          variant="flat"
-          size="small"
-          :loading="deletingTag"
-          @click="confirmDelete">
-          Confirm
-        </v-btn>
-      </template>
-      <template v-else>
-        <v-btn
-          variant="text"
-          color="error"
-          :disabled="saving"
-          @click="confirmingDelete = true">
-          Delete Tag
-        </v-btn>
-        <v-spacer />
-        <v-btn
-          variant="text"
-          :disabled="saving"
-          @click="dialog = false">
-          Cancel
-        </v-btn>
-        <v-btn
+    <section class="tag-dialog__projects">
+      <div class="tag-dialog__section-heading">
+        <div>
+          <p class="tag-dialog__section-label">Assignments</p>
+          <h3>Projects</h3>
+        </div>
+        <span class="tag-dialog__count">{{ projects.length }}</span>
+      </div>
+      <div
+        v-if="fetchingProjects"
+        class="d-flex justify-center py-8">
+        <v-progress-circular
           color="primary"
-          variant="flat"
-          :disabled="!isDirty || saving"
-          :loading="saving"
-          @click="save">
-          Save
-        </v-btn>
-      </template>
+          indeterminate />
+      </div>
+      <v-list
+        v-else-if="projects.length"
+        class="tag-dialog__project-list"
+        density="compact">
+        <v-list-item
+          v-for="project in projects"
+          :key="project.id"
+          :class="{
+            'tag-dialog__project--removing': pendingRemovals.has(project.id)
+          }"
+          :to="pendingRemovals.has(project.id) ? undefined : `/projects/${project.id}`"
+          :prepend-icon="pendingRemovals.has(project.id) ? 'mdi-link-off' : 'mdi-open-in-app'"
+          :title="project.title">
+          <template #title>
+            <div
+              :class="{
+                'text-decoration-line-through': pendingRemovals.has(project.id)
+              }"
+              v-text="project.title" />
+          </template>
+          <template #append>
+            <v-btn
+              :aria-label="pendingRemovals.has(project.id)
+                ? `Restore ${project.title}`
+                : `Remove ${project.title}`"
+              :icon="pendingRemovals.has(project.id) ? 'mdi-undo' : 'mdi-close'"
+              :color="pendingRemovals.has(project.id) ? 'warning' : undefined"
+              size="small"
+              variant="text"
+              @click.stop.prevent="toggleRemoval(project.id)" />
+          </template>
+        </v-list-item>
+      </v-list>
+      <div
+        v-else
+        class="tag-dialog__empty">
+        <v-icon
+          icon="mdi-folder-outline"
+          size="24" />
+        <span>This tag is not assigned to any projects.</span>
+      </div>
+    </section>
+    <template #actions>
+      <v-btn
+        variant="text"
+        color="error"
+        :disabled="saving"
+        @click="confirmingDelete = true">
+        Delete tag
+      </v-btn>
+      <v-spacer />
+      <v-btn
+        variant="text"
+        :disabled="saving"
+        @click="dialog = false">
+        Cancel
+      </v-btn>
+      <v-btn
+        color="primary"
+        variant="flat"
+        :disabled="!isDirty || saving"
+        :loading="saving"
+        @click="save">
+        Save changes
+      </v-btn>
     </template>
   </BaseDialog>
+  <DeleteTagDialog
+    v-model="confirmingDelete"
+    :tag="tag"
+    @deleted="onDeleted" />
 </template>
+
+<style scoped>
+.tag-dialog__record-label,
+.tag-dialog__section-label {
+  color: rgb(var(--v-theme-rust));
+  font-family: var(--admin-font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.tag-dialog__record-name {
+  color: rgb(var(--v-theme-muted));
+  font-family: var(--admin-font-body);
+  margin: 0.2rem 0 1rem;
+}
+
+.tag-dialog__projects {
+  border: 1px solid rgb(var(--v-theme-rule));
+}
+
+.tag-dialog__section-heading {
+  align-items: center;
+  background: rgb(var(--v-theme-paper));
+  border-bottom: 1px solid rgb(var(--v-theme-rule));
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+}
+
+.tag-dialog__section-heading h3 {
+  font-family: var(--admin-font-display);
+  font-size: 1.15rem;
+  line-height: 1.1;
+}
+
+.tag-dialog__count {
+  align-items: center;
+  background: rgb(var(--v-theme-amber));
+  border: 1px solid rgb(var(--v-theme-ink));
+  color: rgb(var(--v-theme-ink));
+  display: inline-flex;
+  font-family: var(--admin-font-mono);
+  font-size: 0.75rem;
+  height: 1.75rem;
+  justify-content: center;
+  min-width: 1.75rem;
+  padding-inline: 0.35rem;
+}
+
+.tag-dialog__project-list {
+  background: transparent;
+  padding: 0;
+}
+
+.tag-dialog__project-list :deep(.v-list-item + .v-list-item) {
+  border-top: 1px solid rgb(var(--v-theme-rule));
+}
+
+.tag-dialog__project--removing {
+  background: color-mix(in srgb, rgb(var(--v-theme-error)) 10%, transparent);
+  color: rgb(var(--v-theme-muted));
+}
+
+.tag-dialog__empty {
+  align-items: center;
+  color: rgb(var(--v-theme-muted));
+  display: flex;
+  font-family: var(--admin-font-body);
+  gap: 0.75rem;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+</style>

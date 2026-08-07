@@ -6,6 +6,7 @@ import ProjectLinks from '~/components/projects/ProjectLinks.vue'
 const open = defineModel<boolean>('open', { required: true })
 
 const textSection = useTemplateRef('text-section')
+const imageCarousel = useTemplateRef('image-carousel')
 
 const scrollText = (amount: number) => {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -40,6 +41,15 @@ const recordSummary = computed(() => [
 const figureSummary = computed(() => projectImages.value.length > 0
   ? formatCount(projectImages.value.length, 'figure')
   : '')
+
+watch(open, async (isOpen) => {
+  if (!isOpen || !hasImages.value) {
+    return
+  }
+
+  await nextTick()
+  imageCarousel.value?.focusMainImage()
+}, { flush: 'post' })
 
 const modalUi = computed(() => ({
   overlay: 'project-dialog__overlay',
@@ -112,7 +122,9 @@ const modalUi = computed(() => ({
           v-if="hasImages"
           class="project-dialog__figures"
           aria-label="Project figures">
-          <ProjectImageCarousel :images="projectImages" />
+          <ProjectImageCarousel
+            ref="image-carousel"
+            :images="projectImages" />
         </section>
       </div>
     </template>

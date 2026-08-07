@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
+      ClientApplications__AdminOrigin: http://localhost:3000
+      ClientApplications__PublicOrigin: http://localhost:3001
       R2_TEST_ENDPOINT: https://46776328fb12f0713a4a0cb63cd28033.r2.cloudflarestorage.com
       R2_TEST_BUCKET: mioni-portfolio-images-test
 

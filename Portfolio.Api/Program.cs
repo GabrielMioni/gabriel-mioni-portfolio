@@ -27,18 +27,18 @@ var clientApplications = builder.Configuration
     .GetSection(ClientApplicationOptions.SectionName)
     .Get<ClientApplicationOptions>() ?? new ClientApplicationOptions();
 
-if (!isSchemaCommand && !clientApplications.IsConfigured)
+if (isProductionRuntime && !clientApplications.IsConfigured)
 {
     throw new InvalidOperationException(
         $"{ClientApplicationOptions.SectionName} must define valid AdminOrigin and PublicOrigin URLs.");
 }
 
-var adminOrigin = isSchemaCommand
-    ? "http://localhost:3000"
-    : clientApplications.AdminOrigin.TrimEnd('/');
-var publicOrigin = isSchemaCommand
-    ? "http://localhost:3001"
-    : clientApplications.PublicOrigin.TrimEnd('/');
+var adminOrigin = clientApplications.IsConfigured
+    ? clientApplications.AdminOrigin.TrimEnd('/')
+    : "http://localhost:3000";
+var publicOrigin = clientApplications.IsConfigured
+    ? clientApplications.PublicOrigin.TrimEnd('/')
+    : "http://localhost:3001";
 
 builder.Services.Configure<ClientApplicationOptions>(
     builder.Configuration.GetSection(ClientApplicationOptions.SectionName));

@@ -9,6 +9,12 @@ mutation editProject($input: EditProjectInput!) {
         publishedAt
         createdAt
         updatedAt
+        links {
+          ...projectLink
+        }
+        images {
+          ...projectImage
+        }
     }
     userErrors {
       ...MutationUserError

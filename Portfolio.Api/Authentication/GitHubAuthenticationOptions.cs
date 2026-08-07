@@ -10,12 +10,12 @@ public sealed class GitHubAuthenticationOptions
 
     public string AllowedUserId { get; init; } = string.Empty;
 
-    public string AdminBaseUrl { get; init; } = string.Empty;
-
     public bool IsConfigured =>
         !string.IsNullOrWhiteSpace(ClientId)
         && !string.IsNullOrWhiteSpace(ClientSecret)
-        && !string.IsNullOrWhiteSpace(AllowedUserId)
-        && Uri.TryCreate(AdminBaseUrl, UriKind.Absolute, out var adminUri)
-        && (adminUri.Scheme == Uri.UriSchemeHttp || adminUri.Scheme == Uri.UriSchemeHttps);
+        && !string.IsNullOrWhiteSpace(AllowedUserId);
+
+    public bool IsAllowedUser(string? gitHubUserId) =>
+        !string.IsNullOrWhiteSpace(gitHubUserId)
+        && string.Equals(AllowedUserId, gitHubUserId, StringComparison.Ordinal);
 }

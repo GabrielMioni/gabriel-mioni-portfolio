@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Portfolio.Api.Configuration;
 using Portfolio.Api.Data;
 
 namespace Portfolio.Api.Authentication;
@@ -16,11 +17,18 @@ public static class GitHubAuthenticationExtensions
 
     public static IServiceCollection AddGitHubAuthentication(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        bool requireConfiguration)
     {
         var section = configuration.GetSection(GitHubAuthenticationOptions.SectionName);
 
-        services.Configure<GitHubAuthenticationOptions>(section);
+        services
+            .AddOptions<GitHubAuthenticationOptions>()
+            .Bind(section)
+            .Validate(
+                options => !requireConfiguration || options.IsConfigured,
+                "GitHub authentication must be fully configured in Production.")
+            .ValidateOnStart();
 
         services
             .AddAuthentication()
@@ -80,9 +88,11 @@ public static class GitHubAuthenticationExtensions
             RoleManager<IdentityRole> roleManager,
             AppDbContext db,
             IOptions<GitHubAuthenticationOptions> options,
+            IOptions<ClientApplicationOptions> clientOptions,
             ILoggerFactory loggerFactory) =>
         {
             var authOptions = options.Value;
+            var adminOrigin = clientOptions.Value.AdminOrigin;
             var logger = loggerFactory.CreateLogger("GitHubAuthentication");
 
             if (!authOptions.IsConfigured)
@@ -92,7 +102,7 @@ public static class GitHubAuthenticationExtensions
                     statusCode: StatusCodes.Status503ServiceUnavailable);
             }
 
-            var loginPath = BuildAdminUrl(authOptions.AdminBaseUrl, "/login?error=github_authentication_failed");
+            var loginPath = BuildAdminUrl(adminOrigin, "/login?error=github_authentication_failed");
             var externalLogin = await signInManager.GetExternalLoginInfoAsync();
 
             if (externalLogin is null)
@@ -101,16 +111,13 @@ public static class GitHubAuthenticationExtensions
                 return await RedirectAfterExternalSignOutAsync(httpContext, loginPath);
             }
 
-            if (!string.Equals(
-                    externalLogin.ProviderKey,
-                    authOptions.AllowedUserId,
-                    StringComparison.Ordinal))
+            if (!authOptions.IsAllowedUser(externalLogin.ProviderKey))
             {
                 logger.LogWarning(
                     "GitHub user {GitHubUserId} attempted to access the admin application.",
                     externalLogin.ProviderKey);
                 return await RedirectAfterExternalSignOutAsync(httpContext, BuildAdminUrl(
-                    authOptions.AdminBaseUrl,
+                    adminOrigin,
                     "/login?error=github_account_not_allowed"));
             }
 
@@ -171,7 +178,7 @@ public static class GitHubAuthenticationExtensions
             await httpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
             return Results.Redirect(BuildAdminUrl(
-                authOptions.AdminBaseUrl,
+                adminOrigin,
                 NormalizeReturnPath(returnUrl)));
         });
 
@@ -190,6 +197,9 @@ public static class GitHubAuthenticationExtensions
         var authOptions = context.HttpContext.RequestServices
             .GetRequiredService<IOptions<GitHubAuthenticationOptions>>()
             .Value;
+        var clientOptions = context.HttpContext.RequestServices
+            .GetRequiredService<IOptions<ClientApplicationOptions>>()
+            .Value;
         var logger = context.HttpContext.RequestServices
             .GetRequiredService<ILoggerFactory>()
             .CreateLogger("GitHubAuthentication");
@@ -198,7 +208,7 @@ public static class GitHubAuthenticationExtensions
 
         var redirectPath = authOptions.IsConfigured
             ? BuildAdminUrl(
-                authOptions.AdminBaseUrl,
+                clientOptions.AdminOrigin,
                 "/login?error=github_authentication_failed")
             : "/";
 

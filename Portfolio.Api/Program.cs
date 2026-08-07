@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Amazon.Runtime;
 using Amazon.S3;
 using Portfolio.Api.Authentication;
+using Portfolio.Api.Configuration;
 using Portfolio.Api.Data;
 using Portfolio.Api.Infrastructure.Storage;
 using Portfolio.Api.Services.Images;
@@ -20,7 +21,27 @@ using Portfolio.Api.GraphQL.Projects.Public;
 var builder = WebApplication.CreateBuilder(args);
 var isSchemaCommand = args.Length > 0
     && string.Equals(args[0], "schema", StringComparison.OrdinalIgnoreCase);
+var isProductionRuntime = builder.Environment.IsProduction() && !isSchemaCommand;
 
+var clientApplications = builder.Configuration
+    .GetSection(ClientApplicationOptions.SectionName)
+    .Get<ClientApplicationOptions>() ?? new ClientApplicationOptions();
+
+if (!isSchemaCommand && !clientApplications.IsConfigured)
+{
+    throw new InvalidOperationException(
+        $"{ClientApplicationOptions.SectionName} must define valid AdminOrigin and PublicOrigin URLs.");
+}
+
+var adminOrigin = isSchemaCommand
+    ? "http://localhost:3000"
+    : clientApplications.AdminOrigin.TrimEnd('/');
+var publicOrigin = isSchemaCommand
+    ? "http://localhost:3001"
+    : clientApplications.PublicOrigin.TrimEnd('/');
+
+builder.Services.Configure<ClientApplicationOptions>(
+    builder.Configuration.GetSection(ClientApplicationOptions.SectionName));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -28,13 +49,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("client", p => p
-      .WithOrigins("http://localhost:3000")
+      .WithOrigins(adminOrigin)
       .AllowAnyHeader()
       .AllowAnyMethod()
       .AllowCredentials());
 
     options.AddPolicy("public", p => p
-      .WithOrigins("http://localhost:3001")
+      .WithOrigins(publicOrigin)
       .AllowAnyHeader()
       .AllowAnyMethod());
 });
@@ -62,7 +83,23 @@ builder.Services
   .AddRoles<IdentityRole>()
   .AddEntityFrameworkStores<AppDbContext>();
 
-builder.Services.AddGitHubAuthentication(builder.Configuration);
+builder.Services.AddGitHubAuthentication(
+    builder.Configuration,
+    requireConfiguration: isProductionRuntime);
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = builder.Environment.IsProduction()
+        ? "__Host-PortfolioAdmin"
+        : "Portfolio.Admin.Session";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = builder.Environment.IsProduction()
+        ? CookieSecurePolicy.Always
+        : CookieSecurePolicy.SameAsRequest;
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = true;
+});
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
@@ -169,22 +206,7 @@ app.MapGet("/api/me", (ClaimsPrincipal user) =>
         isAuthenticated = user.Identity?.IsAuthenticated ?? false,
         name = user.Identity?.Name
     });
-}).RequireAuthorization();
-
-app.MapGet("/api/user", (ClaimsPrincipal user) =>
-{
-    if (!(user.Identity?.IsAuthenticated ?? false))
-    {
-        return Results.Unauthorized();
-    }
-
-    return Results.Ok(new
-    {
-        isAuthenticated = true,
-        name = user.Identity?.Name,
-        claims = user.Claims.Select(c => new { c.Type, c.Value })
-    });
-}).RequireAuthorization();
+}).RequireAuthorization("Admin");
 
 app.MapControllers();
 

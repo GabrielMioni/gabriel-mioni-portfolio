@@ -5,6 +5,7 @@ const route = useRoute()
 const { public: { authBase } } = useRuntimeConfig()
 
 const errorMessages: Record<string, string> = {
+  account_not_authorized: 'This account is signed in but is not authorized to access the admin application.',
   github_account_not_allowed: 'This GitHub account does not have access to the admin application.',
   github_authentication_failed: 'GitHub sign-in could not be completed. Please try again.'
 }

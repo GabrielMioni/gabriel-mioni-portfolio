@@ -32,14 +32,12 @@ export default defineNuxtConfig({
     }
   },
   buildDir: process.env.NUXT_BUILD_DIR || '.nuxt',
-  routeRules: {
-    '/': { prerender: true }
-  },
   devServer: {
     port: 3001
   },
   compatibilityDate: '2025-01-15',
   nitro: {
+    compressPublicAssets: true,
     routeRules: {
       '/graphql': {
         proxy: `${apiOrigin}/graphql`

@@ -37,16 +37,16 @@ const config = useRuntimeConfig()
                 size="lg"
                 class="rounded-none" />
             </div>
-            <div
+            <ul
               class="technology-index"
               aria-label="Primary technologies">
-              <span>Vue</span>
-              <span>TypeScript</span>
-              <span>Nuxt</span>
-              <span>.NET</span>
-              <span>C#</span>
-              <span>GraphQL</span>
-            </div>
+              <li>Vue</li>
+              <li>TypeScript</li>
+              <li>Nuxt</li>
+              <li>.NET</li>
+              <li>C#</li>
+              <li>GraphQL</li>
+            </ul>
           </div>
 
           <ManualPlate />

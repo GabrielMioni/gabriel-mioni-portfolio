@@ -86,6 +86,11 @@ const dropPlateCell = async (cell: number) => {
     return
   }
 
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    activePlateCells.value = new Set([...activePlateCells.value, cell])
+    return
+  }
+
   plateIsAnimating.value = true
 
   const cellIndex = cell - 1

@@ -61,7 +61,9 @@ useIntersectionObserver(observer, ([entry]) => {
             class="size-3.5 shrink-0" />
           <span>Filter by technology</span>
         </div>
-        <span class="project-filters__status">
+        <span
+          class="project-filters__status"
+          aria-live="polite">
           {{ selectedTags.length === 0 ? 'Showing all' : `${selectedTags.length} selected` }}
         </span>
       </div>

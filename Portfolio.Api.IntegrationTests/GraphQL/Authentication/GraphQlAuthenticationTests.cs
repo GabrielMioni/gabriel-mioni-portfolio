@@ -39,6 +39,32 @@ public sealed class GraphQlAuthenticationTests(SqlServerFixture database)
     }
 
     [Fact]
+    public async Task AdminGraphQl_WhenAuthenticatedAsAdmin_ReturnsSuccessfulResponse()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        using var response = await SendQueryAsync(client, "/graphql/admin");
+
+        var data = await response.ReadGraphQlDataAsync();
+
+        Assert.Equal(
+            "Query",
+            data.GetProperty("__typename").GetString());
+    }
+
+    [Fact]
+    public async Task AdminGraphQl_WhenAuthenticatedWithoutAdminRole_ReturnsForbidden()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient(isAdmin: false);
+
+        using var response = await SendQueryAsync(client, "/graphql/admin");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
     public async Task PublicGraphQl_WhenUnauthenticated_ReturnsSuccessfulResponse()
     {
         await using var factory = new ApiWebApplicationFactory(database.ConnectionString);

@@ -14,12 +14,19 @@ public sealed class ApiWebApplicationFactory(string connectionString)
 {
     internal FakeObjectStorage ObjectStorage { get; } = new();
 
-    public HttpClient CreateAuthenticatedClient()
+    public HttpClient CreateAuthenticatedClient(bool isAdmin = true)
     {
         var client = CreateClient();
         client.DefaultRequestHeaders.Add(
             TestAuthenticationHandler.UserHeader,
-            "integration-test-admin");
+            isAdmin ? "integration-test-admin" : "integration-test-user");
+
+        if (isAdmin)
+        {
+            client.DefaultRequestHeaders.Add(
+                TestAuthenticationHandler.RoleHeader,
+                "Admin");
+        }
 
         return client;
     }
@@ -33,6 +40,8 @@ public sealed class ApiWebApplicationFactory(string connectionString)
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:DefaultConnection"] = connectionString,
+                ["ClientApplications:AdminOrigin"] = "http://localhost:3000",
+                ["ClientApplications:PublicOrigin"] = "http://localhost:3001",
                 ["R2:AccessKey"] = "integration-test-access-key",
                 ["R2:SecretKey"] = "integration-test-secret-key"
             });

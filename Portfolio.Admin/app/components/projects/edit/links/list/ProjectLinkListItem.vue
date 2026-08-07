@@ -7,10 +7,14 @@ const item = defineModel<LinkEditorItem>('item', { required: true })
 const layout = ref<{
   focusMoveButton: (direction: EditorItemMoveDirection) => void
     } | null>(null)
+const urlInput = ref<{
+  focus: () => void
+} | null>(null)
 
 const props = defineProps<{
   position: number
   itemCount: number
+  focusUrl?: boolean
   focusRequest?: {
     direction: EditorItemMoveDirection
     sequence: number
@@ -42,6 +46,16 @@ watch(
   }
 )
 
+watch(
+  () => props.focusUrl,
+  async (shouldFocus) => {
+    if (!shouldFocus) return
+
+    await nextTick()
+    urlInput.value?.focus()
+  }
+)
+
 </script>
 
 <template>
@@ -60,6 +74,7 @@ watch(
         cols="12"
         md="3">
         <v-text-field
+          ref="urlInput"
           v-model="item.url"
           label="Url"
           variant="filled"

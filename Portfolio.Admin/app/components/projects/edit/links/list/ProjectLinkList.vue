@@ -8,6 +8,10 @@ import {
 
 const model = defineModel<LinkEditorItem[]>({ required: true })
 
+defineProps<{
+  focusClientId?: string | null
+}>()
+
 defineEmits<{
   (e: 'remove' | 'restore', clientId: string): void
 }>()
@@ -57,6 +61,7 @@ const moveItem = (clientId: string, direction: EditorItemMoveDirection) => {
         :item="element"
         :position="getActiveItemIndex(element.clientId)"
         :item-count="activeItems.length"
+        :focus-url="focusClientId === element.clientId"
         :focus-request="(moveFocusRequest?.clientId) === element.clientId
           ? moveFocusRequest ?? undefined
           : undefined"

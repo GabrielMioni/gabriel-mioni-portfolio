@@ -68,6 +68,8 @@ export default defineConfig({
         ...process.env,
         ASPNETCORE_ENVIRONMENT: 'EndToEnd',
         ASPNETCORE_URLS: apiOrigin,
+        ClientApplications__AdminOrigin: adminOrigin,
+        ClientApplications__PublicOrigin: publicOrigin,
         ConnectionStrings__DefaultConnection: connectionString,
         R2__AccessKey: r2AccessKey,
         R2__SecretKey: r2SecretKey,

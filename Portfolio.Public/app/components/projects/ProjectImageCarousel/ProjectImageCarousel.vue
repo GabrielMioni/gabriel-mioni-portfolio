@@ -12,6 +12,7 @@ const resolvedImages = computed(() =>
 
 const thumbnailViewport = useTemplateRef('thumbnail-viewport')
 const lightbox = useTemplateRef('lightbox')
+const imageButton = useTemplateRef('image-button')
 const activeIndex = ref(0)
 
 const selectedImage = computed(() =>
@@ -59,6 +60,12 @@ const closeLightbox = () => {
   lightbox.value?.close()
 }
 
+const focusMainImage = () => {
+  imageButton.value?.focus()
+}
+
+defineExpose({ focusMainImage })
+
 const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnail') => {
   if (altText && altText.length > 0) {
     return type === 'thumbnail'
@@ -77,6 +84,7 @@ const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnai
     <figure class="project-carousel__plate">
       <div class="project-carousel__image-stage editorial-corner-field">
         <button
+          ref="image-button"
           type="button"
           class="project-carousel__image-button folio-focus-ring folio-focus-ring--inset"
           :aria-label="`Enlarge ${selectedImage?.altText ?? 'project figure'}`"

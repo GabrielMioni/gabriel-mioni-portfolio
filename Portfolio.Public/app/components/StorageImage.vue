@@ -3,10 +3,13 @@ defineOptions({ inheritAttrs: false })
 
 const config = useRuntimeConfig()
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   alt?: string
   storageKey?: string
-}>()
+  loading?: 'eager' | 'lazy'
+}>(), {
+  loading: 'lazy'
+})
 
 const src = computed(() => `${config.public.storageBase}/${props.storageKey}`)
 
@@ -25,7 +28,7 @@ watch(() => props.storageKey, () => {
     v-bind="$attrs"
     :alt="alt ?? 'project image'"
     :src="src"
-    loading="lazy"
+    :loading="loading"
     class="transition-opacity duration-1000"
     :class="loaded ? 'opacity-100' : 'opacity-0'"
     @load="loaded = true"

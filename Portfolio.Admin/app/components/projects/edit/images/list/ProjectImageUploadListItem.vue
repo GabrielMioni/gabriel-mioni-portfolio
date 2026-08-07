@@ -1,12 +1,26 @@
 <script setup lang="ts">
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
+import type { EditorItemMoveDirection } from '~/utils/editorItems'
 
 const config = useRuntimeConfig()
 
 const item = defineModel<ImageEditorItem>('item', { required: true })
+const layout = ref<{
+  focusMoveButton: (direction: EditorItemMoveDirection) => void
+} | null>(null)
+
+const props = defineProps<{
+  position: number
+  itemCount: number
+  focusRequest?: {
+    direction: EditorItemMoveDirection
+    sequence: number
+  }
+}>()
 
 const emit = defineEmits<{
   (e: 'remove' | 'restore', clientId: string): void
+  (e: 'move', direction: EditorItemMoveDirection): void
 }>()
 
 const updateRemovalState = () => {
@@ -38,14 +52,29 @@ const createdAtDate = computed(() => {
   if (!item.value?.createdAt) return null
   return new Date(item.value.createdAt).toLocaleDateString()
 })
+
+watch(
+  () => props.focusRequest,
+  async (request) => {
+    if (!request) return
+
+    await nextTick()
+    layout.value?.focusMoveButton(request.direction)
+  }
+)
 </script>
 
 <template>
   <EditorItemLayout
+    ref="layout"
     :draggable="!item.isRemoved"
     :is-pending="!item.id"
     :is-removed="item.isRemoved"
-    @action="updateRemovalState">
+    :can-move-up="position > 0"
+    :can-move-down="position >= 0 && position < itemCount - 1"
+    :item-label="`image ${position + 1} of ${itemCount}`"
+    @action="updateRemovalState"
+    @move="emit('move', $event)">
     <template #leading>
       <v-img
         v-if="imageUrl"

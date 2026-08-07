@@ -1,22 +1,40 @@
 <script setup lang="ts">
+import type { EditorItemMoveDirection } from '~/utils/editorItems'
+
+const moveActions = useTemplateRef<HTMLElement>('move-actions')
 withDefaults(
   defineProps<{
       draggable?: boolean
       isRemoved?: boolean
       isPending?: boolean
       compact?: boolean
+      canMoveUp?: boolean
+      canMoveDown?: boolean
+      itemLabel?: string
     }>(),
   {
     draggable: false,
     isRemoved: false,
     isPending: false,
-    compact: false
+    compact: false,
+    canMoveUp: false,
+    canMoveDown: false,
+    itemLabel: 'item'
   }
 )
 
 defineEmits<{
   (e: 'action'): void
+  (e: 'move', direction: 'up' | 'down'): void
 }>()
+
+const focusMoveButton = (direction: EditorItemMoveDirection) => {
+  moveActions.value
+    ?.querySelector<HTMLButtonElement>(`[data-editor-item-move="${direction}"]:not(:disabled)`)
+    ?.focus()
+}
+
+defineExpose({ focusMoveButton })
 </script>
 
 <template>
@@ -49,6 +67,26 @@ defineEmits<{
         md="auto"
         class="d-flex align-center justify-end order-3 ga-2 editor-list-item-layout__actions">
         <slot name="actions">
+          <div
+            v-if="!isRemoved && (canMoveUp || canMoveDown)"
+            ref="move-actions">
+            <v-btn
+              :aria-label="`Move ${itemLabel} up`"
+              data-editor-item-move="up"
+              :disabled="!canMoveUp"
+              icon="mdi-arrow-up"
+              size="small"
+              variant="text"
+              @click="$emit('move', 'up')" />
+            <v-btn
+              :aria-label="`Move ${itemLabel} down`"
+              data-editor-item-move="down"
+              :disabled="!canMoveDown"
+              icon="mdi-arrow-down"
+              size="small"
+              variant="text"
+              @click="$emit('move', 'down')" />
+          </div>
           <span
             v-if="isRemoved"
             class="text-caption text-medium-emphasis"

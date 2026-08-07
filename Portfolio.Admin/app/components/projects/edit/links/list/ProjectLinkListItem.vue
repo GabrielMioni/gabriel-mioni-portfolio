@@ -1,11 +1,25 @@
 <script setup lang="ts">
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
+import type { EditorItemMoveDirection } from '~/utils/editorItems'
 import { required, validateUrl } from '~/utils/rules'
 
 const item = defineModel<LinkEditorItem>('item', { required: true })
+const layout = ref<{
+  focusMoveButton: (direction: EditorItemMoveDirection) => void
+    } | null>(null)
+
+const props = defineProps<{
+  position: number
+  itemCount: number
+  focusRequest?: {
+    direction: EditorItemMoveDirection
+    sequence: number
+  }
+}>()
 
 const emit = defineEmits<{
   (e: 'remove' | 'restore', clientId: string): void
+  (e: 'move', direction: EditorItemMoveDirection): void
 }>()
 
 const updateRemovalState = () => {
@@ -18,14 +32,29 @@ const createdAtDate = computed(() => {
   return new Date(item.value.createdAt).toLocaleDateString()
 })
 
+watch(
+  () => props.focusRequest,
+  async (request) => {
+    if (!request) return
+
+    await nextTick()
+    layout.value?.focusMoveButton(request.direction)
+  }
+)
+
 </script>
 
 <template>
   <EditorItemLayout
+    ref="layout"
     :draggable="!item.isRemoved"
     :is-pending="!item.id"
     :is-removed="item.isRemoved"
-    @action="updateRemovalState">
+    :can-move-up="position > 0"
+    :can-move-down="position >= 0 && position < itemCount - 1"
+    :item-label="`link ${position + 1} of ${itemCount}`"
+    @action="updateRemovalState"
+    @move="emit('move', $event)">
     <v-row dense>
       <v-col
         cols="12"

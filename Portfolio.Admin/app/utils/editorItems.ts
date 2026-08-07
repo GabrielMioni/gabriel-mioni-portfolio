@@ -3,6 +3,8 @@ import type {
   BaseEditorItem
 } from '~/types/editor-items'
 
+export type EditorItemMoveDirection = 'up' | 'down'
+
 export const normalizeEditorItemsSortOrder = <T extends HasSort>(
   items: T[]
 ): T[] => {
@@ -50,4 +52,35 @@ export const restoreEditorItem = <T extends BaseEditorItem>
     items: T[]
   ): T[] => {
   return setEditorItemRemovedState(clientId, items, false)
+}
+
+export const moveEditorItem = <T extends BaseEditorItem>(
+  clientId: string,
+  items: T[],
+  direction: EditorItemMoveDirection
+): T[] => {
+  const itemIndex = items.findIndex(item => item.clientId === clientId)
+
+  if (itemIndex < 0) {
+    throw new Error(`Item with clientId ${clientId} not found`)
+  }
+
+  const activeItemIndexes = items.reduce<number[]>((indexes, item, index) => {
+    if (!item.isRemoved) indexes.push(index)
+    return indexes
+  }, [])
+  const activeItemIndex = activeItemIndexes.indexOf(itemIndex)
+  const targetActiveItemIndex = activeItemIndex + (direction === 'up' ? -1 : 1)
+
+  if (activeItemIndex < 0 || targetActiveItemIndex < 0 || targetActiveItemIndex >= activeItemIndexes.length) {
+    return items
+  }
+
+  const targetItemIndex = activeItemIndexes[targetActiveItemIndex]!
+  const nextItems = [...items]
+
+  nextItems[itemIndex] = nextItems[targetItemIndex]!
+  nextItems[targetItemIndex] = items[itemIndex]!
+
+  return normalizeEditorItemsSortOrder(nextItems)
 }

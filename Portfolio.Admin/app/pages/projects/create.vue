@@ -3,9 +3,7 @@
 </script>
 
 <template>
-  <v-container>
-    <ProjectEditor />
-  </v-container>
+  <ProjectEditor />
 </template>
 
 <style scoped>

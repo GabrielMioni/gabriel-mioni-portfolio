@@ -87,8 +87,12 @@ const onFileInputChange = (event: Event) => {
         'is-dragging': isDragging,
         'is-disabled': disabled
       }"
+      :tabindex="disabled ? -1 : 0"
+      role="button"
       :aria-disabled="disabled"
       @click="openFileDialog"
+      @keydown.enter.prevent="openFileDialog"
+      @keydown.space.prevent="openFileDialog"
       @dragenter.prevent="onDragOver"
       @dragover.prevent="onDragOver"
       @dragleave="onDragLeave"
@@ -130,6 +134,11 @@ const onFileInputChange = (event: Event) => {
   &.is-disabled {
     cursor: not-allowed;
     opacity: .65;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgb(var(--v-theme-primary));
+    outline-offset: 3px;
   }
 }
 </style>

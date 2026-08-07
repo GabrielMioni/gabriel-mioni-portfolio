@@ -52,9 +52,19 @@ const ProjectItemStub = defineComponent({
     project: {
       type: Object,
       required: true
+    },
+    imageLoading: {
+      type: String,
+      required: true
     }
   },
-  template: '<article :data-project-id="project.id">{{ project.title }}</article>'
+  template: `
+    <article
+      :data-project-id="project.id"
+      :data-image-loading="imageLoading">
+      {{ project.title }}
+    </article>
+  `
 })
 
 const mountProjectsGrid = () => mount(ProjectsGrid, {
@@ -119,6 +129,22 @@ afterEach(() => {
 })
 
 describe('ProjectsGrid', () => {
+  it('loads the first project row eagerly and later images lazily', () => {
+    projects.value = [
+      createProject('project-one', 'Project One'),
+      createProject('project-two', 'Project Two'),
+      createProject('project-three', 'Project Three'),
+      createProject('project-four', 'Project Four')
+    ]
+    const wrapper = mountProjectsGrid()
+    const projectItems = wrapper.findAll('[data-project-id]')
+
+    expect(projectItems.map(item => item.attributes('data-image-loading')))
+      .toEqual(['eager', 'eager', 'eager', 'lazy'])
+
+    wrapper.unmount()
+  })
+
   it('loads the next page when the observer reaches the grid boundary', () => {
     hasNextPage.value = true
     const wrapper = mountProjectsGrid()

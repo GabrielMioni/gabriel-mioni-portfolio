@@ -6,12 +6,13 @@ import {
 } from 'vue'
 import { useIntersectionObserver } from '~/composables/useIntersectionObserver'
 import { useProjectQueries } from '~/composables/useProjectQueries'
-import ProjectItem from '~/components/projects/ProjectItem.vue'
 import ProjectDialog from '~/components/projects/ProjectDialog.vue'
+import ProjectItem from '~/components/projects/ProjectItem.vue'
 
 const dialogOpen = ref(false)
 const selectedProjectId = ref<string | null>(null)
 const selectedTags = ref<string[]>([])
+const eagerProjectImageCount = 3
 
 const {
   projects,
@@ -61,7 +62,9 @@ useIntersectionObserver(observer, ([entry]) => {
             class="size-3.5 shrink-0" />
           <span>Filter by technology</span>
         </div>
-        <span class="project-filters__status">
+        <span
+          class="project-filters__status"
+          aria-live="polite">
           {{ selectedTags.length === 0 ? 'Showing all' : `${selectedTags.length} selected` }}
         </span>
       </div>
@@ -110,6 +113,7 @@ useIntersectionObserver(observer, ([entry]) => {
         :style="{ transitionDelay: `${index * 40}ms` }">
         <ProjectItem
           :project="item"
+          :image-loading="index < eagerProjectImageCount ? 'eager' : 'lazy'"
           @select="selectProject" />
       </div>
     </TransitionGroup>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  moveEditorItem,
   normalizeEditorItemsSortOrder,
   removeEditorItem,
   restoreEditorItem
@@ -140,6 +141,51 @@ describe('restoreEditorItem', () => {
     ])
     expect(items[0]!.isRemoved).toBe(true)
     expect(items.map(item => item.sort)).toEqual([4, 8])
+  })
+})
+
+describe('moveEditorItem', () => {
+  it('moves an active item up and normalizes sort values', () => {
+    const items = [
+      createEditorItem({ clientId: 'first', sort: 4 }),
+      createEditorItem({ clientId: 'second', sort: 8 }),
+      createEditorItem({ clientId: 'third', sort: 12 })
+    ]
+
+    const updatedItems = moveEditorItem('second', items, 'up')
+
+    expect(updatedItems.map(item => ({ clientId: item.clientId, sort: item.sort }))).toEqual([
+      { clientId: 'second', sort: 0 },
+      { clientId: 'first', sort: 1 },
+      { clientId: 'third', sort: 2 }
+    ])
+    expect(items.map(item => item.clientId)).toEqual(['first', 'second', 'third'])
+  })
+
+  it('moves around removed items using the visible item order', () => {
+    const items = [
+      createEditorItem({ clientId: 'first' }),
+      createEditorItem({ clientId: 'removed', isRemoved: true }),
+      createEditorItem({ clientId: 'third' })
+    ]
+
+    const updatedItems = moveEditorItem('third', items, 'up')
+
+    expect(updatedItems.map(item => item.clientId)).toEqual([
+      'third',
+      'removed',
+      'first'
+    ])
+  })
+
+  it('leaves an item at the edge in place', () => {
+    const items = [
+      createEditorItem({ clientId: 'first' }),
+      createEditorItem({ clientId: 'second' })
+    ]
+
+    expect(moveEditorItem('first', items, 'up')).toBe(items)
+    expect(moveEditorItem('second', items, 'down')).toBe(items)
   })
 })
 

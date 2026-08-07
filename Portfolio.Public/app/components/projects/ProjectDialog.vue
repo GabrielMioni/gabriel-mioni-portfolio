@@ -7,22 +7,13 @@ const open = defineModel<boolean>('open', { required: true })
 
 const textSection = useTemplateRef('text-section')
 
-onMounted(() => {
-  addEventListener('keydown', keyNavigation)
-})
+const scrollText = (amount: number) => {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-onUnmounted(() => {
-  removeEventListener('keydown', keyNavigation)
-})
-
-const keyNavigation = (event: KeyboardEvent) => {
-  const element = textSection?.value
-
-  if (event.key === 'ArrowUp') {
-    element?.scrollBy({ top: -80, behavior: 'smooth' })
-  } else if (event.key === 'ArrowDown') {
-    element?.scrollBy({ top: 80, behavior: 'smooth' })
-  }
+  textSection.value?.scrollBy({
+    top: amount,
+    behavior: reducedMotion ? 'auto' : 'smooth'
+  })
 }
 
 const { md: isMobile } = useMediaQuery()
@@ -83,7 +74,12 @@ const modalUi = computed(() => ({
           </div>
           <div
             ref="text-section"
-            class="project-dialog__text">
+            class="project-dialog__text folio-focus-ring"
+            role="region"
+            tabindex="0"
+            aria-label="Project description"
+            @keydown.up.prevent="scrollText(-80)"
+            @keydown.down.prevent="scrollText(80)">
             <div
               v-if="project?.tags.length"
               class="project-dialog__metadata">

@@ -14,22 +14,6 @@ const thumbnailViewport = useTemplateRef('thumbnail-viewport')
 const lightbox = useTemplateRef('lightbox')
 const activeIndex = ref(0)
 
-onMounted(() => {
-  addEventListener('keydown', keyNavigation)
-})
-
-onUnmounted(() => {
-  removeEventListener('keydown', keyNavigation)
-})
-
-const keyNavigation = (event: KeyboardEvent) => {
-  if (event.key === 'ArrowLeft') {
-    onClickPrev()
-  } else if (event.key === 'ArrowRight') {
-    onClickNext()
-  }
-}
-
 const selectedImage = computed(() =>
   resolvedImages.value[activeIndex.value] ?? null
 )
@@ -86,7 +70,10 @@ const formatThumbnailAltText = (altText: string | null, type: string = 'thumbnai
 </script>
 
 <template>
-  <div class="project-carousel">
+  <div
+    class="project-carousel"
+    @keydown.left.prevent="onClickPrev"
+    @keydown.right.prevent="onClickNext">
     <figure class="project-carousel__plate">
       <div class="project-carousel__image-stage editorial-corner-field">
         <button

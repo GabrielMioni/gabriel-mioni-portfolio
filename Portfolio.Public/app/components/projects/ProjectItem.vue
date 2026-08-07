@@ -4,9 +4,12 @@ import type { PublicProjectFragment } from '~/generated/graphql'
 import { PublicProjectImageFragmentDoc } from '~/generated/graphql'
 import { useFragment } from '~/generated'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   project: PublicProjectFragment
-}>()
+  imageLoading?: 'eager' | 'lazy'
+}>(), {
+  imageLoading: 'lazy'
+})
 
 const emit = defineEmits<{
   select: [projectId: string]
@@ -52,6 +55,7 @@ const selectProject = () => {
           <StorageImage
             :storage-key="mainImage?.thumbKey"
             :alt="mainImage?.altText ?? 'Project image'"
+            :loading="imageLoading"
             :class="{ 'transition-transform duration-300 group-hover:scale-105': hasAdditionalContent }"
             class="w-full h-full object-cover" />
         </div>

@@ -5,6 +5,7 @@ import { removeEditorItem, restoreEditorItem } from '~/utils/editorItems'
 
 const linkItems = defineModel<LinkEditorItem[]>('items', { required: true })
 const isValid = defineModel<boolean>('isValid', { required: true })
+const focusClientId = ref<string | null>(null)
 
 const createLink = (): LinkEditorItem => ({
   clientId: crypto.randomUUID(),
@@ -15,11 +16,16 @@ const createLink = (): LinkEditorItem => ({
   isRemoved: false
 })
 
-const addLink = () => {
+const addLink = async () => {
+  const link = createLink()
+
   linkItems.value = [
     ...linkItems.value,
-    createLink()
+    link
   ]
+
+  await nextTick()
+  focusClientId.value = link.clientId
 }
 
 const removeLink = (clientId: string) => {
@@ -45,6 +51,7 @@ const restoreLink = (clientId: string) => {
           autocomplete="off">
           <ProjectLinkList
             v-model="linkItems"
+            :focus-client-id="focusClientId"
             @remove="removeLink"
             @restore="restoreLink" />
         </v-form>

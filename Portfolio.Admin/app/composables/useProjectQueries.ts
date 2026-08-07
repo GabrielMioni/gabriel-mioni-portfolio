@@ -9,12 +9,10 @@ export const useProjectQueries = (variables: Ref<GetProjectsQueryVariables>) => 
   const {
     data,
     fetching: fetchingProjects,
-    error: projectError,
-    executeQuery: refetchProjects
+    error: projectError
   } = useQuery({
     query: GetProjectsDocument,
-    variables,
-    requestPolicy: 'cache-and-network'
+    variables
   })
 
   const projects = computed(() =>
@@ -39,7 +37,6 @@ export const useProjectQueries = (variables: Ref<GetProjectsQueryVariables>) => 
     pageInfo,
     totalCount,
     fetchingProjects,
-    refetchProjects,
     projectError
   }
 }

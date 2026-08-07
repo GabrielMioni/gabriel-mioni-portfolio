@@ -30,7 +30,6 @@ const queryVars = computed<GetProjectsQueryVariables>(() => {
 const {
   projects,
   pageInfo,
-  refetchProjects,
   totalCount
 } = useProjectQueries(queryVars)
 
@@ -90,7 +89,6 @@ provide('projectActions', {
       v-model="deleteDialog"
       :title="selectedDeleteProject.title"
       :summary="selectedDeleteProject.summary"
-      :project-id="selectedDeleteProject.id"
-      @deleted="refetchProjects" />
+      :project-id="selectedDeleteProject.id" />
   </v-container>
 </template>

@@ -1,10 +1,7 @@
 mutation createProject($input: CreateProjectInput!) {
   createProject(input: $input) {
     project {
-        id
-        title
-        body
-        summary
+      id
     }
     userErrors {
       ...MutationUserError

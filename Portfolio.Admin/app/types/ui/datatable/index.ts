@@ -1,5 +1,8 @@
 import type { VDataTableServer } from 'vuetify/components'
 
+export const TABLE_ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
+export const MAX_TABLE_ITEMS_PER_PAGE = 50
+
 type Props = InstanceType<typeof VDataTableServer>['$props']
 
 export type SortBy = Props['sortBy']

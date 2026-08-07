@@ -1,5 +1,6 @@
 import urql, { createClient, fetchExchange, type ClientOptions } from '@urql/vue'
 import { cacheExchange } from '@urql/exchange-graphcache'
+import { adminCacheUpdates } from '~/utils/graphql/cacheUpdates'
 
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -12,7 +13,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         keys: {
           ProjectsCollectionSegment: () => null,
           CollectionSegmentInfo: () => null
-        }
+        },
+        updates: adminCacheUpdates
       }),
       fetchExchange
     ],

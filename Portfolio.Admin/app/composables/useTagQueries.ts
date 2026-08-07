@@ -4,8 +4,7 @@ import { useFragment } from '~/generated'
 
 export const useTagQueries = () => {
   const { data, fetching: fetchingTags } = useQuery({
-    query: GetTagsDocument,
-    requestPolicy: 'cache-and-network'
+    query: GetTagsDocument
   })
 
   const allTags = computed<ProjectTagFragment[]>(() =>

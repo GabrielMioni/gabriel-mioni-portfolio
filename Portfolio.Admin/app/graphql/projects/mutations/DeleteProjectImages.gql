@@ -1,7 +1,10 @@
 mutation DeleteProjectImages($input: DeleteProjectImagesInput!) {
   deleteProjectImages(input: $input) {
     project {
-      ...Project
+      id
+      images {
+        ...projectImage
+      }
     }
     userErrors {
       ...MutationUserError

@@ -1,11 +1,21 @@
 import type { ComputedRef } from 'vue'
-import type { TableOptions } from '~/types/ui/datatable'
+import {
+  MAX_TABLE_ITEMS_PER_PAGE,
+  type TableOptions
+} from '~/types/ui/datatable'
 
 const getPositiveInt = (value: unknown, fallback: number): number => {
-  if (typeof value !== 'string') return fallback
-  const parsed = Number(value)
+  const parsed = typeof value === 'number'
+    ? value
+    : typeof value === 'string'
+      ? Number(value)
+      : Number.NaN
+
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
 }
+
+const getItemsPerPage = (value: unknown, fallback: number): number =>
+  Math.min(getPositiveInt(value, fallback), MAX_TABLE_ITEMS_PER_PAGE)
 
 const getString = (value: unknown, fallback = ''): string =>
   typeof value === 'string' ? value : fallback
@@ -23,7 +33,7 @@ export const useTableUrlSync = (options?: {
 
   const getInitialOptions = (): TableOptions => ({
     page: getPositiveInt(route.query.page, 1),
-    itemsPerPage: getPositiveInt(route.query.itemsPerPage, defaultItemsPerPage),
+    itemsPerPage: getItemsPerPage(route.query.itemsPerPage, defaultItemsPerPage),
     sortBy: route.query.sortKey
       ? [{ key: getString(route.query.sortKey, defaultSort?.key ?? ''), order: getString(route.query.sortOrder, defaultSort?.order ?? 'asc') as 'asc' | 'desc' }]
       : defaultSort ? [defaultSort] : [],
@@ -61,7 +71,15 @@ export const useTableUrlSync = (options?: {
   }
 
   const updateTableOptions = async (opts: TableOptions) => {
-    tableOptions.value = { ...tableOptions.value, ...opts, search: tableOptions.value.search }
+    tableOptions.value = {
+      ...tableOptions.value,
+      ...opts,
+      itemsPerPage: getItemsPerPage(
+        opts.itemsPerPage,
+        tableOptions.value.itemsPerPage
+      ),
+      search: tableOptions.value.search
+    }
     await syncRoute()
   }
 

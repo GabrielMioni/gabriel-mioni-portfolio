@@ -107,14 +107,14 @@ export const useProjectEditor = () => {
     baseline.value = cloneProjectEditorDraft(nextDraft)
   }
 
-  const refreshProject = async () => {
+  const syncProjectFromCache = async () => {
     if (!routeProjectId.value) return false
 
-    const result = await executeQuery({ requestPolicy: 'network-only' })
+    const result = await executeQuery()
     const refreshedRef = result.data?.value?.projectById
 
     if (!refreshedRef) {
-      showSnackbar('Project saved, but failed to refresh project data.', 'warning')
+      showSnackbar('Project saved, but cached project data is incomplete.', 'warning')
       return false
     }
 
@@ -164,7 +164,7 @@ export const useProjectEditor = () => {
     await saveRelatedData(targetProjectId, hasTagUpdates.value)
 
     if (routeProjectId.value) {
-      return refreshProject()
+      return syncProjectFromCache()
     }
 
     await router.replace(`/projects/${targetProjectId}`)

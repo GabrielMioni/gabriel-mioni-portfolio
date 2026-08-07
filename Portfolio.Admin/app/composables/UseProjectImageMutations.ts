@@ -1,17 +1,15 @@
-import { useFragment } from '~/generated'
 import type {
   DeleteProjectImagesInput,
   FinalizeProjectImageUploadsInput,
-  PrepareProjectImageUploadsInput,
-  ProjectFragment
+  PrepareProjectImageUploadsInput
 } from '~/generated/graphql'
 import {
   DeleteProjectImagesDocument,
   FinalizeProjectImageUploadsDocument,
   PrepareProjectImageUploadsDocument,
-  ProjectFragmentDoc,
   ProjectImageUploadInstructionFragmentDoc
 } from '~/generated/graphql'
+import { useFragment } from '~/generated'
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import {
   imageEditorItemsToProjectImagePrepareItemInput,
@@ -80,28 +78,24 @@ export const useProjectImageMutations = () => {
 
   const finalizeImageUploads = async (
     input: FinalizeProjectImageUploadsInput
-  ): Promise<ProjectFragment> => {
+  ) => {
     const payload = await finalizeImagesUploadMutation({ input })
     const project = payload.project
 
     if (!project) {
       throw new Error('Image uploads were finalized without returning the project.')
     }
-
-    return useFragment(ProjectFragmentDoc, project)
   }
 
   const deleteImageUploads = async (
     input: DeleteProjectImagesInput
-  ): Promise<ProjectFragment> => {
+  ) => {
     const payload = await deleteProjectImagesMutation({ input })
     const project = payload.project
 
     if (!project) {
       throw new Error('Images were deleted without returning the project.')
     }
-
-    return useFragment(ProjectFragmentDoc, project)
   }
 
   const uploadImages = async ({

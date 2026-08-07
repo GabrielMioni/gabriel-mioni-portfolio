@@ -1,5 +1,9 @@
 <script setup lang="ts" generic="T">
-import type { Header, TableOptions } from '~/types/ui/datatable'
+import {
+  TABLE_ITEMS_PER_PAGE_OPTIONS,
+  type Header,
+  type TableOptions
+} from '~/types/ui/datatable'
 
 defineProps<{
   headers?: Header[] | undefined
@@ -31,6 +35,7 @@ const expanded = defineModel<string[]>('expanded', {
     :item-value="itemValue ?? 'id'"
     :page="options.page"
     :items-per-page="options.itemsPerPage"
+    :items-per-page-options="TABLE_ITEMS_PER_PAGE_OPTIONS"
     :sort-by="options.sortBy"
     :group-by="options.groupBy"
     :search="options.search"

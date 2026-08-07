@@ -47,7 +47,7 @@ const queryVars = computed<GetTagSummariesQueryVariables>(() => {
   }
 })
 
-const { tags, totalCount, refetchTags } = useTagsTableQueries(queryVars)
+const { tags, totalCount } = useTagsTableQueries(queryVars)
 
 const createDialogOpen = ref(false)
 
@@ -106,15 +106,11 @@ const onDelete = (tagId: string) => {
       @delete="onDelete" />
     <TagDialog
       v-model="editDialogOpen"
-      :tag="selectedTag"
-      @save="refetchTags"
-      @deleted="refetchTags" />
+      :tag="selectedTag" />
     <CreateTagsDialog
-      v-model="createDialogOpen"
-      @created="refetchTags" />
+      v-model="createDialogOpen" />
     <DeleteTagDialog
       v-model="deleteDialogOpen"
-      :tag="selectedTag"
-      @deleted="refetchTags" />
+      :tag="selectedTag" />
   </v-container>
 </template>

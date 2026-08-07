@@ -29,10 +29,9 @@ export const toTagFilterInput = (search: string | undefined): ProjectTagSummaryF
 }
 
 export const useTagsTableQueries = (variables: Ref<GetTagSummariesQueryVariables>) => {
-  const { data, fetching: fetchingTags, executeQuery: refetchTags } = useQuery({
+  const { data, fetching: fetchingTags } = useQuery({
     query: GetTagSummariesDocument,
-    variables,
-    requestPolicy: 'cache-and-network'
+    variables
   })
 
   const tags = computed(() =>
@@ -41,5 +40,5 @@ export const useTagsTableQueries = (variables: Ref<GetTagSummariesQueryVariables
 
   const totalCount = computed(() => data.value?.tagSummaries?.totalCount ?? 0)
 
-  return { tags, totalCount, fetchingTags, refetchTags }
+  return { tags, totalCount, fetchingTags }
 }

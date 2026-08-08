@@ -17,6 +17,7 @@ internal sealed class FakeObjectStorage : IObjectStorage
     public string CreatePresignedPutUrl(
         string key,
         string contentType,
+        long contentLength,
         TimeSpan expiresIn)
         => $"https://storage.test/upload/{key}";
 

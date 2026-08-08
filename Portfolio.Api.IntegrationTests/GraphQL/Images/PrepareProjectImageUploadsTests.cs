@@ -524,6 +524,90 @@ public sealed class PrepareProjectImageUploadsTests(SqlServerFixture database)
     }
 
     [Fact]
+    public async Task PrepareProjectImageUploads_AboveUploadLimits_ReturnsValidationErrorsAndCreatesNothing()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var project = Project.Create(
+            $"Project with oversized image {TestData.NewSuffix()}",
+            null,
+            null);
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        var items = new[]
+        {
+            new PrepareItem(
+                ClientId: "oversized-image",
+                AltText: "Oversized image",
+                FullContentType: "image/jpeg",
+                FullSizeBytes: ProjectImage.MaxFullSizeBytes + 1,
+                ThumbContentType: "image/webp",
+                ThumbSizeBytes: ProjectImage.MaxThumbnailSizeBytes + 1,
+                Height: ProjectImage.MaxDimensionPixels + 1,
+                Width: ProjectImage.MaxDimensionPixels + 1)
+        };
+
+        // Act
+        using var response = await SendPrepareProjectImageUploadsAsync(
+            client,
+            projectId: project.Id,
+            items);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync(
+            "prepareProjectImageUploads");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("items").ValueKind);
+
+        var actualErrors = payload
+            .GetProperty("userErrors")
+            .EnumerateArray()
+            .Select(error => (
+                Message: error.GetProperty("message").GetString()!,
+                Field: string.Join(
+                    ".",
+                    error.GetProperty("field")
+                        .EnumerateArray()
+                        .Select(item => item.GetString()!))))
+            .ToArray();
+
+        Assert.Equal(
+            [
+                (
+                    Message: "Full-size image cannot exceed 15 MiB.",
+                    Field: "input.items.0.fullSizeBytes"),
+                (
+                    Message: "Thumbnail cannot exceed 3 MiB.",
+                    Field: "input.items.0.thumbSizeBytes"),
+                (
+                    Message: $"Image width cannot exceed {ProjectImage.MaxDimensionPixels} pixels.",
+                    Field: "input.items.0.width"),
+                (
+                    Message: $"Image height cannot exceed {ProjectImage.MaxDimensionPixels} pixels.",
+                    Field: "input.items.0.height")
+            ],
+            actualErrors);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        Assert.False(await verificationDb.ProjectImages
+            .AnyAsync(image => image.ProjectId == project.Id));
+    }
+
+    [Fact]
     public async Task PrepareProjectImageUploads_WithDuplicateClientIds_ReturnsConflictAndCreatesNothing()
     {
         await using var factory = new ApiWebApplicationFactory(database.ConnectionString);

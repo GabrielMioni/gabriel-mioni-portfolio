@@ -55,10 +55,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders = ForwardedHeaders.XForwardedHost
         | ForwardedHeaders.XForwardedProto;
 });
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("client", p => p
@@ -184,12 +180,6 @@ var isEndToEnd = app.Environment.IsEnvironment("EndToEnd");
 
 app.UseForwardedHeaders();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 //app.UseHttpsRedirection();
 if (!app.Environment.IsDevelopment() && !isEndToEnd)
 {
@@ -227,8 +217,6 @@ app.MapGet("/api/me", (ClaimsPrincipal user) =>
         name = user.Identity?.Name
     });
 }).RequireAuthorization("Admin");
-
-app.MapControllers();
 
 if (!isSchemaCommand)
 {

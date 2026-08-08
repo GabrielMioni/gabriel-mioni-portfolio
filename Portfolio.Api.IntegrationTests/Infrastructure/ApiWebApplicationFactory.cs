@@ -42,6 +42,9 @@ public sealed class ApiWebApplicationFactory(string connectionString)
                 ["ConnectionStrings:DefaultConnection"] = connectionString,
                 ["ClientApplications:AdminOrigin"] = "http://localhost:3000",
                 ["ClientApplications:PublicOrigin"] = "http://localhost:3001",
+                ["Authentication:GitHub:ClientId"] = "integration-test-client-id",
+                ["Authentication:GitHub:ClientSecret"] = "integration-test-client-secret",
+                ["Authentication:GitHub:AllowedUserId"] = "integration-test-user-id",
                 ["R2:AccessKey"] = "integration-test-access-key",
                 ["R2:SecretKey"] = "integration-test-secret-key"
             });

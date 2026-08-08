@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
@@ -42,6 +43,11 @@ var publicOrigin = clientApplications.IsConfigured
 
 builder.Services.Configure<ClientApplicationOptions>(
     builder.Configuration.GetSection(ClientApplicationOptions.SectionName));
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedHost
+        | ForwardedHeaders.XForwardedProto;
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -163,6 +169,8 @@ builder.Services.AddSingleton<IObjectStorage, ObjectStorage>();
 
 var app = builder.Build();
 var isEndToEnd = app.Environment.IsEnvironment("EndToEnd");
+
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {

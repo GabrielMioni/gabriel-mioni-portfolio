@@ -16,6 +16,10 @@ jobs:
     name: Test and build Admin
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      NUXT_API_ORIGIN: https://api.example.invalid
+      NUXT_ADMIN_ORIGIN: https://admin.example.invalid
+      NUXT_PUBLIC_STORAGE_BASE: https://images.example.invalid
 
     steps:
       - name: Check out repository

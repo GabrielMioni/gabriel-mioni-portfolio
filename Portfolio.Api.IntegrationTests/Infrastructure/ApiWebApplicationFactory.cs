@@ -46,7 +46,10 @@ public sealed class ApiWebApplicationFactory(string connectionString)
                 ["Authentication:GitHub:ClientSecret"] = "integration-test-client-secret",
                 ["Authentication:GitHub:AllowedUserId"] = "integration-test-user-id",
                 ["R2:AccessKey"] = "integration-test-access-key",
-                ["R2:SecretKey"] = "integration-test-secret-key"
+                ["R2:SecretKey"] = "integration-test-secret-key",
+                ["R2:Endpoint"] = "https://integration-test.r2.invalid",
+                ["R2:Bucket"] = "integration-test-bucket",
+                ["R2:PublicBaseUrl"] = "https://images.integration-test.invalid"
             });
         });
 

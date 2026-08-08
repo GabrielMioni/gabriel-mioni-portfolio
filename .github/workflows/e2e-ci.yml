@@ -16,6 +16,8 @@ jobs:
     name: Run browser lifecycle tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      NUXT_END_TO_END: 'true'
 
     steps:
       - name: Check out repository

@@ -1,4 +1,6 @@
-const isHostedBuild = process.env.CI === 'true' || process.env.CF_PAGES === '1'
+const isEndToEnd = process.env.NUXT_END_TO_END === 'true'
+const isHostedBuild = !isEndToEnd
+  && (process.env.CI === 'true' || process.env.CF_PAGES === '1')
 
 function readOrigin (name: string, localFallback: string) {
   const value = process.env[name] || (isHostedBuild ? undefined : localFallback)
@@ -66,7 +68,6 @@ function readStorageBase () {
 const apiOrigin = readOrigin('NUXT_API_ORIGIN', 'http://localhost:5217')
 const adminOrigin = readOrigin('NUXT_ADMIN_ORIGIN', 'http://localhost:3000')
 const storageBase = readStorageBase()
-const isEndToEnd = process.env.NUXT_END_TO_END === 'true'
 const adminProxyHeaders = {
   'x-forwarded-host': adminOrigin.host,
   'x-forwarded-proto': adminOrigin.protocol.replace(':', '')

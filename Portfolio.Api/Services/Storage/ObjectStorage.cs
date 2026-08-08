@@ -18,7 +18,11 @@ public sealed class ObjectStorage : IObjectStorage
         _opts = opts.Value;
     }
 
-    public string CreatePresignedPutUrl(string key, string contentType, TimeSpan expiresIn)
+    public string CreatePresignedPutUrl(
+        string key,
+        string contentType,
+        long contentLength,
+        TimeSpan expiresIn)
     {
         var req = new GetPreSignedUrlRequest
         {
@@ -28,6 +32,8 @@ public sealed class ObjectStorage : IObjectStorage
             Expires = DateTime.UtcNow.Add(expiresIn),
             ContentType = contentType
         };
+
+        req.Headers.ContentLength = contentLength;
 
         return _s3.GetPreSignedURL(req);
     }

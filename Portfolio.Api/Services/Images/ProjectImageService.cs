@@ -107,6 +107,7 @@ public class ProjectImageService
             _storage.CreatePresignedPutUrl(
                 image.FullKey,
                 item.FullContentType,
+                item.FullSizeBytes,
                 TimeSpan.FromMinutes(5)),
             _storage.GetPublicUrl(image.FullKey),
             item.FullContentType
@@ -117,6 +118,7 @@ public class ProjectImageService
             _storage.CreatePresignedPutUrl(
                 image.ThumbKey,
                 item.ThumbContentType,
+                item.ThumbSizeBytes,
                 TimeSpan.FromMinutes(5)),
             _storage.GetPublicUrl(image.ThumbKey),
             item.ThumbContentType

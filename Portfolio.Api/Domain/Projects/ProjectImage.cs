@@ -3,6 +3,9 @@
 public class ProjectImage
 {
     public const int MaxClientIdLength = 64;
+    public const int MaxFullSizeBytes = 15 * 1024 * 1024;
+    public const int MaxThumbnailSizeBytes = 3 * 1024 * 1024;
+    public const int MaxDimensionPixels = 2_400;
 
     public Guid Id { get; private set; }
 

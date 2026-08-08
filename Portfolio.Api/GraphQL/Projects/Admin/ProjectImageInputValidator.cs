@@ -31,6 +31,34 @@ internal static class ProjectImageInputValidator
             ValidatePositive(item.ThumbSizeBytes, "thumbSizeBytes", fieldPrefix, userErrors);
             ValidatePositive(item.Width, "width", fieldPrefix, userErrors);
             ValidatePositive(item.Height, "height", fieldPrefix, userErrors);
+            ValidateMaximum(
+                item.FullSizeBytes,
+                ProjectImage.MaxFullSizeBytes,
+                "fullSizeBytes",
+                "Full-size image cannot exceed 15 MiB.",
+                fieldPrefix,
+                userErrors);
+            ValidateMaximum(
+                item.ThumbSizeBytes,
+                ProjectImage.MaxThumbnailSizeBytes,
+                "thumbSizeBytes",
+                "Thumbnail cannot exceed 3 MiB.",
+                fieldPrefix,
+                userErrors);
+            ValidateMaximum(
+                item.Width,
+                ProjectImage.MaxDimensionPixels,
+                "width",
+                $"Image width cannot exceed {ProjectImage.MaxDimensionPixels} pixels.",
+                fieldPrefix,
+                userErrors);
+            ValidateMaximum(
+                item.Height,
+                ProjectImage.MaxDimensionPixels,
+                "height",
+                $"Image height cannot exceed {ProjectImage.MaxDimensionPixels} pixels.",
+                fieldPrefix,
+                userErrors);
         }
 
         return userErrors;
@@ -91,6 +119,22 @@ internal static class ProjectImageInputValidator
         {
             userErrors.Add(UserError.Validation(
                 "Value must be greater than zero.",
+                [.. fieldPrefix, fieldName]));
+        }
+    }
+
+    private static void ValidateMaximum(
+        int value,
+        int maximum,
+        string fieldName,
+        string message,
+        IReadOnlyList<string> fieldPrefix,
+        ICollection<UserError> userErrors)
+    {
+        if (value > maximum)
+        {
+            userErrors.Add(UserError.Validation(
+                message,
                 [.. fieldPrefix, fieldName]));
         }
     }

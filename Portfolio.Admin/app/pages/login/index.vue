@@ -20,7 +20,10 @@ const authenticationError = computed(() => {
 
 const signInWithGitHub = () => {
   const normalizedAuthBase = authBase.replace(/\/+$/, '')
-  const loginUrl = new URL(`${normalizedAuthBase}/auth/github/login`)
+  const loginUrl = new URL(
+    `${normalizedAuthBase}/auth/github/login`,
+    window.location.origin
+  )
   const returnUrl = route.query.returnUrl
 
   if (typeof returnUrl === 'string') {

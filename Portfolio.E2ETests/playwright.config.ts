@@ -92,6 +92,7 @@ export default defineConfig({
       env: {
         ...process.env,
         NUXT_API_ORIGIN: apiOrigin,
+        NUXT_ADMIN_ORIGIN: adminOrigin,
         NUXT_BUILD_DIR: '.cache/nuxt-e2e',
         NUXT_END_TO_END: 'true',
         NUXT_PUBLIC_STORAGE_BASE: r2PublicBaseUrl

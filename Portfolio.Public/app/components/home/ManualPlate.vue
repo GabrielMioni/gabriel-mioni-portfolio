@@ -6,6 +6,77 @@ const activePlateCells = ref(new Set<number>())
 const plateIsAnimating = ref(false)
 const manualPlate = ref<HTMLElement | null>(null)
 const manualPlatePattern = ref<HTMLElement | null>(null)
+const manualPlateMark = ref<HTMLElement | null>(null)
+const plateMarkIsDragging = ref(false)
+const plateMarkApex = reactive({ x: 50, y: 42 })
+
+let plateMarkPointerId: number | null = null
+let plateMarkDragStart = { pointerX: 0, pointerY: 0, apexX: 50, apexY: 42 }
+
+const plateMarkStyle = computed<Record<string, string>>(() => ({
+  '--manual-plate-apex-x': `${plateMarkApex.x}%`,
+  '--manual-plate-apex-y': `${plateMarkApex.y}%`
+}))
+
+const clamp = (value: number, minimum: number, maximum: number) =>
+  Math.min(Math.max(value, minimum), maximum)
+
+const beginPlateMarkDrag = (event: PointerEvent) => {
+  if (event.button !== 0) {
+    return
+  }
+
+  plateMarkPointerId = event.pointerId
+  plateMarkIsDragging.value = true
+  plateMarkDragStart = {
+    pointerX: event.clientX,
+    pointerY: event.clientY,
+    apexX: plateMarkApex.x,
+    apexY: plateMarkApex.y
+  }
+  manualPlateMark.value?.setPointerCapture(event.pointerId)
+}
+
+const movePlateMark = (event: PointerEvent) => {
+  const mark = manualPlateMark.value
+
+  if (!mark || event.pointerId !== plateMarkPointerId) {
+    return
+  }
+
+  const pointerDeltaX = event.clientX - plateMarkDragStart.pointerX
+  const pointerDeltaY = event.clientY - plateMarkDragStart.pointerY
+  const rotation = Math.PI / 4
+  const localDeltaX = Math.cos(rotation) * pointerDeltaX + Math.sin(rotation) * pointerDeltaY
+  const localDeltaY = -Math.sin(rotation) * pointerDeltaX + Math.cos(rotation) * pointerDeltaY
+  const markSize = mark.offsetWidth
+
+  plateMarkApex.x = clamp(
+    plateMarkDragStart.apexX + (localDeltaX / markSize) * 100,
+    22,
+    78
+  )
+  plateMarkApex.y = clamp(
+    plateMarkDragStart.apexY + (localDeltaY / markSize) * 100,
+    20,
+    74
+  )
+}
+
+const endPlateMarkDrag = (event: PointerEvent) => {
+  if (event.pointerId !== plateMarkPointerId) {
+    return
+  }
+
+  if (manualPlateMark.value?.hasPointerCapture(event.pointerId)) {
+    manualPlateMark.value.releasePointerCapture(event.pointerId)
+  }
+
+  plateMarkPointerId = null
+  plateMarkIsDragging.value = false
+  plateMarkApex.x = 50
+  plateMarkApex.y = 42
+}
 
 const waitForPlateStep = () => new Promise(resolve => setTimeout(resolve, 65))
 
@@ -154,8 +225,15 @@ const dropRandomPlateCell = () => {
           @click="dropPlateCell(cell)" />
       </div>
       <div
+        ref="manualPlateMark"
         class="manual-plate-mark"
-        aria-hidden="true">
+        :class="{ 'manual-plate-mark--dragging': plateMarkIsDragging }"
+        :style="plateMarkStyle"
+        aria-hidden="true"
+        @pointerdown="beginPlateMarkDrag"
+        @pointermove="movePlateMark"
+        @pointerup="endPlateMarkDrag"
+        @pointercancel="endPlateMarkDrag">
         <span class="manual-plate-facet manual-plate-facet--top" />
         <span class="manual-plate-facet manual-plate-facet--right" />
         <span class="manual-plate-facet manual-plate-facet--bottom" />
@@ -248,9 +326,6 @@ const dropRandomPlateCell = () => {
 }
 
 .manual-plate-mark {
-  --manual-plate-apex-x: 50%;
-  --manual-plate-apex-y: 42%;
-
   position: relative;
   z-index: 1;
   display: grid;
@@ -260,14 +335,26 @@ const dropRandomPlateCell = () => {
   border: 1px solid var(--folio-dark-ink);
   background: var(--folio-rust);
   box-shadow: -.45rem .95rem 0 var(--folio-plate-shadow);
+  cursor: grab;
   rotate: 45deg;
+  touch-action: none;
+  user-select: none;
   place-items: center;
   will-change: rotate;
+}
+
+.manual-plate-mark--dragging {
+  cursor: grabbing;
 }
 
 .manual-plate-facet {
   position: absolute;
   inset: 0;
+  transition: clip-path 320ms ease-out;
+}
+
+.manual-plate-mark--dragging .manual-plate-facet {
+  transition: none;
 }
 
 .manual-plate-facet--top {
@@ -306,7 +393,7 @@ const dropRandomPlateCell = () => {
   background: color-mix(in srgb, var(--folio-rust) 96%, var(--folio-paper-raised));
 }
 
-.manual-plate-mark:hover {
+.manual-plate-mark:not(.manual-plate-mark--dragging):hover {
   animation: manual-plate-rock 520ms ease-out;
 }
 
@@ -375,8 +462,12 @@ const dropRandomPlateCell = () => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .manual-plate-mark:hover {
+  .manual-plate-mark:not(.manual-plate-mark--dragging):hover {
     animation: none;
+  }
+
+  .manual-plate-facet {
+    transition: none;
   }
 }
 </style>

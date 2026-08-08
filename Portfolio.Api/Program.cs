@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
@@ -22,6 +23,13 @@ var builder = WebApplication.CreateBuilder(args);
 var isSchemaCommand = args.Length > 0
     && string.Equals(args[0], "schema", StringComparison.OrdinalIgnoreCase);
 var isProductionRuntime = builder.Environment.IsProduction() && !isSchemaCommand;
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (isProductionRuntime && string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "ConnectionStrings:DefaultConnection must be configured when the API runs.");
+}
 
 var clientApplications = builder.Configuration
     .GetSection(ClientApplicationOptions.SectionName)
@@ -42,6 +50,11 @@ var publicOrigin = clientApplications.IsConfigured
 
 builder.Services.Configure<ClientApplicationOptions>(
     builder.Configuration.GetSection(ClientApplicationOptions.SectionName));
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedHost
+        | ForwardedHeaders.XForwardedProto;
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -140,9 +153,14 @@ builder.Services.AddScoped<ProjectImageService>();
 builder.Services.AddScoped<ProjectTagService>();
 
 builder.Services.AddOptions<R2Options>()
-  .Bind(builder.Configuration.GetSection("R2"))
-  .Validate(o => !string.IsNullOrEmpty(o.AccessKey), "R2 AccessKey missing")
-  .Validate(o => !string.IsNullOrEmpty(o.SecretKey), "R2 SecretKey missing")
+  .Bind(builder.Configuration.GetSection(R2Options.SectionName))
+  .Validate(o => !string.IsNullOrWhiteSpace(o.AccessKey), "R2 AccessKey missing")
+  .Validate(o => !string.IsNullOrWhiteSpace(o.SecretKey), "R2 SecretKey missing")
+  .Validate(o => R2Options.IsHttpUrl(o.Endpoint, isProductionRuntime),
+      "R2 Endpoint must be a valid HTTP(S) URL and must use HTTPS in Production")
+  .Validate(o => !string.IsNullOrWhiteSpace(o.Bucket), "R2 Bucket missing")
+  .Validate(o => R2Options.IsHttpUrl(o.PublicBaseUrl, isProductionRuntime),
+      "R2 PublicBaseUrl must be a valid HTTP(S) URL and must use HTTPS in Production")
   .ValidateOnStart();
 
 builder.Services.AddSingleton<IAmazonS3>(sp =>
@@ -163,6 +181,8 @@ builder.Services.AddSingleton<IObjectStorage, ObjectStorage>();
 
 var app = builder.Build();
 var isEndToEnd = app.Environment.IsEnvironment("EndToEnd");
+
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {

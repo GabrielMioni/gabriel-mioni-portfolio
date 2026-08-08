@@ -12,6 +12,11 @@ namespace Portfolio.Api.IntegrationTests.GraphQL.Projects;
 [Collection(IntegrationTestCollection.Name)]
 public sealed class EditProjectTests(SqlServerFixture database)
 {
+    private sealed record EditImageInput(
+        Guid ProjectImageId,
+        string AltText,
+        int SortOrder);
+
     private const string EditProjectMutation =
         """
         mutation EditProject($input: EditProjectInput!) {
@@ -41,7 +46,8 @@ public sealed class EditProjectTests(SqlServerFixture database)
         string? title = null,
         string? summary = null,
         string? body = null,
-        string? status = null)
+        string? status = null,
+        IReadOnlyList<EditImageInput>? images = null)
     {
         return client.PostAsJsonAsync(
             "/graphql/admin",
@@ -56,7 +62,8 @@ public sealed class EditProjectTests(SqlServerFixture database)
                         title,
                         summary,
                         body,
-                        status
+                        status,
+                        images
                     }
                 }
             });
@@ -235,5 +242,140 @@ public sealed class EditProjectTests(SqlServerFixture database)
         Assert.Equal(originalBody, persistedProject.Body);
         Assert.Equal(ProjectStatus.Draft, persistedProject.Status);
         Assert.Null(persistedProject.PublishedAt);
+    }
+
+    [Fact]
+    public async Task EditProject_AboveTextLimits_ReturnsValidationErrorsAndDoesNotChangeProject()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var project = Project.Create(
+            $"Project with unchanged text {TestData.NewSuffix()}",
+            "Original summary",
+            "Original body");
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        var invalidSummary = new string('s', Project.MaxSummaryLength + 1);
+        var invalidBody = new string('b', Project.MaxBodyLength + 1);
+
+        // Act
+        using var response = await SendEditProjectAsync(
+            client,
+            projectId: project.Id,
+            summary: invalidSummary,
+            body: invalidBody);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync("editProject");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        var actualErrors = payload
+            .GetProperty("userErrors")
+            .EnumerateArray()
+            .Select(error => (
+                Message: error.GetProperty("message").GetString()!,
+                Field: string.Join(
+                    ".",
+                    error.GetProperty("field")
+                        .EnumerateArray()
+                        .Select(item => item.GetString()!))))
+            .ToArray();
+
+        Assert.Equal(
+            [
+                (
+                    Message: $"Summary cannot exceed {Project.MaxSummaryLength} characters.",
+                    Field: "input.summary"),
+                (
+                    Message: $"Body cannot exceed {Project.MaxBodyLength} characters.",
+                    Field: "input.body")
+            ],
+            actualErrors);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedProject = await verificationDb.Projects
+            .AsNoTracking()
+            .SingleAsync(item => item.Id == project.Id);
+
+        Assert.Equal("Original summary", persistedProject.Summary);
+        Assert.Equal("Original body", persistedProject.Body);
+    }
+
+    [Fact]
+    public async Task EditProject_WithOversizedAltText_ReturnsValidationErrorAndDoesNotChangeImage()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var suffix = TestData.NewSuffix();
+        var project = Project.Create($"Project with image {suffix}", null, null);
+        var image = ProjectImage.CreatePending(
+            id: Guid.NewGuid(),
+            projectId: project.Id,
+            clientId: $"image-{suffix}",
+            altText: "Original alt text",
+            fullKey: $"projects/{project.Id}/full.jpg",
+            thumbKey: $"projects/{project.Id}/thumb.webp",
+            contentType: "image/jpeg",
+            sizeBytes: 100,
+            width: 100,
+            height: 100,
+            sortOrder: 0);
+        image.MarkUploaded();
+        project.AddImage(image);
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Projects.Add(project);
+            await db.SaveChangesAsync();
+        }
+
+        var invalidAltText = new string('a', ProjectImage.MaxAltTextLength + 1);
+
+        // Act
+        using var response = await SendEditProjectAsync(
+            client,
+            projectId: project.Id,
+            images: [new EditImageInput(image.Id, invalidAltText, 0)]);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync("editProject");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        payload.AssertSingleUserError(
+            code: GraphQlUserErrorCodes.Validation,
+            message: $"Alt text cannot exceed {ProjectImage.MaxAltTextLength} characters.",
+            field: ["input", "images", "0", "altText"]);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        var persistedImage = await verificationDb.ProjectImages
+            .AsNoTracking()
+            .SingleAsync(projectImage => projectImage.Id == image.Id);
+
+        Assert.Equal("Original alt text", persistedImage.AltText);
     }
 }

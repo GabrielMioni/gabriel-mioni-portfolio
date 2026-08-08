@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   getRemainingCapacity,
+  MAX_PROJECT_BODY_LENGTH,
   MAX_PROJECT_IMAGES,
+  MAX_PROJECT_SUMMARY_LENGTH,
   MAX_PROJECT_TAGS,
+  MAX_PROJECT_TITLE_LENGTH,
   takeItemsWithinCapacity
 } from '~/utils/projects/limits'
 
@@ -10,6 +13,9 @@ describe('project limits', () => {
   it('matches the limits enforced by the API', () => {
     expect(MAX_PROJECT_IMAGES).toBe(6)
     expect(MAX_PROJECT_TAGS).toBe(15)
+    expect(MAX_PROJECT_TITLE_LENGTH).toBe(300)
+    expect(MAX_PROJECT_SUMMARY_LENGTH).toBe(500)
+    expect(MAX_PROJECT_BODY_LENGTH).toBe(10_000)
   })
 
   it.each([

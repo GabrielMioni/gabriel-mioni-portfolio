@@ -2,8 +2,13 @@
 import { ProjectStatus } from '~/generated/graphql'
 import type { ProjectBaseForm } from '~/types/ui/form'
 import type { TagEditorItem } from '~/types/tags'
-import { required } from '~/utils/rules'
-import { MAX_PROJECT_TAGS } from '~/utils/projects/limits'
+import { maxLength, required } from '~/utils/rules'
+import {
+  MAX_PROJECT_BODY_LENGTH,
+  MAX_PROJECT_SUMMARY_LENGTH,
+  MAX_PROJECT_TAGS,
+  MAX_PROJECT_TITLE_LENGTH
+} from '~/utils/projects/limits'
 
 const form = defineModel<ProjectBaseForm>('form', { required: true })
 const isValid = defineModel<boolean>('is-valid', { default: false })
@@ -35,16 +40,33 @@ const statusOptions = [
             v-model="form.title"
             variant="filled"
             label="Title"
-            :rules="[required()]"/>
+            :maxlength="MAX_PROJECT_TITLE_LENGTH"
+            :counter="MAX_PROJECT_TITLE_LENGTH"
+            persistent-counter
+            :rules="[
+              required(),
+              maxLength(MAX_PROJECT_TITLE_LENGTH, 'Title')
+            ]" />
           <v-text-field
             v-model="form.summary"
             variant="filled"
             label="Summary"
-            hide-details />
+            :maxlength="MAX_PROJECT_SUMMARY_LENGTH"
+            :counter="MAX_PROJECT_SUMMARY_LENGTH"
+            persistent-counter
+            :rules="[
+              maxLength(MAX_PROJECT_SUMMARY_LENGTH, 'Summary')
+            ]" />
           <v-textarea
             v-model="form.body"
             max-height="420"
             label="Body"
+            :maxlength="MAX_PROJECT_BODY_LENGTH"
+            :counter="MAX_PROJECT_BODY_LENGTH"
+            persistent-counter
+            :rules="[
+              maxLength(MAX_PROJECT_BODY_LENGTH, 'Body')
+            ]"
             auto-grow
             persistent-hint />
         </div>

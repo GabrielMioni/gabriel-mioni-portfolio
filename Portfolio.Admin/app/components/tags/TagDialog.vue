@@ -2,6 +2,8 @@
 import { useQuery } from '@urql/vue'
 import type { ProjectTagSummary } from '~/generated/graphql'
 import { GetProjectsByTagIdDocument } from '~/generated/graphql'
+import { MAX_TAG_NAME_LENGTH } from '~/utils/tags/limits'
+import { maxLength, required } from '~/utils/rules'
 
 const dialog = defineModel<boolean>()
 
@@ -98,7 +100,13 @@ const save = async () => {
       v-model="editedName"
       label="Name"
       variant="filled"
-      hide-details
+      :maxlength="MAX_TAG_NAME_LENGTH"
+      :counter="MAX_TAG_NAME_LENGTH"
+      persistent-counter
+      :rules="[
+        required(),
+        maxLength(MAX_TAG_NAME_LENGTH, 'Tag name')
+      ]"
       class="mb-6" />
     <section class="tag-dialog__projects">
       <div class="tag-dialog__section-heading">

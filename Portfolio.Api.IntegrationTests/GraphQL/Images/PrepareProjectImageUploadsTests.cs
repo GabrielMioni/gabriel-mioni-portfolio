@@ -524,7 +524,7 @@ public sealed class PrepareProjectImageUploadsTests(SqlServerFixture database)
     }
 
     [Fact]
-    public async Task PrepareProjectImageUploads_AboveUploadLimits_ReturnsValidationErrorsAndCreatesNothing()
+    public async Task PrepareProjectImageUploads_AboveUploadOrTextLimits_ReturnsValidationErrorsAndCreatesNothing()
     {
         await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
         using var client = factory.CreateAuthenticatedClient();
@@ -546,7 +546,7 @@ public sealed class PrepareProjectImageUploadsTests(SqlServerFixture database)
         {
             new PrepareItem(
                 ClientId: "oversized-image",
-                AltText: "Oversized image",
+                AltText: new string('a', ProjectImage.MaxAltTextLength + 1),
                 FullContentType: "image/jpeg",
                 FullSizeBytes: ProjectImage.MaxFullSizeBytes + 1,
                 ThumbContentType: "image/webp",
@@ -583,6 +583,9 @@ public sealed class PrepareProjectImageUploadsTests(SqlServerFixture database)
 
         Assert.Equal(
             [
+                (
+                    Message: $"Alt text cannot exceed {ProjectImage.MaxAltTextLength} characters.",
+                    Field: "input.items.0.altText"),
                 (
                     Message: "Full-size image cannot exceed 15 MiB.",
                     Field: "input.items.0.fullSizeBytes"),

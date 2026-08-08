@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { required, validateUrl } from '~/utils/rules'
+import { maxLength, required, validateUrl } from '~/utils/rules'
 
 describe('required', () => {
   it.each([
@@ -66,5 +66,29 @@ describe('validateUrl', () => {
   it('returns the custom validation message', () => {
     expect(validateUrl('Enter a valid project URL')('localhost'))
       .toBe('Enter a valid project URL')
+  })
+})
+
+describe('maxLength', () => {
+  it.each([
+    {
+      description: 'a missing optional value',
+      value: null
+    },
+    {
+      description: 'a value below the limit',
+      value: 'four'
+    },
+    {
+      description: 'a value at the limit',
+      value: 'fives'
+    }
+  ])('returns true for $description', ({ value }) => {
+    expect(maxLength(5)(value)).toBe(true)
+  })
+
+  it('returns a field-specific message above the limit', () => {
+    expect(maxLength(5, 'Title')('sixsix'))
+      .toBe('Title cannot exceed 5 characters')
   })
 })

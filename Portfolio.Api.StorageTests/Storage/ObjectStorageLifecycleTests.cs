@@ -26,14 +26,16 @@ public sealed class ObjectStorageLifecycleTests
         var storage = new ObjectStorage(s3, Options.Create(options));
         using var client = new HttpClient();
         var key = $"integration-tests/{Guid.NewGuid():N}/probe.bin";
+        byte[] payload = [0x43, 0x6F, 0x64, 0x65, 0x78];
 
         try
         {
             var uploadUrl = storage.CreatePresignedPutUrl(
                 key,
                 "application/octet-stream",
+                payload.Length,
                 TimeSpan.FromMinutes(5));
-            using var content = new ByteArrayContent([0x43, 0x6F, 0x64, 0x65, 0x78]);
+            using var content = new ByteArrayContent(payload);
             content.Headers.ContentType = new MediaTypeHeaderValue(
                 "application/octet-stream");
 

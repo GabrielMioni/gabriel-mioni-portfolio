@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { ImageEditorItem } from '~/types/images/ImageEditorItem'
 import type { EditorItemMoveDirection } from '~/utils/editorItems'
+import { MAX_IMAGE_ALT_TEXT_LENGTH } from '~/utils/images/limits'
+import { maxLength } from '~/utils/rules'
 
 const config = useRuntimeConfig()
 
 const item = defineModel<ImageEditorItem>('item', { required: true })
 const layout = ref<{
   focusMoveButton: (direction: EditorItemMoveDirection) => void
-} | null>(null)
+    } | null>(null)
 
 const props = defineProps<{
   position: number
@@ -90,7 +92,12 @@ watch(
           :disabled="item.isRemoved"
           variant="filled"
           label="Alt Text"
-          hide-details />
+          :maxlength="MAX_IMAGE_ALT_TEXT_LENGTH"
+          :counter="MAX_IMAGE_ALT_TEXT_LENGTH"
+          persistent-counter
+          :rules="[
+            maxLength(MAX_IMAGE_ALT_TEXT_LENGTH, 'Alt text')
+          ]" />
         <div class="image-details d-flex flex-wrap ga-3 mt-2 text-medium-emphasis text-break fs-12">
           <span v-if="createdAtDate">
             {{ createdAtDate }}

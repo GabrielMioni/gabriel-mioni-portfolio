@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { LinkEditorItem } from '~/types/links/LinkEditorItem'
 import type { EditorItemMoveDirection } from '~/utils/editorItems'
-import { required, validateUrl } from '~/utils/rules'
+import {
+  MAX_LINK_TEXT_LENGTH,
+  MAX_LINK_URL_LENGTH
+} from '~/utils/links/limits'
+import { maxLength, required, validateUrl } from '~/utils/rules'
 
 const item = defineModel<LinkEditorItem>('item', { required: true })
 const layout = ref<{
@@ -9,7 +13,7 @@ const layout = ref<{
     } | null>(null)
 const urlInput = ref<{
   focus: () => void
-} | null>(null)
+    } | null>(null)
 
 const props = defineProps<{
   position: number
@@ -78,9 +82,15 @@ watch(
           v-model="item.url"
           label="Url"
           variant="filled"
-          hide-details
+          :maxlength="MAX_LINK_URL_LENGTH"
+          :counter="MAX_LINK_URL_LENGTH"
+          persistent-counter
           :disabled="item.isRemoved"
-          :rules="[required(), validateUrl()]" />
+          :rules="[
+            required(),
+            validateUrl(),
+            maxLength(MAX_LINK_URL_LENGTH, 'URL')
+          ]" />
       </v-col>
       <v-col
         cols="12"
@@ -89,9 +99,14 @@ watch(
           v-model="item.text"
           label="Link Text"
           variant="filled"
-          hide-details
+          :maxlength="MAX_LINK_TEXT_LENGTH"
+          :counter="MAX_LINK_TEXT_LENGTH"
+          persistent-counter
           :disabled="item.isRemoved"
-          :rules="[required()]" />
+          :rules="[
+            required(),
+            maxLength(MAX_LINK_TEXT_LENGTH, 'Link text')
+          ]" />
       </v-col>
       <v-col
         cols="12"

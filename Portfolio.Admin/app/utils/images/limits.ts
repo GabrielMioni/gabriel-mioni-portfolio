@@ -1,0 +1,1 @@
+export const MAX_IMAGE_ALT_TEXT_LENGTH = 500

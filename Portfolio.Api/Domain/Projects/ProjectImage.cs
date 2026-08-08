@@ -3,6 +3,7 @@
 public class ProjectImage
 {
     public const int MaxClientIdLength = 64;
+    public const int MaxAltTextLength = 500;
     public const int MaxFullSizeBytes = 15 * 1024 * 1024;
     public const int MaxThumbnailSizeBytes = 3 * 1024 * 1024;
     public const int MaxDimensionPixels = 2_400;
@@ -64,7 +65,7 @@ public class ProjectImage
             Id = id,
             ProjectId = projectId,
             ClientId = normalizedClientId,
-            AltText = string.IsNullOrWhiteSpace(altText) ? null : altText.Trim(),
+            AltText = NormalizeAltText(altText),
             FullKey = fullKey,
             ThumbKey = thumbKey,
             ContentType = contentType,
@@ -84,9 +85,7 @@ public class ProjectImage
 
     public bool UpdateAltText(string? altText)
     {
-        var normalizedAltText = string.IsNullOrWhiteSpace(altText)
-            ? null
-            : altText.Trim();
+        var normalizedAltText = NormalizeAltText(altText);
 
         if (AltText == normalizedAltText)
             return false;
@@ -102,5 +101,19 @@ public class ProjectImage
 
         SortOrder = sortOrder;
         return true;
+    }
+
+    private static string? NormalizeAltText(string? altText)
+    {
+        var normalized = string.IsNullOrWhiteSpace(altText)
+            ? null
+            : altText.Trim();
+
+        if (normalized?.Length > MaxAltTextLength)
+            throw new ArgumentException(
+                $"Alt text cannot exceed {MaxAltTextLength} characters.",
+                nameof(altText));
+
+        return normalized;
     }
 }

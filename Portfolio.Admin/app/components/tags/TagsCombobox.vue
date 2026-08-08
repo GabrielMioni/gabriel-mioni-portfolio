@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { TagEditorItem } from '~/types/tags'
 import { generateTagValue } from '~/utils/tags'
+import { MAX_TAG_NAME_LENGTH } from '~/utils/tags/limits'
 import {
   MAX_PROJECT_TAGS,
   takeItemsWithinCapacity
@@ -33,11 +34,19 @@ const tagLabel = computed(() =>
     ? 'Tags'
     : `Tags (${assignedTags.value.length}/${props.maxItems})`
 )
-const tagHint = computed(() =>
-  tagLimitReached.value
-    ? `Projects can have up to ${props.maxItems} tags.`
-    : undefined
-)
+const tagHint = computed(() => {
+  const messages: string[] = []
+
+  if (tagLimitReached.value) {
+    messages.push(`Projects can have up to ${props.maxItems} tags.`)
+  }
+
+  if (search.value.length > 0) {
+    messages.push(`Name: ${search.value.length}/${MAX_TAG_NAME_LENGTH}`)
+  }
+
+  return messages.length > 0 ? messages.join(' ') : undefined
+})
 
 const tagItems = computed<TagEditorItem[]>(() => {
   const all = allTags.value.map(t => ({ id: t.id, name: t.name, value: t.value }))
@@ -63,6 +72,17 @@ const resolveTag = (v: string): TagEditorItem => {
 }
 
 const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
+  const oversizedName = values.find(value =>
+    typeof value === 'string' && value.length > MAX_TAG_NAME_LENGTH
+  )
+  if (oversizedName) {
+    showSnackbar(
+      `Tag names can have up to ${MAX_TAG_NAME_LENGTH} characters.`,
+      'warning'
+    )
+    return
+  }
+
   if (props.disableExisting) {
     const duplicate = values.find(
       v => typeof v === 'string' &&
@@ -111,7 +131,8 @@ const onUpdateModelValue = (values: (TagEditorItem | string)[]) => {
       return-object
       :label="tagLabel"
       :hint="tagHint"
-      :persistent-hint="tagLimitReached"
+      :persistent-hint="tagLimitReached || search.length > 0"
+      :maxlength="MAX_TAG_NAME_LENGTH"
       chips
       multiple
       variant="filled"

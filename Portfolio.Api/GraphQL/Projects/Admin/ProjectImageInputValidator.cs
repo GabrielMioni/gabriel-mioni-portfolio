@@ -25,6 +25,7 @@ internal static class ProjectImageInputValidator
             var fieldPrefix = new[] { "input", "items", index.ToString() };
 
             ValidateClientId(item.ClientId, fieldPrefix, seenClientIds, userErrors);
+            ValidateAltText(item.AltText, fieldPrefix, userErrors);
             ValidateContentType(item.FullContentType, "fullContentType", fieldPrefix, userErrors);
             ValidateContentType(item.ThumbContentType, "thumbContentType", fieldPrefix, userErrors);
             ValidatePositive(item.FullSizeBytes, "fullSizeBytes", fieldPrefix, userErrors);
@@ -93,6 +94,19 @@ internal static class ProjectImageInputValidator
                 $"Client ID '{normalizedClientId}' duplicates another requested image.",
                 [.. fieldPrefix, "clientId"]));
         }
+    }
+
+    private static void ValidateAltText(
+        string altText,
+        IReadOnlyList<string> fieldPrefix,
+        ICollection<UserError> userErrors)
+    {
+        if (altText.Trim().Length <= ProjectImage.MaxAltTextLength)
+            return;
+
+        userErrors.Add(UserError.Validation(
+            $"Alt text cannot exceed {ProjectImage.MaxAltTextLength} characters.",
+            [.. fieldPrefix, "altText"]));
     }
 
     private static void ValidateContentType(

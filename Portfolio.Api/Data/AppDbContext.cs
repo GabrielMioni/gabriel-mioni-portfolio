@@ -20,6 +20,10 @@ namespace Portfolio.Api.Data
 
             modelBuilder.Entity<Project>(p =>
             {
+                p.ToTable(table => table.HasCheckConstraint(
+                    "CK_Projects_Body_MaxLength",
+                    $"DATALENGTH([Body]) / 2 <= {Project.MaxBodyLength}"));
+
                 p.HasKey(x => x.Id);
 
                 p.Property(x => x.Id)
@@ -28,6 +32,10 @@ namespace Portfolio.Api.Data
                 p.Property(x => x.Title)
                   .IsRequired()
                   .HasMaxLength(Project.MaxTitleLength);
+                p.Property(x => x.Summary)
+                  .HasMaxLength(Project.MaxSummaryLength);
+                p.Property(x => x.Body)
+                  .HasMaxLength(Project.MaxBodyLength);
             });
 
             modelBuilder.Entity<ProjectImage>(pi =>
@@ -45,6 +53,7 @@ namespace Portfolio.Api.Data
                 pi.Property(x => x.FullKey).IsRequired().HasMaxLength(512);
                 pi.Property(x => x.ThumbKey).IsRequired().HasMaxLength(512);
                 pi.Property(x => x.ClientId).HasMaxLength(ProjectImage.MaxClientIdLength);
+                pi.Property(x => x.AltText).HasMaxLength(ProjectImage.MaxAltTextLength);
 
                 pi.HasIndex(x => x.ProjectId);
                 pi.HasIndex(x => new { x.ProjectId, x.SortOrder });

@@ -144,4 +144,64 @@ public sealed class CreateProjectTests(SqlServerFixture database)
             message: "Title is required.",
             field: ["input", "title"]);
     }
+
+    [Fact]
+    public async Task CreateProject_AboveTextLimits_ReturnsValidationErrorsAndDoesNotPersistProject()
+    {
+        await using var factory = new ApiWebApplicationFactory(database.ConnectionString);
+        using var client = factory.CreateAuthenticatedClient();
+
+        // Arrange
+        var invalidTitle = new string('t', Project.MaxTitleLength + 1);
+        var invalidSummary = new string('s', Project.MaxSummaryLength + 1);
+        var invalidBody = new string('b', Project.MaxBodyLength + 1);
+
+        // Act
+        using var response = await SendCreateProjectAsync(
+            client,
+            invalidTitle,
+            invalidSummary,
+            invalidBody);
+
+        // Assert: public GraphQL contract
+        var payload = await response.ReadGraphQlPayloadAsync("createProject");
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            payload.GetProperty("project").ValueKind);
+
+        var actualErrors = payload
+            .GetProperty("userErrors")
+            .EnumerateArray()
+            .Select(error => (
+                Message: error.GetProperty("message").GetString()!,
+                Field: string.Join(
+                    ".",
+                    error.GetProperty("field")
+                        .EnumerateArray()
+                        .Select(item => item.GetString()!))))
+            .ToArray();
+
+        Assert.Equal(
+            [
+                (
+                    Message: $"Title cannot exceed {Project.MaxTitleLength} characters.",
+                    Field: "input.title"),
+                (
+                    Message: $"Summary cannot exceed {Project.MaxSummaryLength} characters.",
+                    Field: "input.summary"),
+                (
+                    Message: $"Body cannot exceed {Project.MaxBodyLength} characters.",
+                    Field: "input.body")
+            ],
+            actualErrors);
+
+        // Assert: persisted state
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        Assert.False(await verificationDb.Projects
+            .AnyAsync(project => project.Title == invalidTitle));
+    }
 }

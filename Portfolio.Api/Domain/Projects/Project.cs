@@ -3,6 +3,8 @@
 public class Project
 {
     public const int MaxTitleLength = 300;
+    public const int MaxSummaryLength = 500;
+    public const int MaxBodyLength = 10_000;
     public const int MaxImageCount = 6;
     public const int MaxTagCount = 15;
 
@@ -36,7 +38,7 @@ public class Project
         {
             Id = Guid.NewGuid(),
             Title = NormalizeTitle(title),
-            Summary = NormalizeOptionalTrimmed(summary),
+            Summary = NormalizeSummary(summary),
             Body = NormalizeBody(body),
             CreatedAt = now,
             UpdatedAt = now,
@@ -57,7 +59,7 @@ public class Project
         string? body)
     {
         var normalizedTitle = NormalizeTitle(title);
-        var normalizedSummary = NormalizeOptionalTrimmed(summary);
+        var normalizedSummary = NormalizeSummary(summary);
         var normalizedBody = NormalizeBody(body);
 
         if (Title == normalizedTitle &&
@@ -171,17 +173,31 @@ public class Project
         return normalized;
     }
 
-    private static string? NormalizeOptionalTrimmed(string? value)
+    private static string? NormalizeSummary(string? value)
     {
-        return string.IsNullOrWhiteSpace(value)
+        var normalized = string.IsNullOrWhiteSpace(value)
             ? null
             : value.Trim();
+
+        if (normalized?.Length > MaxSummaryLength)
+            throw new ArgumentException(
+                $"Value cannot exceed {MaxSummaryLength} characters.",
+                nameof(value));
+
+        return normalized;
     }
 
     private static string? NormalizeBody(string? value)
     {
-        return string.IsNullOrEmpty(value)
+        var normalized = string.IsNullOrEmpty(value)
             ? null
             : value;
+
+        if (normalized?.Length > MaxBodyLength)
+            throw new ArgumentException(
+                $"Value cannot exceed {MaxBodyLength} characters.",
+                nameof(value));
+
+        return normalized;
     }
 }

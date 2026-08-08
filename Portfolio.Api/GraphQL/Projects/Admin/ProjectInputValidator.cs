@@ -10,6 +10,18 @@ internal static class ProjectInputValidator
         var userErrors = new List<UserError>();
 
         ValidateTitle(input.Title, userErrors);
+        ValidateOptionalLength(
+            input.Summary?.Trim(),
+            Project.MaxSummaryLength,
+            "Summary",
+            ["input", "summary"],
+            userErrors);
+        ValidateOptionalLength(
+            input.Body,
+            Project.MaxBodyLength,
+            "Body",
+            ["input", "body"],
+            userErrors);
         ValidateLinks(input.Links, userErrors);
 
         return userErrors;
@@ -22,9 +34,40 @@ internal static class ProjectInputValidator
         if (input.Title is not null)
             ValidateTitle(input.Title, userErrors);
 
+        ValidateOptionalLength(
+            input.Summary?.Trim(),
+            Project.MaxSummaryLength,
+            "Summary",
+            ["input", "summary"],
+            userErrors);
+        ValidateOptionalLength(
+            input.Body,
+            Project.MaxBodyLength,
+            "Body",
+            ["input", "body"],
+            userErrors);
+        ValidateImages(input.Images, userErrors);
         ValidateLinks(input.Links, userErrors);
 
         return userErrors;
+    }
+
+    private static void ValidateImages(
+        IReadOnlyList<EditProjectImageInput>? images,
+        ICollection<UserError> userErrors)
+    {
+        if (images is null)
+            return;
+
+        for (var index = 0; index < images.Count; index++)
+        {
+            ValidateOptionalLength(
+                images[index].AltText.Trim(),
+                ProjectImage.MaxAltTextLength,
+                "Alt text",
+                ["input", "images", index.ToString(), "altText"],
+                userErrors);
+        }
     }
 
     private static void ValidateTitle(string title, ICollection<UserError> userErrors)
@@ -105,5 +148,20 @@ internal static class ProjectInputValidator
                 $"Link text cannot exceed {ProjectLink.MaxLinkTextLength} characters.",
                 [.. fieldPrefix, "linkText"]));
         }
+    }
+
+    private static void ValidateOptionalLength(
+        string? value,
+        int maximumLength,
+        string fieldLabel,
+        IReadOnlyList<string> field,
+        ICollection<UserError> userErrors)
+    {
+        if (value is null || value.Length <= maximumLength)
+            return;
+
+        userErrors.Add(UserError.Validation(
+            $"{fieldLabel} cannot exceed {maximumLength} characters.",
+            [.. field]));
     }
 }

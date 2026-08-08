@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	  <UserSecretsId>832c2f72-3199-4048-ba4e-db7d112b9a9d</UserSecretsId>
@@ -9,21 +9,21 @@
 
 	<ItemGroup>
 		<PackageReference Include="AWSSDK.S3" Version="4.0.18.7" />
-		<PackageReference Include="HotChocolate.AspNetCore" Version="15.1.12" />
-		<PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="15.1.12" />
-		<PackageReference Include="HotChocolate.AspNetCore.CommandLine" Version="15.1.12" />
-		<PackageReference Include="HotChocolate.Data" Version="15.1.12" />
-		<PackageReference Include="HotChocolate.Data.EntityFramework" Version="15.1.12" />
-		<PackageReference Include="HotChocolate.Types.Analyzers" Version="15.1.12" PrivateAssets="all" />
-		<PackageReference Include="HotChocolate.Types.OffsetPagination" Version="15.1.12" />
+		<PackageReference Include="HotChocolate.AspNetCore" Version="15.1.14" />
+		<PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="15.1.14" />
+		<PackageReference Include="HotChocolate.AspNetCore.CommandLine" Version="15.1.14" />
+		<PackageReference Include="HotChocolate.Data" Version="15.1.14" />
+		<PackageReference Include="HotChocolate.Data.EntityFramework" Version="15.1.14" />
+		<PackageReference Include="HotChocolate.Types.Analyzers" Version="15.1.14" PrivateAssets="all" />
+		<PackageReference Include="HotChocolate.Types.OffsetPagination" Version="15.1.14" />
 
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.21" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.21">
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.21" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.21">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.10">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

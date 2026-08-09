@@ -1,29 +1,37 @@
-name: Admin CI
+name: Deploy Admin
 
 on:
-  pull_request:
+  workflow_run:
+    workflows:
+      - Admin CI
+    types:
+      - completed
     branches:
       - main
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
+  deployments: write
+
+concurrency:
+  group: deploy-admin-production
+  cancel-in-progress: false
 
 jobs:
-  test-and-build:
-    name: Test and build Admin
+  deploy:
+    name: Deploy Admin to Cloudflare Pages
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      NUXT_API_ORIGIN: https://api.example.invalid
-      NUXT_ADMIN_ORIGIN: https://admin.example.invalid
-      NUXT_PUBLIC_STORAGE_BASE: https://images.example.invalid
+    timeout-minutes: 20
 
     steps:
-      - name: Check out repository
+      - name: Check out tested revision
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v5
@@ -65,10 +73,20 @@ jobs:
           ADMIN_GRAPHQL_SCHEMA: ../Portfolio.Api/obj/admin-schema.graphql
         run: npm run codegen
 
-      - name: Test Admin
+      - name: Build Admin for Cloudflare Pages
         working-directory: Portfolio.Admin
-        run: npm test
-
-      - name: Build Admin
-        working-directory: Portfolio.Admin
+        env:
+          NITRO_PRESET: cloudflare_pages
+          NUXT_API_ORIGIN: https://gabriel-mioni-portfolio-api-dhdegzd9dcd2cne2.westus3-01.azurewebsites.net
+          NUXT_ADMIN_ORIGIN: https://admin.gabrielmioni.com
+          NUXT_PUBLIC_STORAGE_BASE: https://pub-ccb00f32644a430f9b77bdb794e725dc.r2.dev
         run: npm run build
+
+      - name: Deploy Admin to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: Portfolio.Admin
+          command: pages deploy dist --project-name=gabriel-mioni-portfolio-admin --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

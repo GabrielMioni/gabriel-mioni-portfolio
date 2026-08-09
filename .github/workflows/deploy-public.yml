@@ -77,6 +77,7 @@ jobs:
         env:
           NITRO_PRESET: cloudflare_pages
           NUXT_API_ORIGIN: https://gabriel-mioni-portfolio-api-dhdegzd9dcd2cne2.westus3-01.azurewebsites.net
+          NUXT_PUBLIC_STORAGE_BASE: https://pub-d3d5b63d22fd43639d1e37b5b969c84b.r2.dev
         run: npm run build
 
       - name: Deploy Public to Cloudflare Pages

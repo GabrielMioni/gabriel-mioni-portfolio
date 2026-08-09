@@ -1,0 +1,89 @@
+name: Deploy Public
+
+on:
+  workflow_run:
+    workflows:
+      - Public CI
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: deploy-public-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Public to Cloudflare Pages
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out tested revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore API dependencies
+        run: dotnet restore Portfolio.Api/Portfolio.Api.csproj
+
+      - name: Build API
+        run: dotnet build Portfolio.Api/Portfolio.Api.csproj --no-restore --configuration Release
+
+      - name: Export Public GraphQL schema
+        run: >-
+          dotnet run
+          --project Portfolio.Api/Portfolio.Api.csproj
+          --no-build
+          --no-launch-profile
+          --configuration Release
+          --
+          schema export
+          --output obj/public-schema.graphql
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: Portfolio.Public/.nvmrc
+          cache: npm
+          cache-dependency-path: Portfolio.Public/package-lock.json
+
+      - name: Install Public dependencies
+        working-directory: Portfolio.Public
+        run: npm ci
+
+      - name: Generate Public GraphQL client
+        working-directory: Portfolio.Public
+        env:
+          PUBLIC_GRAPHQL_SCHEMA: ../Portfolio.Api/obj/public-schema.graphql
+        run: npm run codegen
+
+      - name: Build Public for Cloudflare Pages
+        working-directory: Portfolio.Public
+        env:
+          NITRO_PRESET: cloudflare_pages
+          NUXT_API_ORIGIN: https://gabriel-mioni-portfolio-api-dhdegzd9dcd2cne2.westus3-01.azurewebsites.net
+        run: npm run build
+
+      - name: Deploy Public to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: Portfolio.Public
+          command: pages deploy dist --project-name=gabriel-mioni-portfolio --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

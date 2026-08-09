@@ -220,7 +220,7 @@ app.MapGet("/api/me", (ClaimsPrincipal user) =>
 
 if (!isSchemaCommand)
 {
-    if (isEndToEnd)
+    if (isEndToEnd || app.Environment.IsProduction())
     {
         await using var scope = app.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

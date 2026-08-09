@@ -79,7 +79,7 @@ jobs:
           NITRO_PRESET: cloudflare_pages
           NUXT_API_ORIGIN: https://gabriel-mioni-portfolio-api-dhdegzd9dcd2cne2.westus3-01.azurewebsites.net
           NUXT_ADMIN_ORIGIN: https://admin.gabrielmioni.com
-          NUXT_PUBLIC_STORAGE_BASE: https://pub-ccb00f32644a430f9b77bdb794e725dc.r2.dev
+          NUXT_PUBLIC_STORAGE_BASE: https://pub-d3d5b63d22fd43639d1e37b5b969c84b.r2.dev
         run: npm run build
 
       - name: Deploy Admin to Cloudflare Pages

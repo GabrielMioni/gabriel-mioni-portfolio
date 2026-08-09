@@ -1,0 +1,4 @@
+name = "gabriel-mioni-portfolio"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-08-08"
+compatibility_flags = ["nodejs_compat"]
